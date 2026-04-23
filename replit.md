@@ -218,6 +218,21 @@ pnpm workspace monorepo using TypeScript. Contains a multi-restaurant QR orderin
 - `src/lib/loyalty.ts` — awardLoyaltyPoints() — called when order marked PAID
 - `src/lib/notifications.ts` — fireNotification() — logs events to NotificationLog
 
+## Phase 7 i18n + Multi-Branch (Session Complete)
+- **Completed**: T701-T710 (schema, branches, customer accounts, loyalty, notifications, delivery/takeaway, branch-aware ops + reports)
+- **i18n system**: `src/lib/i18n.ts` — FR/AR translation dict + `formatDA()` for DA currency + `getLang/setLang` (localStorage)
+  - French is DEFAULT, Arabic is secondary. Toggle button (عر/FR) on all public-facing pages
+- **BranchSwitcher**: `src/components/dashboard/BranchSwitcher.tsx`
+  - Merchant sidebar shows branch dropdown (MERCHANT_OWNER/MERCHANT_STAFF only)
+  - `getBranchId()` / `setBranchId()` stored in localStorage key `selectedBranchId`
+  - Dispatches `window.dispatchEvent(new Event("branchChanged"))` on change
+  - Kitchen, Cashier, Reports pages listen to `branchChanged` and re-fetch filtered data
+- **API branchId filtering**: `/api/kitchen?branchId=`, `/api/cashier?branchId=`, `/api/reports?branchId=`
+- **Reports**: Added `branchBreakdown` + `orderTypeBreakdown` + `newCustomers` to `/api/reports` response
+- **Merchant dashboard labels**: French-first (Sidebar, Kitchen, Cashier, Reports)
+- **Public order page**: `/order/[restaurantSlug]/[branchSlug]` — French-first, DA currency, FR↔AR toggle
+- **Customer pages**: login/register/orders — French-first with FR↔AR toggle
+
 ## Docker / VPS Readiness
 - No Replit-specific services used
 - All config via environment variables

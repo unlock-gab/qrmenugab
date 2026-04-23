@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { getBranchId } from "@/components/dashboard/BranchSwitcher";
 
 interface OrderItem {
   id: string;
@@ -23,11 +24,12 @@ interface Order {
 }
 
 const ORDER_TYPE_ICON: Record<string, string> = { DINE_IN: "🍽️", TAKEAWAY: "🥡", DELIVERY: "🛵" };
+const ORDER_TYPE_LABEL: Record<string, string> = { DINE_IN: "Sur place", TAKEAWAY: "À emporter", DELIVERY: "Livraison" };
 
 const STATUS_CONFIG = {
-  NEW: { label: "جديد", color: "bg-red-500", ring: "ring-red-400", text: "text-red-100" },
-  PREPARING: { label: "يُحضَّر", color: "bg-amber-500", ring: "ring-amber-400", text: "text-amber-100" },
-  READY: { label: "جاهز ✓", color: "bg-emerald-500", ring: "ring-emerald-400", text: "text-emerald-100" },
+  NEW: { label: "Nouveau", color: "bg-red-500", ring: "ring-red-400" },
+  PREPARING: { label: "En cours…", color: "bg-amber-500", ring: "ring-amber-400" },
+  READY: { label: "Prêt ✓", color: "bg-emerald-500", ring: "ring-emerald-400" },
 };
 
 function OrderAge({ createdAt }: { createdAt: string }) {
@@ -41,7 +43,7 @@ function OrderAge({ createdAt }: { createdAt: string }) {
   const color = mins >= 15 ? "text-red-400" : mins >= 8 ? "text-amber-400" : "text-gray-400";
   return (
     <span className={`text-sm font-mono ${color}`}>
-      {mins < 1 ? "الآن" : `${mins} د`}
+      {mins < 1 ? "À l'instant" : `${mins} min`}
     </span>
   );
 }
@@ -52,16 +54,19 @@ function KDSCard({ order, onAction }: { order: Order; onAction: (id: string, sta
   const cfg = STATUS_CONFIG[order.status];
 
   return (
-    <div
-      className={`relative bg-gray-800 rounded-2xl ring-2 ${cfg.ring} shadow-xl flex flex-col gap-3 p-5 transition-all duration-300 ${isNew ? "animate-pulse-once" : ""}`}
-    >
+    <div className={`relative bg-gray-800 rounded-2xl ring-2 ${cfg.ring} shadow-xl flex flex-col gap-3 p-5 transition-all duration-300`}>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className={`px-3 py-1 rounded-full text-sm font-bold ${cfg.color} text-white`}>
             {cfg.label}
           </span>
+          {order.orderType && ORDER_TYPE_LABEL[order.orderType] && (
+            <span className="px-2 py-0.5 rounded-full text-xs bg-gray-600 text-gray-200">
+              {ORDER_TYPE_ICON[order.orderType]} {ORDER_TYPE_LABEL[order.orderType]}
+            </span>
+          )}
           {order.orderSource === "MANUAL" && (
-            <span className="px-2 py-0.5 rounded-full text-xs bg-blue-700 text-blue-100">يدوي</span>
+            <span className="px-2 py-0.5 rounded-full text-xs bg-blue-700 text-blue-100">Manuel</span>
           )}
         </div>
         <OrderAge createdAt={order.createdAt} />
@@ -70,11 +75,8 @@ function KDSCard({ order, onAction }: { order: Order; onAction: (id: string, sta
       <div className="flex items-baseline gap-3 flex-wrap">
         <h2 className="text-3xl font-black text-white">#{order.orderNumber}</h2>
         {order.table
-          ? <span className="text-2xl font-bold text-gray-300">طاولة {order.table.tableNumber}</span>
+          ? <span className="text-2xl font-bold text-gray-300">Table {order.table.tableNumber}</span>
           : <span className="text-xl font-bold text-gray-400">{order.customerName || "—"}</span>}
-        {order.orderType && ORDER_TYPE_ICON[order.orderType] && (
-          <span className="text-2xl">{ORDER_TYPE_ICON[order.orderType]}</span>
-        )}
       </div>
 
       <ul className="space-y-1.5 border-t border-gray-700 pt-3">
@@ -96,24 +98,20 @@ function KDSCard({ order, onAction }: { order: Order; onAction: (id: string, sta
 
       <div className="flex gap-2 pt-1">
         {isNew && (
-          <button
-            onClick={() => onAction(order.id, "PREPARING")}
-            className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-bold text-base transition-colors"
-          >
-            ابدأ التحضير
+          <button onClick={() => onAction(order.id, "PREPARING")}
+            className="flex-1 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-bold text-base transition-colors">
+            Commencer la préparation
           </button>
         )}
         {isPreparing && (
-          <button
-            onClick={() => onAction(order.id, "READY")}
-            className="flex-1 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-base transition-colors"
-          >
-            جاهز للتقديم ✓
+          <button onClick={() => onAction(order.id, "READY")}
+            className="flex-1 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-bold text-base transition-colors">
+            Prêt à servir ✓
           </button>
         )}
         {order.status === "READY" && (
           <div className="flex-1 py-3 rounded-xl bg-emerald-800/50 text-emerald-300 font-bold text-base text-center">
-            في انتظار النادل
+            En attente du serveur…
           </div>
         )}
       </div>
@@ -126,10 +124,18 @@ export default function KitchenPage() {
   const [filter, setFilter] = useState<"ALL" | "NEW" | "PREPARING" | "READY">("ALL");
   const [loading, setLoading] = useState(true);
   const [lastCount, setLastCount] = useState(0);
+  const [branchId, setBranchIdState] = useState<string | null>(null);
+
+  useEffect(() => {
+    setBranchIdState(getBranchId());
+    const handler = () => setBranchIdState(getBranchId());
+    window.addEventListener("branchChanged", handler);
+    return () => window.removeEventListener("branchChanged", handler);
+  }, []);
 
   const playBeep = useCallback(() => {
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain);
@@ -145,7 +151,9 @@ export default function KitchenPage() {
 
   const fetchOrders = useCallback(async () => {
     try {
-      const res = await fetch("/api/kitchen", { cache: "no-store" });
+      const params = new URLSearchParams();
+      if (branchId) params.set("branchId", branchId);
+      const res = await fetch(`/api/kitchen?${params}`, { cache: "no-store" });
       if (!res.ok) return;
       const data: Order[] = await res.json();
       setOrders(data);
@@ -154,7 +162,7 @@ export default function KitchenPage() {
       setLastCount(newCount);
     } catch {}
     finally { setLoading(false); }
-  }, [lastCount, playBeep]);
+  }, [lastCount, playBeep, branchId]);
 
   useEffect(() => {
     fetchOrders();
@@ -178,37 +186,37 @@ export default function KitchenPage() {
     READY: orders.filter((o) => o.status === "READY").length,
   };
 
+  const filterLabels: Record<string, string> = {
+    ALL: `Tout (${orders.length})`,
+    NEW: `Nouveau (${counts.NEW})`,
+    PREPARING: `En cours (${counts.PREPARING})`,
+    READY: `Prêt (${counts.READY})`,
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
             <div className="w-3 h-3 rounded-full bg-emerald-400 animate-pulse" />
-            <h1 className="text-2xl font-black text-white">شاشة المطبخ</h1>
+            <h1 className="text-2xl font-black text-white">🍳 Écran Cuisine</h1>
           </div>
-          <div className="flex gap-2">
-            {(["ALL", "NEW", "PREPARING", "READY"] as const).map((f) => {
-              const label = f === "ALL" ? `الكل (${orders.length})` : f === "NEW" ? `جديد (${counts.NEW})` : f === "PREPARING" ? `يُحضَّر (${counts.PREPARING})` : `جاهز (${counts.READY})`;
-              const active = f === filter;
-              return (
-                <button
-                  key={f}
-                  onClick={() => setFilter(f)}
-                  className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors ${active ? "bg-white text-gray-900" : "bg-gray-700 text-gray-300 hover:bg-gray-600"}`}
-                >
-                  {label}
-                </button>
-              );
-            })}
+          <div className="flex gap-2 flex-wrap">
+            {(["ALL", "NEW", "PREPARING", "READY"] as const).map((f) => (
+              <button key={f} onClick={() => setFilter(f)}
+                className={`px-4 py-2 rounded-xl text-sm font-bold transition-colors ${filter === f ? "bg-white text-gray-900" : "bg-gray-700 text-gray-300 hover:bg-gray-600"}`}>
+                {filterLabels[f]}
+              </button>
+            ))}
           </div>
         </div>
 
         {loading ? (
-          <div className="text-center text-gray-400 py-20 text-lg">جاري التحميل...</div>
+          <div className="text-center text-gray-400 py-20 text-lg">Chargement…</div>
         ) : filtered.length === 0 ? (
           <div className="text-center text-gray-500 py-20">
             <div className="text-6xl mb-4">🍳</div>
-            <p className="text-xl font-medium">لا توجد طلبات نشطة</p>
+            <p className="text-xl font-medium">Aucune commande active</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

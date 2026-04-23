@@ -4,62 +4,64 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
+import { BranchSwitcher } from "@/components/dashboard/BranchSwitcher";
 
 type NavItem = { href: string; label: string; icon: string; exact?: boolean };
 
 const OWNER_NAV: NavItem[] = [
-  { href: "/dashboard", label: "الرئيسية", icon: "◉", exact: true },
-  { href: "/orders", label: "الطلبات", icon: "📋" },
-  { href: "/branches", label: "الفروع", icon: "🏪" },
-  { href: "/tables", label: "الطاولات", icon: "⊞" },
-  { href: "/categories", label: "التصنيفات", icon: "≡" },
-  { href: "/menu-items", label: "عناصر القائمة", icon: "✦" },
-  { href: "/promos", label: "كودات الخصم", icon: "🏷️" },
-  { href: "/reservations", label: "الحجوزات", icon: "📅" },
-  { href: "/reports", label: "التقارير", icon: "📊" },
-  { href: "/staff", label: "الموظفون", icon: "👥" },
-  { href: "/notifications", label: "الإشعارات", icon: "🔔" },
-  { href: "/settings", label: "الإعدادات", icon: "⚙" },
+  { href: "/dashboard", label: "Tableau de bord", icon: "◉", exact: true },
+  { href: "/orders", label: "Commandes", icon: "📋" },
+  { href: "/branches", label: "Succursales", icon: "🏪" },
+  { href: "/tables", label: "Tables", icon: "⊞" },
+  { href: "/categories", label: "Catégories", icon: "≡" },
+  { href: "/menu-items", label: "Menu", icon: "✦" },
+  { href: "/promos", label: "Codes promo", icon: "🏷️" },
+  { href: "/reservations", label: "Réservations", icon: "📅" },
+  { href: "/reports", label: "Rapports", icon: "📊" },
+  { href: "/staff", label: "Personnel", icon: "👥" },
+  { href: "/notifications", label: "Notifications", icon: "🔔" },
+  { href: "/settings", label: "Paramètres", icon: "⚙" },
 ];
 
 const OWNER_OPS_NAV: NavItem[] = [
-  { href: "/kitchen", label: "شاشة المطبخ", icon: "🍳" },
-  { href: "/waiter", label: "وضع النادل", icon: "🍽️" },
-  { href: "/cashier", label: "وضع الكاشير", icon: "💰" },
+  { href: "/kitchen", label: "Cuisine", icon: "🍳" },
+  { href: "/waiter", label: "Serveur", icon: "🍽️" },
+  { href: "/cashier", label: "Caisse", icon: "💰" },
 ];
 
 const STAFF_NAV: NavItem[] = [
-  { href: "/dashboard", label: "الرئيسية", icon: "◉", exact: true },
-  { href: "/orders", label: "الطلبات", icon: "📋" },
-  { href: "/tables", label: "الطاولات", icon: "⊞" },
-  { href: "/menu-items", label: "القائمة", icon: "✦" },
+  { href: "/dashboard", label: "Tableau de bord", icon: "◉", exact: true },
+  { href: "/orders", label: "Commandes", icon: "📋" },
+  { href: "/tables", label: "Tables", icon: "⊞" },
+  { href: "/menu-items", label: "Menu", icon: "✦" },
 ];
 
 const KITCHEN_NAV: NavItem[] = [
-  { href: "/kitchen", label: "شاشة المطبخ", icon: "🍳", exact: true },
+  { href: "/kitchen", label: "Cuisine", icon: "🍳", exact: true },
 ];
 
 const WAITER_NAV: NavItem[] = [
-  { href: "/waiter", label: "طاولاتي", icon: "🍽️", exact: true },
-  { href: "/waiter/new-order", label: "طلب يدوي", icon: "✏️" },
+  { href: "/waiter", label: "Mes tables", icon: "🍽️", exact: true },
+  { href: "/waiter/new-order", label: "Nouvelle commande", icon: "✏️" },
 ];
 
 const CASHIER_NAV: NavItem[] = [
-  { href: "/cashier", label: "المدفوعات", icon: "💰", exact: true },
+  { href: "/cashier", label: "Caisse", icon: "💰", exact: true },
 ];
 
 const ROLE_LABELS: Record<string, string> = {
-  MERCHANT_OWNER: "مالك",
-  MERCHANT_STAFF: "موظف",
-  STAFF_KITCHEN: "مطبخ",
-  STAFF_WAITER: "نادل",
-  STAFF_CASHIER: "كاشير",
+  MERCHANT_OWNER: "Propriétaire",
+  MERCHANT_STAFF: "Personnel",
+  STAFF_KITCHEN: "Cuisine",
+  STAFF_WAITER: "Serveur",
+  STAFF_CASHIER: "Caissier",
 };
 
 type User = {
   name?: string | null;
   email?: string | null;
   role?: string | null;
+  restaurantId?: string | null;
 };
 
 export function Sidebar({ user }: { user: User }) {
@@ -105,6 +107,7 @@ export function Sidebar({ user }: { user: User }) {
   const activeStyle = activeStyles[accentColor];
 
   function isActive(item: NavItem) {
+    if (!pathname) return false;
     return item.exact ? pathname === item.href : pathname.startsWith(item.href);
   }
 
@@ -124,6 +127,8 @@ export function Sidebar({ user }: { user: User }) {
     );
   }
 
+  const showBranchSwitcher = (role === "MERCHANT_OWNER" || role === "MERCHANT_STAFF") && user.restaurantId;
+
   return (
     <aside className="w-60 bg-gray-950 flex flex-col h-full shrink-0 border-r border-gray-800/50">
       <div className="p-5 border-b border-gray-800/50">
@@ -133,10 +138,16 @@ export function Sidebar({ user }: { user: User }) {
           </div>
           <div>
             <p className="font-bold text-white text-sm leading-tight">QR Menu</p>
-            <p className="text-gray-500 text-xs">{ROLE_LABELS[role] ?? "موظف"}</p>
+            <p className="text-gray-500 text-xs">{ROLE_LABELS[role] ?? "Personnel"}</p>
           </div>
         </div>
       </div>
+
+      {showBranchSwitcher && (
+        <div className="pt-3 pb-1 border-b border-gray-800/50">
+          <BranchSwitcher restaurantId={user.restaurantId!} />
+        </div>
+      )}
 
       <nav className="flex-1 p-3 space-y-0.5 overflow-y-auto">
         {primaryNav.map((item) => (
@@ -145,7 +156,7 @@ export function Sidebar({ user }: { user: User }) {
 
         {secondaryNav.length > 0 && (
           <div className="pt-2 mt-2 border-t border-gray-800/50">
-            <p className="px-3 py-1 text-xs text-gray-600 font-semibold uppercase tracking-widest mb-1">العمليات</p>
+            <p className="px-3 py-1 text-xs text-gray-600 font-semibold uppercase tracking-widest mb-1">Opérations</p>
             {secondaryNav.map((item) => (
               <NavLink key={item.href} item={item} />
             ))}
@@ -154,8 +165,8 @@ export function Sidebar({ user }: { user: User }) {
 
         {(role === "MERCHANT_OWNER" || role === "MERCHANT_STAFF") && (
           <div className="pt-2 mt-2 border-t border-gray-800/50">
-            <p className="px-3 py-1 text-xs text-gray-600 font-semibold uppercase tracking-widest">الحساب</p>
-            <NavLink item={{ href: "/subscription", label: "الاشتراك", icon: "📦" }} />
+            <p className="px-3 py-1 text-xs text-gray-600 font-semibold uppercase tracking-widest">Compte</p>
+            <NavLink item={{ href: "/subscription", label: "Abonnement", icon: "📦" }} />
           </div>
         )}
       </nav>
@@ -176,7 +187,7 @@ export function Sidebar({ user }: { user: User }) {
           onClick={() => signOut({ callbackUrl: "/login" })}
           className="w-full text-left px-3 py-2 text-xs text-gray-500 hover:text-white hover:bg-gray-800 rounded-xl transition-all"
         >
-          تسجيل الخروج
+          Déconnexion
         </button>
       </div>
     </aside>

@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const period = searchParams.get("period") || "today";
+  const branchId = searchParams.get("branchId") || null;
 
   const now = new Date();
   let startDate: Date;
@@ -29,36 +30,31 @@ export async function GET(req: NextRequest) {
   }
 
   const restaurantId = session.user.restaurantId;
+  const orderWhere = {
+    restaurantId,
+    createdAt: { gte: startDate },
+    status: { not: "CANCELLED" as const },
+    ...(branchId ? { branchId } : {}),
+  };
 
-  const [orders, topItems, tableUsage, promoUsage, waiterRequestsCount, reservationsCount] = await Promise.all([
+  const [orders, topItems, tableUsage, promoUsage, waiterRequestsCount, reservationsCount, branches, ordersByBranch, ordersByType, newCustomers] = await Promise.all([
     prisma.order.findMany({
-      where: { restaurantId, createdAt: { gte: startDate }, status: { not: "CANCELLED" } },
+      where: orderWhere,
       select: {
-        id: true,
-        total: true,
-        discountAmount: true,
-        paymentStatus: true,
-        status: true,
-        createdAt: true,
-        discountCode: true,
+        id: true, total: true, discountAmount: true,
+        paymentStatus: true, status: true, createdAt: true, discountCode: true,
       },
     }),
     prisma.orderItem.groupBy({
       by: ["menuItemId", "nameSnapshot"],
-      where: {
-        order: {
-          restaurantId,
-          createdAt: { gte: startDate },
-          status: { not: "CANCELLED" },
-        },
-      },
+      where: { order: orderWhere },
       _sum: { quantity: true, totalPrice: true },
       orderBy: { _sum: { quantity: "desc" } },
       take: 10,
     }),
     prisma.order.groupBy({
       by: ["tableId"],
-      where: { restaurantId, createdAt: { gte: startDate }, status: { not: "CANCELLED" } },
+      where: { ...orderWhere, tableId: { not: null } },
       _count: { id: true },
       orderBy: { _count: { id: "desc" } },
       take: 5,
@@ -70,28 +66,51 @@ export async function GET(req: NextRequest) {
       take: 10,
     }),
     prisma.waiterRequest.count({
-      where: { restaurantId, createdAt: { gte: startDate } },
+      where: { restaurantId, createdAt: { gte: startDate }, ...(branchId ? { branchId } : {}) },
     }),
     prisma.reservation.count({
-      where: { restaurantId, createdAt: { gte: startDate } },
+      where: { restaurantId, createdAt: { gte: startDate }, ...(branchId ? { branchId } : {}) },
+    }),
+    prisma.branch.findMany({
+      where: { restaurantId, status: "ACTIVE" },
+      select: { id: true, name: true },
+    }),
+    prisma.order.groupBy({
+      by: ["branchId"],
+      where: { restaurantId, createdAt: { gte: startDate }, status: { not: "CANCELLED" } },
+      _count: { id: true },
+      _sum: { total: true },
+    }),
+    prisma.order.groupBy({
+      by: ["orderType"],
+      where: orderWhere,
+      _count: { id: true },
+      _sum: { total: true },
+    }),
+    prisma.customer.count({
+      where: {
+        orders: { some: { restaurantId, createdAt: { gte: startDate } } },
+        createdAt: { gte: startDate },
+      },
     }),
   ]);
 
   const totalOrders = orders.length;
   const paidOrders = orders.filter((o) => o.paymentStatus === "PAID");
   const unpaidOrders = orders.filter((o) => o.paymentStatus === "UNPAID");
-
   const grossRevenue = orders.reduce((s, o) => s + Number(o.total), 0);
   const totalDiscount = orders.reduce((s, o) => s + Number(o.discountAmount), 0);
   const netRevenue = grossRevenue - totalDiscount;
   const avgOrderValue = totalOrders > 0 ? netRevenue / totalOrders : 0;
 
-  const tableIds = tableUsage.map((t) => t.tableId);
+  const tableIds = tableUsage.map((t) => t.tableId).filter(Boolean) as string[];
   const tables = await prisma.table.findMany({
     where: { id: { in: tableIds } },
     select: { id: true, tableNumber: true },
   });
   const tableMap = new Map(tables.map((t) => [t.id, t.tableNumber]));
+
+  const branchMap = new Map(branches.map((b) => [b.id, b.name]));
 
   return NextResponse.json({
     period,
@@ -106,6 +125,7 @@ export async function GET(req: NextRequest) {
       avgOrderValue: Math.round(avgOrderValue * 100) / 100,
       waiterRequests: waiterRequestsCount,
       reservations: reservationsCount,
+      newCustomers,
     },
     topItems: topItems.map((item) => ({
       menuItemId: item.menuItemId,
@@ -115,12 +135,23 @@ export async function GET(req: NextRequest) {
     })),
     tableUsage: tableUsage.map((t) => ({
       tableId: t.tableId,
-      tableNumber: tableMap.get(t.tableId) ?? "?",
+      tableNumber: tableMap.get(t.tableId ?? "") ?? "?",
       orderCount: t._count.id,
     })),
     promoUsage: promoUsage.map((p) => ({
       ...p,
       discountValue: Number(p.discountValue),
+    })),
+    branchBreakdown: ordersByBranch.map((b) => ({
+      branchId: b.branchId,
+      name: branchMap.get(b.branchId ?? "") ?? "Inconnu",
+      orderCount: b._count.id,
+      revenue: Math.round(Number(b._sum.total ?? 0) * 100) / 100,
+    })),
+    orderTypeBreakdown: ordersByType.map((o) => ({
+      orderType: o.orderType,
+      count: o._count.id,
+      revenue: Math.round(Number(o._sum.total ?? 0) * 100) / 100,
     })),
   });
 }

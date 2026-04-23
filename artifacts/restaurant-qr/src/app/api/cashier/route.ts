@@ -1,18 +1,21 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { requireCashierAccess } from "@/lib/permissions";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
     const session = await requireCashierAccess();
     const restaurantId = session.user.restaurantId;
     if (!restaurantId) return NextResponse.json({ error: "No restaurant" }, { status: 400 });
+
+    const branchId = new URL(req.url).searchParams.get("branchId") || undefined;
 
     const orders = await prisma.order.findMany({
       where: {
         restaurantId,
         paymentStatus: "UNPAID",
         status: { notIn: ["CANCELLED"] },
+        ...(branchId ? { branchId } : {}),
       },
       include: {
         table: { select: { tableNumber: true } },
