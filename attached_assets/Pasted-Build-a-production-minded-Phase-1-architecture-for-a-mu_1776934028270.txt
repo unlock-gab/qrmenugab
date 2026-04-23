@@ -1,0 +1,489 @@
+Build a production-minded **Phase 1 architecture** for a multi-restaurant QR ordering web app that is being developed inside Replit first, but must be structured from day one to be easily migrated later to a **VPS using Dokploy and Docker**.
+
+## Core product idea
+
+This platform is for cafés and restaurants. Each table has its own QR code. When a customer scans the QR code, they are taken directly to that restaurant’s digital menu for that specific table. The customer can browse menu items, add items to cart, and place an order. The restaurant owner or staff should receive the order inside their dashboard with a clear sound notification, full order details, and the table number.
+
+This Phase 1 is only about building the correct **architecture foundation + MVP base**, not the full final SaaS yet.
+
+---
+
+## Main objective for this phase
+
+Create a solid, scalable, Docker-friendly foundation with:
+
+* clean architecture
+* multi-restaurant support
+* merchant dashboard base
+* customer ordering flow base
+* QR table routing logic
+* order creation flow
+* PostgreSQL database
+* clean UI foundation
+* safe project structure for future Docker deployment
+
+---
+
+## Tech direction
+
+Use a modern stack that works well in Replit and is portable later:
+
+* **Next.js**
+* **TypeScript**
+* **PostgreSQL**
+* **Prisma ORM**
+* **Tailwind CSS**
+* **shadcn/ui** for reusable UI components
+* use environment variables properly
+* keep the app structured so it can later run in Docker without Replit lock-in
+
+Do not use Replit-specific architecture assumptions.
+Do not hardcode environment values.
+Do not build fragile logic tied only to local development.
+
+---
+
+## Architecture requirements
+
+Design the project as a **multi-tenant restaurant ordering platform** where each restaurant has its own:
+
+* account
+* tables
+* categories
+* menu items
+* orders
+
+The architecture must be simple, scalable, and easy to extend in later phases.
+
+---
+
+## Phase 1 scope only
+
+Implement only these modules now:
+
+### 1. Authentication base
+
+* merchant login page
+* secure authentication structure
+* role-ready architecture even if only one merchant role is used now
+* prepare for future admin and staff roles
+* do not overbuild permissions yet, just structure it cleanly
+
+### 2. Restaurant entity
+
+Each merchant account should belong to one restaurant.
+Restaurant fields should include:
+
+* name
+* slug
+* phone
+* address
+* logo
+* status
+* createdAt
+* updatedAt
+
+### 3. Tables management
+
+Each restaurant can manage its tables.
+Fields:
+
+* table number
+* QR token
+* active/inactive
+* relation to restaurant
+
+Create a clean merchant dashboard page to:
+
+* list tables
+* create a table
+* edit table
+* activate/deactivate table
+* view QR value/token
+* prepare structure for future QR image generation
+
+### 4. Categories management
+
+Each restaurant can manage menu categories.
+Fields:
+
+* name
+* sort order
+* active/inactive
+* restaurant relation
+
+Create dashboard CRUD for categories.
+
+### 5. Menu items management
+
+Each restaurant can manage menu items.
+Fields:
+
+* category
+* name
+* description
+* price
+* image URL
+* availability status
+* sort order
+* restaurant relation
+
+Create dashboard CRUD for menu items.
+
+### 6. Customer QR route
+
+When a customer scans a QR code, the URL should open a public customer page tied to:
+
+* restaurant
+* table
+
+Design clean routing logic such as:
+
+* restaurant slug
+* table token
+  or an equivalent scalable public route structure
+
+The public page must:
+
+* identify restaurant
+* identify table
+* load the correct menu
+* keep table context during the session
+
+### 7. Customer menu page
+
+Build a clean mobile-first customer menu experience:
+
+* restaurant branding
+* category sections
+* menu cards
+* item image
+* item name
+* price
+* availability state
+* add to cart button
+* quantity controls
+* cart summary
+* total price
+
+This should feel modern, premium, and optimized for phone use.
+
+### 8. Cart and order creation
+
+Allow the customer to:
+
+* add items
+* remove items
+* change quantities
+* add optional order note
+* see total
+* submit order
+
+When the customer submits:
+
+* create an order linked to restaurant and table
+* create order items
+* assign initial status such as `NEW`
+* save totals correctly
+
+No payment integration yet.
+
+### 9. Merchant orders page
+
+Build the first merchant orders dashboard page.
+Merchant must see:
+
+* new orders
+* order number
+* table number
+* item list
+* quantities
+* notes
+* total
+* order time
+* status
+
+Allow merchant to update order status with a simple flow like:
+
+* NEW
+* PREPARING
+* READY
+* SERVED
+* PAID
+* CANCELLED
+
+For now, if real-time sockets are too heavy for Phase 1, use a clean implementation that is easy to upgrade later.
+But structure the code so real-time updates and live notifications can be added in Phase 2 without refactoring everything.
+
+### 10. Notification-ready architecture
+
+Do not fully build advanced live notifications yet unless lightweight and stable.
+But structure the merchant orders page and backend so that:
+
+* real-time order updates
+* sound notifications
+* push-like behavior
+  can be plugged in easily in Phase 2.
+
+---
+
+## Database design
+
+Create a clean Prisma schema for Phase 1 with at least these models:
+
+* User
+* Restaurant
+* Table
+* Category
+* MenuItem
+* Order
+* OrderItem
+
+Recommended structure ideas:
+
+### User
+
+* id
+* name
+* email
+* passwordHash
+* role
+* restaurantId
+* createdAt
+* updatedAt
+
+### Restaurant
+
+* id
+* name
+* slug
+* phone
+* address
+* logoUrl
+* status
+* createdAt
+* updatedAt
+
+### Table
+
+* id
+* restaurantId
+* tableNumber
+* qrToken
+* isActive
+* createdAt
+* updatedAt
+
+### Category
+
+* id
+* restaurantId
+* name
+* sortOrder
+* isActive
+* createdAt
+* updatedAt
+
+### MenuItem
+
+* id
+* restaurantId
+* categoryId
+* name
+* description
+* price
+* imageUrl
+* isAvailable
+* sortOrder
+* createdAt
+* updatedAt
+
+### Order
+
+* id
+* restaurantId
+* tableId
+* orderNumber
+* status
+* notes
+* subtotal
+* total
+* createdAt
+* updatedAt
+
+### OrderItem
+
+* id
+* orderId
+* menuItemId
+* nameSnapshot
+* unitPrice
+* quantity
+* totalPrice
+* createdAt
+* updatedAt
+
+Use enums where relevant for:
+
+* user role
+* restaurant status
+* order status
+
+Make the schema production-minded and easy to extend later.
+
+---
+
+## Routing and app structure
+
+Use a clean app structure with separation between:
+
+* public customer pages
+* merchant dashboard pages
+* server actions / API logic
+* database access layer
+* reusable UI components
+
+Suggested areas:
+
+* auth
+* merchant dashboard
+* public menu
+* shared UI
+* database
+* services
+* types
+* validation schemas
+
+Keep it clean and scalable.
+
+---
+
+## UI/UX requirements
+
+The design must feel:
+
+* modern
+* premium
+* mobile-first on customer side
+* simple and efficient on merchant side
+
+### Customer side UX
+
+* optimized for phone
+* large tap targets
+* sticky cart summary if useful
+* clear total
+* simple checkout action
+* category navigation
+* clean spacing
+* premium food ordering feel
+
+### Merchant dashboard UX
+
+* clean sidebar or top navigation
+* simple dashboard layout
+* readable order cards
+* visible table number
+* fast status actions
+* clean CRUD screens for tables, categories, and menu items
+
+Do not make the UI generic or ugly.
+Make it look like a serious real product.
+
+---
+
+## Multi-tenant safety
+
+The app must be built so that one restaurant never sees another restaurant’s data.
+Every dashboard query must be scoped to the authenticated merchant’s restaurant.
+Every public menu and order must be scoped correctly to the restaurant and table in the QR route.
+
+This is critical.
+
+---
+
+## Validation and safety
+
+Use proper validation for:
+
+* table creation
+* category creation
+* menu item creation
+* order creation
+
+Handle errors cleanly.
+Avoid weak or unsafe code.
+Do not leave business logic scattered randomly across components.
+
+---
+
+## Future-ready requirements
+
+Even though this is Phase 1, build with future expansion in mind:
+
+* future admin panel
+* future staff roles
+* future subscriptions/billing
+* future QR image generation
+* future real-time order updates
+* future notification sounds
+* future analytics
+* future multi-branch support
+
+But do not implement all those now.
+Only structure the project so they can be added later cleanly.
+
+---
+
+## Docker and deployment readiness
+
+Very important:
+This project will later be moved from Replit to a VPS using Dokploy and Docker.
+
+So from day one:
+
+* keep environment variables clean
+* avoid Replit-only features
+* use a standard project layout
+* keep the app portable
+* make database configuration standard
+* prepare the project so adding a Dockerfile later is straightforward
+* do not store critical business logic in hacks or temporary dev-only solutions
+
+---
+
+## Deliverables for this phase
+
+Generate the project foundation with:
+
+1. clean folder structure
+2. Prisma schema
+3. auth base
+4. merchant dashboard shell
+5. tables CRUD
+6. categories CRUD
+7. menu items CRUD
+8. public QR menu route
+9. cart logic
+10. order creation flow
+11. merchant orders page
+12. clean reusable UI base
+13. seed/demo data if useful for testing
+
+---
+
+## Important implementation rules
+
+* write clean, maintainable code
+* use TypeScript properly
+* do not overengineer
+* do not add payment yet
+* do not add advanced analytics yet
+* do not add full super admin yet
+* do not add unnecessary complexity
+* prioritize a stable MVP architecture
+* make the code readable and expandable
+* preserve future Docker portability
+* build like this will become a real SaaS product
+
+Now generate the full Phase 1 architecture and implementation foundation accordingly.
