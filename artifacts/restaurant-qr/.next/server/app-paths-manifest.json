@@ -1,6 +1,3 @@
 {
-  "/(auth)/merchant/login/page": "app/(auth)/merchant/login/page.js",
-  "/(marketing)/page": "app/(marketing)/page.js",
-  "/(marketing)/restaurants/page": "app/(marketing)/restaurants/page.js",
-  "/(auth)/admin/login/page": "app/(auth)/admin/login/page.js"
+  "/(marketing)/page": "app/(marketing)/page.js"
 }
