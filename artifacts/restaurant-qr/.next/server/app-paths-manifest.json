@@ -1,3 +1,14 @@
 {
+  "/api/notifications/unread/route": "app/api/notifications/unread/route.js",
+  "/api/health/route": "app/api/health/route.js",
+  "/api/dashboard/stats/route": "app/api/dashboard/stats/route.js",
+  "/api/orders/route": "app/api/orders/route.js",
+  "/api/branches/route": "app/api/branches/route.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
+  "/(dashboard)/orders/page": "app/(dashboard)/orders/page.js",
+  "/(dashboard)/tables/page": "app/(dashboard)/tables/page.js",
+  "/(marketing)/page": "app/(marketing)/page.js",
   "/(auth)/login/page": "app/(auth)/login/page.js"
 }
