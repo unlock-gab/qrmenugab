@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
-export const metadata = { title: "Create Account — QRMenu" };
+export const metadata = { title: "Créer un compte — QRMenu" };
 
 async function getPublicPlans() {
   try {
@@ -14,17 +14,11 @@ async function getPublicPlans() {
       orderBy: [{ sortOrder: "asc" }, { price: "asc" }],
     });
     return plans.map((p) => ({
-      id: p.id,
-      name: p.name,
-      description: p.description,
+      id: p.id, name: p.name, description: p.description,
       price: p.price ? Number(p.price) : null,
-      displayPrice: p.displayPrice,
-      billingInterval: p.billingInterval,
-      maxTables: p.maxTables,
-      maxMenuItems: p.maxMenuItems,
-      maxStaffUsers: p.maxStaffUsers,
-      isFeatured: p.isFeatured,
-      sortOrder: p.sortOrder,
+      displayPrice: p.displayPrice, billingInterval: p.billingInterval,
+      maxTables: p.maxTables, maxMenuItems: p.maxMenuItems, maxStaffUsers: p.maxStaffUsers,
+      isFeatured: p.isFeatured, sortOrder: p.sortOrder,
     }));
   } catch {
     return [];
@@ -53,15 +47,15 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
             </div>
             <span className="font-black text-gray-900 text-xl tracking-tight">QRMenu</span>
           </Link>
-          <h1 className="text-3xl font-black text-gray-900 mb-2">Start your free trial</h1>
-          <p className="text-gray-500">14 days free. No credit card required.</p>
+          <h1 className="text-3xl font-black text-gray-900 mb-2">Créez votre espace restaurant</h1>
+          <p className="text-gray-500">14 jours gratuits. Sans carte bancaire.</p>
         </div>
 
         <SignupClient plans={plans} selectedPlanId={selectedPlanId} />
 
         <p className="text-center text-sm text-gray-500 mt-6">
-          Already have an account?{" "}
-          <Link href="/merchant/login" className="text-orange-600 font-semibold hover:underline">Sign in</Link>
+          Déjà un compte ?{" "}
+          <Link href="/merchant/login" className="text-orange-600 font-semibold hover:underline">Se connecter</Link>
         </p>
       </div>
     </div>

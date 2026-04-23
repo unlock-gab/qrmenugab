@@ -1,0 +1,472 @@
+Fix the current restaurant QR ordering SaaS project by performing a **focused performance optimization pass**.
+
+The product already has:
+
+* Public Homepage / Visitor Space
+* Merchant Space
+* Admin Space
+* French-first UI
+* Arabic as secondary language
+* DA currency formatting
+* QR ordering flows
+* merchant dashboards
+* admin dashboards
+* multi-branch and SaaS structure
+
+Do **not** rebuild the product.
+Do **not** change the core business logic.
+Do **not** redesign the whole app.
+This task is specifically about making the site **much faster, lighter, and smoother**, especially when navigating between pages.
+
+Important: this project started in Replit, but it is intentionally being built so it can later be migrated to a **VPS using Dokploy and Docker**.
+Keep all fixes **portable, production-minded, and Docker-friendly**.
+Do not introduce Replit-only hacks.
+
+---
+
+## Main problem to solve
+
+The site currently feels **too heavy and slow**.
+
+Symptoms:
+
+* page-to-page navigation feels slow
+* public pages feel heavy
+* merchant/admin dashboards may be loading too much at once
+* route transitions feel sluggish
+* rendering may be heavier than necessary
+
+The goal is to make the app feel:
+
+* faster
+* lighter
+* more responsive
+* more professional
+* smoother on real devices and normal internet conditions
+
+---
+
+## Main mission
+
+Perform a **performance optimization pass** focused on:
+
+1. faster route navigation
+2. lighter rendering
+3. reduced unnecessary data fetching
+4. lighter dashboard loads
+5. image optimization
+6. cleaner loading strategy
+7. fewer unnecessary client-side components
+8. better perceived performance
+9. preserving the current product structure and features
+
+Do not just add cosmetic loading spinners.
+Actually reduce the heaviness of the app.
+
+---
+
+## Part 1 — Audit and optimize route navigation
+
+Investigate why navigation between pages feels slow.
+
+Check for issues such as:
+
+* layouts doing too much work
+* repeated auth/session fetching
+* repeated restaurant/user/settings loading
+* heavy middleware behavior
+* expensive route-level queries
+* full layout rerenders
+* blocking data fetching
+* oversized client components
+
+Optimize navigation so page changes feel much faster.
+
+### Requirements
+
+* reduce blocking work during route transitions
+* avoid unnecessary full rerenders
+* avoid loading heavy dashboard data on every page change
+* keep route groups clean and efficient
+* preserve auth and role protection
+
+---
+
+## Part 2 — Reduce unnecessary data fetching
+
+Audit data fetching across:
+
+* public homepage
+* restaurants listing
+* public restaurant page
+* merchant dashboard
+* merchant orders/menu/tables pages
+* admin dashboard
+* admin restaurants/subscriptions/users pages
+
+Optimize so pages only fetch what they actually need.
+
+### Fix patterns like:
+
+* loading too many records at once
+* loading full objects when only summaries are needed
+* repeating the same fetches in multiple places
+* fetching dashboard counts and large lists together unnecessarily
+* loading all restaurants, all orders, all users, or all stats on initial load
+
+### Expected improvements
+
+* homepage loads only needed public data
+* dashboards load top summaries first
+* large tables are paginated or limited
+* recent activity sections are capped
+* analytics-heavy data is separated from basic page load
+
+Do not overload first render.
+
+---
+
+## Part 3 — Optimize dashboard pages
+
+Merchant and admin dashboards must become lighter.
+
+### Merchant dashboard
+
+Reduce initial load to essentials only, such as:
+
+* summary cards
+* limited recent orders
+* key stats only
+* lightweight widgets
+
+Do not load huge tables, big analytics, or everything at once.
+
+### Admin dashboard
+
+Same principle:
+
+* small fast metrics
+* recent items limited
+* paginated management tables
+* avoid giant all-in-one queries
+
+### General dashboard rules
+
+* first screen should load fast
+* secondary heavy data can load progressively if needed
+* keep pages useful but lightweight
+
+---
+
+## Part 4 — Image optimization
+
+Audit all images used in:
+
+* homepage
+* restaurant listing
+* public restaurant page
+* menu cards
+* admin/merchant profile visuals
+* any featured/trending sections
+
+Optimize image handling aggressively but safely.
+
+### Requirements
+
+* avoid loading oversized original images in cards
+* use optimized image rendering strategy appropriate for the stack
+* lazy-load images below the fold
+* provide fallback placeholders
+* keep card images visually clean but lighter
+* do not block page rendering with heavy image payloads
+
+If using Next.js, use best practices for image optimization and responsive sizing.
+Do not leave raw full-size images everywhere.
+
+---
+
+## Part 5 — Reduce client-side heaviness
+
+Audit components and identify places where too much client-side rendering is happening.
+
+### Look for:
+
+* unnecessary `use client`
+* large client-only pages that could be server-rendered
+* excessive state/effect usage
+* duplicated providers
+* expensive re-renders
+* heavy layout wrappers
+* overuse of global state for simple UI
+
+### Optimize by:
+
+* converting components to server components where appropriate
+* reducing client-side logic to interactive areas only
+* keeping forms and live interactions client-side only where needed
+* avoiding giant client-side page shells
+
+Do not break interactivity, but reduce unnecessary client overhead.
+
+---
+
+## Part 6 — Layout and provider optimization
+
+Audit the public, merchant, and admin layouts.
+
+### Check for:
+
+* duplicated expensive logic in layouts
+* repeated session checks
+* repeated settings fetches
+* heavy providers mounted globally when not needed
+* unnecessary wrappers or context layers
+
+### Optimize so:
+
+* layouts stay light
+* only required providers are mounted
+* expensive data is not fetched in every layout unnecessarily
+* navigation shell remains smooth
+
+Do not break public / merchant / admin separation.
+
+---
+
+## Part 7 — Middleware and auth performance
+
+Review middleware and auth flow for performance issues.
+
+### Check for:
+
+* expensive middleware logic
+* database work in middleware if avoidable
+* repeated redirects causing slow navigation
+* redundant auth checks
+* session logic causing blocking behavior
+
+### Optimize with these goals:
+
+* keep security intact
+* keep role separation intact
+* make auth flow lighter
+* reduce unnecessary redirect chains
+* ensure merchant/admin protection still works cleanly
+
+Do not weaken security just to gain speed.
+
+---
+
+## Part 8 — Lightweight rendering for public homepage
+
+The public homepage must feel fast.
+
+### Optimize:
+
+* hero section rendering
+* featured restaurants section
+* trending section
+* categories section
+* pricing teaser
+* footer and supporting sections
+
+### Rules
+
+* load a limited number of visible cards initially
+* do not render too many heavy sections above the fold
+* keep homepage premium but lighter
+* defer non-critical heaviness
+* avoid giant image grids on first load
+
+The homepage must still look polished, but it should not feel overloaded.
+
+---
+
+## Part 9 — Lightweight rendering for restaurants listing
+
+Optimize `/restaurants` so it feels much faster.
+
+### Improve:
+
+* paginated or limited initial load
+* efficient filtering
+* debounced search if applicable
+* lighter card rendering
+* image optimization
+* empty/loading states
+
+If currently rendering too many cards at once, reduce initial burden.
+
+---
+
+## Part 10 — Lightweight rendering for public restaurant page
+
+Optimize the public restaurant detail page.
+
+### Ensure:
+
+* only necessary restaurant info loads initially
+* menu previews are limited or paginated if large
+* heavy sections do not block first paint
+* images are optimized
+* CTA and key restaurant data appear quickly
+
+Do not make the page feel empty, but make it faster.
+
+---
+
+## Part 11 — Loading states and perceived performance
+
+Improve perceived speed in a clean way.
+
+### Add or refine:
+
+* route-level loading states
+* section skeletons where useful
+* lightweight placeholders
+* clear empty states
+* faster visual feedback on actions
+
+Important:
+This is not only about fake loaders.
+The real rendering and fetching must also be optimized.
+
+Use loading UX to support actual speed improvements.
+
+---
+
+## Part 12 — Large list optimization
+
+Audit all list-heavy areas such as:
+
+* restaurants
+* orders
+* tables
+* users
+* subscriptions
+* menu items
+* branches
+* leads
+
+### Requirements
+
+* paginate or limit large data sets
+* avoid huge initial renders
+* keep filters efficient
+* avoid loading full datasets when the page only needs summaries
+
+Do not leave giant tables rendering on first load.
+
+---
+
+## Part 13 — Reduce unnecessary dashboard widgets and visual heaviness
+
+Audit whether the current dashboards have:
+
+* too many cards
+* too many sections on one page
+* heavy visual blocks
+* charts or large components that are not necessary on first render
+
+Simplify where needed without removing the product value.
+
+The page should feel:
+
+* lighter
+* clearer
+* faster
+* more focused
+
+---
+
+## Part 14 — Code cleanup for performance
+
+While optimizing, clean obvious performance-related code issues such as:
+
+* repeated fetch calls
+* duplicated utility logic
+* unnecessary rerenders
+* large components that should be split
+* components that should be memoized carefully where appropriate
+* expensive derived values recalculated too often
+* unoptimized list rendering
+
+Keep the code cleaner and easier to maintain.
+
+Do not overengineer micro-optimizations.
+Focus on real bottlenecks.
+
+---
+
+## Part 15 — Preserve product rules
+
+While optimizing performance, preserve all existing product rules:
+
+* French remains the default language
+* Arabic remains the secondary switchable language
+* DA currency formatting stays consistent
+* public / merchant / admin separation stays intact
+* QR ordering logic stays intact
+* tenant safety stays intact
+* role-based access stays intact
+* SaaS and branch structure stays intact
+
+Do not trade correctness for speed.
+
+---
+
+## Part 16 — Mobile and lower-powered device optimization
+
+The app should feel lighter on:
+
+* laptops with average performance
+* mobile devices
+* weaker connections
+
+Optimize for:
+
+* less layout shift
+* lighter first render
+* better responsiveness
+* fewer oversized visual elements
+* smoother interaction
+
+Do not assume high-end hardware.
+
+---
+
+## Part 17 — Deliverables
+
+Complete a real performance optimization pass that includes:
+
+1. route navigation speed improvements
+2. reduced unnecessary data fetching
+3. lighter public homepage
+4. lighter restaurants listing
+5. lighter public restaurant page
+6. lighter merchant dashboard
+7. lighter admin dashboard
+8. image optimization improvements
+9. reduced unnecessary client-side rendering
+10. optimized layouts/providers
+11. middleware/auth flow optimization where safe
+12. paginated or limited heavy lists
+13. better loading/perceived performance
+14. performance-related code cleanup
+15. preserved architecture and business logic
+
+---
+
+## Important implementation rules
+
+* do not rebuild from scratch
+* do not redesign the whole product
+* do not remove key features
+* do not weaken auth or tenant protection
+* do not use fake performance tricks only
+* do not keep giant heavy queries on first load
+* do not leave oversized images unoptimized
+* do not turn everything into client components
+* build like this product must feel faster and smoother for real users and later run cleanly on VPS + Dokploy + Docker
+
+Now perform a focused **Performance Optimization, Faster Navigation, and Lightweight Rendering** pass on the current project so the app becomes significantly faster, smoother, and less heavy while preserving the product structure and all core functionality.

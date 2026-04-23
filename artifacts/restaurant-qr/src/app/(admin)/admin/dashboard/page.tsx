@@ -22,71 +22,67 @@ const statusColors: Record<string, string> = {
   INACTIVE: "bg-slate-500/10 text-slate-400 border-slate-500/20",
 };
 
+const STATUS_FR: Record<string, string> = {
+  ACTIVE: "Actif", PENDING_SETUP: "En attente", SUSPENDED: "Suspendu", INACTIVE: "Inactif",
+};
+
 export default function AdminDashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/admin/stats")
-      .then((r) => r.json())
-      .then(setStats)
-      .finally(() => setLoading(false));
+    fetch("/api/admin/stats").then((r) => r.json()).then(setStats).finally(() => setLoading(false));
   }, []);
 
   if (loading) {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-slate-800 rounded w-48" />
+          <div className="h-8 bg-slate-800 rounded w-64" />
           <div className="grid grid-cols-4 gap-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-28 bg-slate-800 rounded-2xl" />
-            ))}
+            {[...Array(4)].map((_, i) => <div key={i} className="h-28 bg-slate-800 rounded-2xl" />)}
           </div>
         </div>
       </div>
     );
   }
 
-  if (!stats) return <div className="p-8 text-red-400">Failed to load stats</div>;
+  if (!stats) return <div className="p-8 text-red-400">Impossible de charger les statistiques</div>;
 
   return (
     <div className="p-8 max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Platform Overview</h1>
-        <p className="text-slate-400 mt-1">Monitor your SaaS platform at a glance</p>
+        <h1 className="text-2xl font-bold text-white">Vue d&apos;ensemble</h1>
+        <p className="text-slate-400 mt-1">Surveillez votre plateforme en un coup d&apos;œil</p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard label="Total Restaurants" value={stats.restaurants.total} icon="🏪" color="indigo" />
-        <StatCard label="Active" value={stats.restaurants.active} icon="✅" color="emerald" />
-        <StatCard label="Pending Setup" value={stats.restaurants.pending} icon="⏳" color="amber" />
-        <StatCard label="Suspended" value={stats.restaurants.suspended} icon="🚫" color="red" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <StatCard label="Total restaurants" value={stats.restaurants.total} icon="🏪" color="indigo" />
+        <StatCard label="Actifs" value={stats.restaurants.active} icon="✅" color="emerald" />
+        <StatCard label="En attente" value={stats.restaurants.pending} icon="⏳" color="amber" />
+        <StatCard label="Suspendus" value={stats.restaurants.suspended} icon="🚫" color="red" />
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-        <StatCard label="Orders Today" value={stats.todayOrders} icon="📋" color="violet" />
-        <StatCard label="Total Users" value={stats.users.total} icon="👥" color="sky" />
-        <StatCard label="Menu Items" value={stats.totalMenuItems} icon="✦" color="pink" />
-        <StatCard label="Active Tables" value={stats.totalTables} icon="⊞" color="teal" />
+        <StatCard label="Commandes aujourd'hui" value={stats.todayOrders} icon="📋" color="violet" />
+        <StatCard label="Utilisateurs" value={stats.users.total} icon="👥" color="sky" />
+        <StatCard label="Articles menu" value={stats.totalMenuItems} icon="✦" color="pink" />
+        <StatCard label="Tables actives" value={stats.totalTables} icon="⊞" color="teal" />
       </div>
 
       <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-semibold text-white">Recent Restaurants</h2>
-          <Link href="/admin/restaurants" className="text-sm text-indigo-400 hover:text-indigo-300">
-            View all →
-          </Link>
+          <h2 className="font-semibold text-white">Restaurants récents</h2>
+          <Link href="/admin/restaurants" className="text-sm text-indigo-400 hover:text-indigo-300">Voir tout →</Link>
         </div>
-
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-slate-500 border-b border-slate-700/50">
                 <th className="text-left pb-3 font-medium">Restaurant</th>
-                <th className="text-left pb-3 font-medium">Status</th>
-                <th className="text-left pb-3 font-medium">Plan</th>
-                <th className="text-left pb-3 font-medium">Created</th>
+                <th className="text-left pb-3 font-medium">Statut</th>
+                <th className="text-left pb-3 font-medium">Forfait</th>
+                <th className="text-left pb-3 font-medium">Créé le</th>
                 <th className="text-right pb-3 font-medium">Actions</th>
               </tr>
             </thead>
@@ -99,29 +95,18 @@ export default function AdminDashboard() {
                   </td>
                   <td className="py-3">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${statusColors[r.status] || statusColors.INACTIVE}`}>
-                      {r.status.replace("_", " ")}
+                      {STATUS_FR[r.status] || r.status}
                     </span>
                   </td>
-                  <td className="py-3 text-slate-400">
-                    {r.subscription?.plan?.name || "—"}
-                  </td>
-                  <td className="py-3 text-slate-500 text-xs">
-                    {new Date(r.createdAt).toLocaleDateString()}
-                  </td>
+                  <td className="py-3 text-slate-400">{r.subscription?.plan?.name || <span className="text-slate-600">—</span>}</td>
+                  <td className="py-3 text-slate-500 text-xs">{new Date(r.createdAt).toLocaleDateString("fr-DZ")}</td>
                   <td className="py-3 text-right">
-                    <Link
-                      href={`/admin/restaurants/${r.id}`}
-                      className="text-indigo-400 hover:text-indigo-300 text-xs font-medium"
-                    >
-                      Manage
-                    </Link>
+                    <Link href={`/admin/restaurants/${r.id}`} className="text-indigo-400 hover:text-indigo-300 text-xs font-medium">Gérer →</Link>
                   </td>
                 </tr>
               ))}
               {stats.recentRestaurants.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="py-8 text-center text-slate-500">No restaurants yet</td>
-                </tr>
+                <tr><td colSpan={5} className="py-8 text-center text-slate-500">Aucun restaurant</td></tr>
               )}
             </tbody>
           </table>
@@ -129,13 +114,13 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 mt-6">
-        <Link href="/admin/restaurants/new" className="block bg-indigo-600 hover:bg-indigo-500 rounded-2xl p-5 transition-all group">
-          <p className="text-lg font-bold text-white">+ New Restaurant</p>
-          <p className="text-indigo-200 text-sm mt-1">Create a merchant account & restaurant</p>
+        <Link href="/admin/restaurants/new" className="block bg-indigo-600 hover:bg-indigo-500 rounded-2xl p-5 transition-all">
+          <p className="text-lg font-bold text-white">+ Nouveau restaurant</p>
+          <p className="text-indigo-200 text-sm mt-1">Créer un compte marchand et restaurant</p>
         </Link>
         <Link href="/admin/plans" className="block bg-slate-800 hover:bg-slate-700 border border-slate-700/50 rounded-2xl p-5 transition-all">
-          <p className="text-lg font-bold text-white">📦 Manage Plans</p>
-          <p className="text-slate-400 text-sm mt-1">Create and edit subscription plans</p>
+          <p className="text-lg font-bold text-white">📦 Gérer les forfaits</p>
+          <p className="text-slate-400 text-sm mt-1">Créer et modifier les plans d&apos;abonnement</p>
         </Link>
       </div>
     </div>
@@ -153,12 +138,9 @@ function StatCard({ label, value, icon, color }: { label: string; value: number;
     pink: "from-pink-500/10 border-pink-500/20 text-pink-400",
     teal: "from-teal-500/10 border-teal-500/20 text-teal-400",
   };
-
   return (
     <div className={`bg-gradient-to-br ${colorMap[color]} border rounded-2xl p-5`}>
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-xl">{icon}</span>
-      </div>
+      <div className="flex items-center justify-between mb-3"><span className="text-xl">{icon}</span></div>
       <p className="text-3xl font-bold text-white">{value}</p>
       <p className="text-xs mt-1 text-slate-400">{label}</p>
     </div>

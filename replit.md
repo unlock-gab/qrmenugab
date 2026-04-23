@@ -4,6 +4,12 @@
 
 pnpm workspace monorepo using TypeScript. Contains a multi-restaurant QR ordering SaaS platform built with Next.js.
 
+### Internationalisation
+- **Language**: French-first (fr-DZ locale), Arabic secondary
+- **Currency**: DA (Algerian Dinar) — `formatDA()` in `src/lib/i18n.ts`
+- **All 3 spaces fully in French**: Public marketplace (`/`), Merchant (`/merchant/*`), Admin (`/admin/*`)
+- **Admin sidebar signOut** redirects to `/admin/login` (not merchant)
+
 ## Main Application: Restaurant QR Ordering System
 
 `artifacts/restaurant-qr` — Full-stack Next.js application for restaurant QR ordering (SaaS multi-tenant).

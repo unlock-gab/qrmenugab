@@ -47,7 +47,7 @@ export default function AdminPlansPage() {
   };
 
   const deactivate = async (id: string) => {
-    if (!confirm("Deactivate this plan?")) return;
+    if (!confirm("Désactiver ce forfait ?")) return;
     await fetch(`/api/admin/plans/${id}`, { method: "DELETE" });
     load();
   };
@@ -56,27 +56,27 @@ export default function AdminPlansPage() {
     <div className="p-8 max-w-5xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-white">Subscription Plans</h1>
-          <p className="text-slate-400 mt-1">Manage platform subscription tiers</p>
+          <h1 className="text-2xl font-bold text-white">Forfaits d&apos;abonnement</h1>
+          <p className="text-slate-400 mt-1">Gérer les niveaux d&apos;abonnement de la plateforme</p>
         </div>
         <button onClick={() => { setShowForm(true); setEditingId(null); setForm(emptyForm); }}
           className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all">
-          + New Plan
+          + Nouveau forfait
         </button>
       </div>
 
       {showForm && (
         <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 mb-8">
-          <h2 className="font-semibold text-white mb-5">{editingId ? "Edit Plan" : "Create Plan"}</h2>
+          <h2 className="font-semibold text-white mb-5">{editingId ? "Modifier le forfait" : "Créer un forfait"}</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm text-slate-400 mb-1.5">Plan Name *</label>
+                <label className="block text-sm text-slate-400 mb-1.5">Nom du forfait *</label>
                 <input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500" required />
               </div>
               <div>
-                <label className="block text-sm text-slate-400 mb-1.5">Price ($/month)</label>
+                <label className="block text-sm text-slate-400 mb-1.5">Prix (DA/mois)</label>
                 <input type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500" placeholder="0" />
               </div>
@@ -88,9 +88,9 @@ export default function AdminPlansPage() {
             </div>
             <div className="grid grid-cols-3 gap-4">
               {[
-                { key: "maxTables", label: "Max Tables" },
-                { key: "maxMenuItems", label: "Max Menu Items" },
-                { key: "maxStaffUsers", label: "Max Staff Users" },
+                { key: "maxTables", label: "Tables max" },
+                { key: "maxMenuItems", label: "Articles menu max" },
+                { key: "maxStaffUsers", label: "Personnel max" },
               ].map(({ key, label }) => (
                 <div key={key}>
                   <label className="block text-sm text-slate-400 mb-1.5">{label}</label>
@@ -102,11 +102,11 @@ export default function AdminPlansPage() {
             <div className="flex gap-3 pt-2">
               <button type="submit" disabled={saving}
                 className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-5 py-2.5 rounded-xl text-sm font-semibold">
-                {saving ? "Saving..." : editingId ? "Update Plan" : "Create Plan"}
+                {saving ? "Enregistrement..." : editingId ? "Modifier le forfait" : "Créer le forfait"}
               </button>
               <button type="button" onClick={() => setShowForm(false)}
                 className="text-slate-400 hover:text-white px-5 py-2.5 rounded-xl text-sm">
-                Cancel
+                Annuler
               </button>
             </div>
           </form>
@@ -115,7 +115,7 @@ export default function AdminPlansPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {loading ? (
-          <div className="col-span-3 text-slate-500 text-center py-8">Loading...</div>
+          <div className="col-span-3 text-slate-500 text-center py-8">Chargement...</div>
         ) : plans.map((p) => (
           <div key={p.id} className={`bg-slate-800/40 border rounded-2xl p-6 ${p.isActive ? "border-slate-700/50" : "border-slate-800 opacity-50"}`}>
             <div className="flex items-start justify-between mb-4">
@@ -123,16 +123,16 @@ export default function AdminPlansPage() {
                 <h3 className="font-bold text-white text-lg">{p.name}</h3>
                 <p className="text-slate-400 text-sm mt-0.5">{p.description}</p>
               </div>
-              <p className="text-2xl font-bold text-indigo-400">
-                {p.price ? `$${p.price}` : "Free"}
-                {p.price && <span className="text-sm text-slate-500 font-normal">/mo</span>}
+              <p className="text-xl font-bold text-indigo-400 text-right shrink-0">
+                {p.price ? `${Number(p.price).toLocaleString("fr-DZ")} DA` : "Gratuit"}
+                {p.price && <span className="text-sm text-slate-500 font-normal block">/mois</span>}
               </p>
             </div>
             <div className="space-y-2 mb-5">
               {[
                 { label: "Tables", value: p.maxTables },
-                { label: "Menu Items", value: p.maxMenuItems },
-                { label: "Staff Users", value: p.maxStaffUsers },
+                { label: "Articles menu", value: p.maxMenuItems },
+                { label: "Personnel", value: p.maxStaffUsers },
               ].map((l) => (
                 <div key={l.label} className="flex items-center justify-between text-sm">
                   <span className="text-slate-400">{l.label}</span>
@@ -140,19 +140,19 @@ export default function AdminPlansPage() {
                 </div>
               ))}
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-400">Active subscriptions</span>
+                <span className="text-slate-400">Abonnements actifs</span>
                 <span className="font-semibold text-indigo-400">{p._count.subscriptions}</span>
               </div>
             </div>
             <div className="flex gap-2">
               <button onClick={() => startEdit(p)}
                 className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg text-sm transition-all">
-                Edit
+                Modifier
               </button>
               {p.isActive && (
                 <button onClick={() => deactivate(p.id)}
                   className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 py-2 rounded-lg text-sm transition-all">
-                  Deactivate
+                  Désactiver
                 </button>
               )}
             </div>

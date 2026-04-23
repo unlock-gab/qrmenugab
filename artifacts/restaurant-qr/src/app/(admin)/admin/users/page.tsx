@@ -14,6 +14,14 @@ const roleColors: Record<string, string> = {
   MERCHANT_STAFF: "bg-sky-500/10 text-sky-400 border-sky-500/20",
 };
 
+const ROLE_FR: Record<string, string> = {
+  PLATFORM_ADMIN: "Admin Plateforme", MERCHANT_OWNER: "Propriétaire", MERCHANT_STAFF: "Personnel",
+};
+
+const FILTER_LABELS: Record<string, string> = {
+  all: "Tous", PLATFORM_ADMIN: "Admins", MERCHANT_OWNER: "Propriétaires", MERCHANT_STAFF: "Personnel",
+};
+
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,15 +40,15 @@ export default function AdminUsersPage() {
   return (
     <div className="p-8 max-w-6xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white">Users</h1>
-        <p className="text-slate-400 mt-1">All platform users across restaurants</p>
+        <h1 className="text-2xl font-bold text-white">Utilisateurs</h1>
+        <p className="text-slate-400 mt-1">Tous les utilisateurs de la plateforme</p>
       </div>
 
-      <div className="flex gap-2 mb-6">
+      <div className="flex gap-2 mb-6 flex-wrap">
         {["all", "PLATFORM_ADMIN", "MERCHANT_OWNER", "MERCHANT_STAFF"].map((r) => (
           <button key={r} onClick={() => setFilter(r)}
             className={`px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all ${filter === r ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-white hover:bg-slate-800"}`}>
-            {r === "all" ? "All" : r.replace("_", " ")}
+            {FILTER_LABELS[r] || r}
           </button>
         ))}
       </div>
@@ -49,18 +57,18 @@ export default function AdminUsersPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="text-slate-500 border-b border-slate-700/50">
-              <th className="text-left p-4 font-medium">User</th>
-              <th className="text-left p-4 font-medium">Role</th>
+              <th className="text-left p-4 font-medium">Utilisateur</th>
+              <th className="text-left p-4 font-medium">Rôle</th>
               <th className="text-left p-4 font-medium">Restaurant</th>
-              <th className="text-left p-4 font-medium">Status</th>
-              <th className="text-left p-4 font-medium">Joined</th>
+              <th className="text-left p-4 font-medium">Statut</th>
+              <th className="text-left p-4 font-medium">Inscrit le</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-700/30">
             {loading ? (
-              <tr><td colSpan={5} className="p-8 text-center text-slate-500">Loading...</td></tr>
+              <tr><td colSpan={5} className="p-8 text-center text-slate-500">Chargement...</td></tr>
             ) : users.length === 0 ? (
-              <tr><td colSpan={5} className="p-8 text-center text-slate-500">No users found</td></tr>
+              <tr><td colSpan={5} className="p-8 text-center text-slate-500">Aucun utilisateur trouvé</td></tr>
             ) : users.map((u) => (
               <tr key={u.id} className="hover:bg-slate-700/20 transition-colors">
                 <td className="p-4">
@@ -76,7 +84,7 @@ export default function AdminUsersPage() {
                 </td>
                 <td className="p-4">
                   <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${roleColors[u.role] || ""}`}>
-                    {u.role.replace(/_/g, " ")}
+                    {ROLE_FR[u.role] || u.role}
                   </span>
                 </td>
                 <td className="p-4">
@@ -88,11 +96,11 @@ export default function AdminUsersPage() {
                 </td>
                 <td className="p-4">
                   <span className={`text-xs font-semibold ${u.isActive ? "text-emerald-400" : "text-red-400"}`}>
-                    {u.isActive ? "Active" : "Inactive"}
+                    {u.isActive ? "Actif" : "Inactif"}
                   </span>
                 </td>
                 <td className="p-4 text-slate-500 text-xs">
-                  {new Date(u.createdAt).toLocaleDateString()}
+                  {new Date(u.createdAt).toLocaleDateString("fr-DZ")}
                 </td>
               </tr>
             ))}

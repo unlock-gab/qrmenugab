@@ -1,0 +1,575 @@
+Validate, fix, and premium-polish the existing **3-space architecture** of the restaurant QR ordering SaaS platform.
+
+The project has already been refactored into:
+
+1. **Public Homepage / Visitor Space**
+2. **Merchant Space**
+3. **Platform Admin Space**
+
+Now do a **full verification + correction + premium UI/UX polish pass** on this architecture.
+
+Important: this project started in Replit, but it is intentionally being built so it can later be migrated to a **VPS using Dokploy and Docker**.
+Keep everything **portable, production-minded, and Docker-friendly**.
+Do not introduce Replit-only architecture.
+Do not rebuild from scratch.
+Do not break the existing business logic, QR ordering flow, subscriptions, multi-branch support, public pages, merchant dashboard, or admin dashboard.
+
+This task is about:
+
+* validating that the 3-space architecture actually works correctly
+* fixing broken routing or auth logic
+* ensuring public/merchant/admin separation is real and stable
+* improving the UI/UX so the product feels premium and client-ready
+* making the public side feel like a real marketplace + SaaS landing
+* making merchant/admin spaces feel cleaner and more professional
+
+---
+
+## Mandatory language and currency rules
+
+These rules remain mandatory everywhere:
+
+* **French is the default language across the entire platform**
+* **Arabic is the secondary switchable language**
+* default locale must be **French**
+* if Arabic content is missing, fallback to **French**
+* all visible prices must use **DA**
+* currency formatting examples:
+
+  * `250 DA`
+  * `1 200 DA`
+  * `3 500 DA`
+* layouts must remain stable in both French and Arabic
+* Arabic mode must support RTL properly
+* French remains the primary product language everywhere
+
+This applies to:
+
+* homepage
+* restaurants listing
+* public restaurant pages
+* public menu / ordering
+* merchant login and dashboard
+* admin login and dashboard
+* pricing and subscription pages
+* all cards, stats, labels, forms, and tables
+
+---
+
+## Main mission
+
+Perform a structured **audit + repair + polish pass** on the current 3-space implementation.
+
+You must:
+
+1. verify that the architecture is truly working
+2. fix inconsistencies
+3. improve visual quality
+4. improve routing clarity
+5. improve real data display from DB
+6. improve empty states / loading states / fallback states
+7. make the public experience feel premium
+8. make merchant/admin spaces more trustworthy and professional
+
+Do not just claim completion.
+Actually inspect the existing implementation and improve it properly.
+
+---
+
+## Part 1 — Validate the 3-space architecture
+
+### A. Public space validation
+
+Verify that:
+
+* `/` is the true public homepage
+* `/restaurants` works properly
+* `/restaurants/[slug]` works properly
+* public users are not redirected incorrectly to merchant or admin routes
+* restaurant cards come from real DB data where intended
+* only active/public restaurants appear publicly
+* public layout is separated from merchant/admin layouts
+* French is default on all public pages
+* Arabic switch still works if already implemented
+
+### B. Merchant space validation
+
+Verify that:
+
+* `/merchant/login` works correctly
+* merchant auth/session works correctly
+* `/merchant/*` routes are protected
+* merchant users can only see their own restaurant data
+* merchant users do not leak into admin space
+* merchant layout is separated from public/admin
+* old legacy routes redirect correctly if needed
+
+### C. Admin space validation
+
+Verify that:
+
+* `/admin/login` works correctly
+* `/admin/*` routes are protected by admin role
+* merchant users cannot access admin routes
+* admin layout is fully separated
+* admin can still access platform-wide data properly
+
+### D. Redirect and middleware validation
+
+Audit:
+
+* middleware
+* role-based redirects
+* login redirect behavior
+* old route fallback redirects
+* unauthorized access behavior
+* session edge cases
+
+Fix anything weak, broken, or inconsistent.
+
+---
+
+## Part 2 — Validate data rendering and real DB usage
+
+Audit the current pages and confirm they are using real, meaningful data where intended.
+
+### Public homepage
+
+Validate whether these sections truly use DB-backed content where appropriate:
+
+* featured restaurants
+* recent restaurants
+* trending restaurants or items
+* categories
+* city-based discovery if present
+
+If some sections are still mock or fake, replace them with clean real-data implementations where reasonable.
+
+### Restaurants listing
+
+Ensure:
+
+* data comes from DB
+* filters work
+* search works
+* active/public rules are respected
+* cards do not break if image/logo is missing
+* empty state is handled properly if no restaurant exists
+
+### Public restaurant page
+
+Ensure:
+
+* slug lookup is reliable
+* inactive/suspended/non-public restaurants are handled correctly
+* page gracefully handles missing data
+* page connects correctly to public menu and ordering logic
+* branch or menu fallback behavior is clean
+
+### Merchant/admin dashboards
+
+Validate key dashboard cards and lists:
+
+* no broken undefined values
+* no fake placeholders where real data should exist
+* no broken counts
+* no wrong currency formatting
+* no cross-tenant leakage
+
+---
+
+## Part 3 — Premium polish for the Public Homepage
+
+The homepage must feel significantly more premium and intentional.
+
+### Improve the homepage design
+
+Polish:
+
+* hero section
+* typography hierarchy
+* spacing
+* CTA quality
+* background treatment
+* restaurant cards
+* categories section
+* feature/benefit sections
+* footer
+* visual consistency
+
+### Desired public homepage feeling
+
+It should feel like:
+
+* premium marketplace
+* modern SaaS landing page
+* clear for visitors
+* attractive for restaurants
+* strong enough to show clients
+* mobile-first
+* French-first
+* clean and trustworthy
+
+### Public homepage sections to polish
+
+Improve these sections if present, or add/refine them cleanly:
+
+* Hero
+* Featured restaurants
+* Trending this week
+* Categories
+* How it works
+* Benefits for restaurant owners
+* Pricing teaser
+* Testimonials-ready area
+* CTA to start
+* Footer
+
+Do not make it generic.
+Do not keep it looking like a rough prototype.
+
+---
+
+## Part 4 — Premium polish for public restaurants listing
+
+The listing page must feel stronger and more usable.
+
+Improve:
+
+* filters UI
+* search UI
+* cards
+* responsiveness
+* loading state
+* empty state
+* image handling
+* category tags
+* city labels
+* `Voir le restaurant` / `Voir le menu` actions
+
+Cards should feel polished, readable, and marketplace-ready.
+
+---
+
+## Part 5 — Premium polish for public restaurant detail page
+
+The public restaurant detail page should feel like a serious business profile page.
+
+Improve:
+
+* restaurant header
+* cover/logo presentation
+* restaurant info hierarchy
+* CTA placement
+* menu highlights section
+* service badges
+* location/contact display
+* branch handling if already relevant
+* link to ordering/menu flow
+
+The page should look trustworthy and conversion-friendly, not just functional.
+
+---
+
+## Part 6 — Premium polish for Merchant login and Merchant shell
+
+The merchant login page should no longer feel basic or isolated.
+
+### Improve merchant login page
+
+Polish:
+
+* branding
+* hierarchy
+* spacing
+* CTA wording
+* support links
+* `Retour à l'accueil`
+* `Essai gratuit`
+* `Créer mon espace`
+
+It should feel like a professional SaaS merchant access page.
+
+### Improve merchant shell consistency
+
+Audit and polish:
+
+* sidebar/topbar
+* section headings
+* stat cards
+* tables/lists
+* empty states
+* status badges
+* spacing
+* French labels consistency
+* DA formatting consistency
+
+Do not redesign the whole merchant app unnecessarily.
+Polish what exists while preserving functionality.
+
+---
+
+## Part 7 — Premium polish for Admin login and Admin shell
+
+The admin side should feel like a real platform control center.
+
+### Improve admin login page
+
+Make it:
+
+* cleaner
+* safer-looking
+* more intentional
+* visually separate from merchant login
+
+### Improve admin shell
+
+Polish:
+
+* navigation hierarchy
+* dashboard cards
+* tables
+* admin actions
+* spacing
+* visual clarity
+* overall platform control center feeling
+
+Admin should feel structured and powerful, not improvised.
+
+---
+
+## Part 8 — Empty states, loading states, and fallback states
+
+Audit all main areas and improve UX for edge states.
+
+### Public pages
+
+Handle:
+
+* no restaurants found
+* no matching search results
+* missing images
+* inactive restaurant
+* unavailable page
+* loading data
+* failed load
+
+### Merchant/admin pages
+
+Handle:
+
+* no orders
+* no tables
+* no menu items
+* no restaurants
+* no subscriptions
+* no staff
+* loading and error states
+
+Design these states so they still feel premium and intentional.
+
+---
+
+## Part 9 — Mobile responsiveness and layout stability
+
+Audit the product on mobile and tablet widths.
+
+Verify and improve:
+
+* homepage mobile layout
+* restaurant cards
+* filters
+* public detail pages
+* merchant login
+* admin login
+* merchant dashboard navigation
+* admin dashboard navigation
+* overflow issues
+* RTL behavior in Arabic mode
+* spacing and tap targets
+
+The platform must feel reliable and premium on mobile, not only desktop.
+
+---
+
+## Part 10 — French-first consistency audit
+
+Audit visible UI text and make sure French is the real default everywhere.
+
+Fix inconsistent English leftovers such as:
+
+* headings
+* buttons
+* placeholder text
+* status labels
+* dashboard labels
+* filter labels
+* auth messages
+* empty states
+* CTA labels
+
+Examples of preferred French consistency:
+
+* `Connexion`
+* `Gérer mon restaurant`
+* `Explorer les établissements`
+* `Voir le menu`
+* `Tableau de bord`
+* `Commandes`
+* `Paramètres`
+* `Aucun résultat`
+* `Chargement...`
+
+Arabic should remain available as secondary language, but French must dominate by default.
+
+---
+
+## Part 11 — DA currency consistency audit
+
+Audit all public and private views to ensure:
+
+* currency is consistently shown as **DA**
+* spacing is clean
+* capitalization is consistent
+* no leftover `$`, `€`, or lowercase mistakes if not intended
+* all pricing cards, totals, subscriptions, dashboard KPIs, and order totals use centralized formatting
+
+Fix any inconsistency.
+
+---
+
+## Part 12 — Route and layout cleanup
+
+Clean the structure so it remains maintainable.
+
+Ensure:
+
+* public layout concerns stay separate
+* merchant layout concerns stay separate
+* admin layout concerns stay separate
+* route groups are clean
+* shared components are reused cleanly
+* no duplicated messy logic between spaces
+* no confusing mixed navigation
+
+Refactor lightly where needed for maintainability.
+
+---
+
+## Part 13 — Security and tenant-safety re-check
+
+During this polish pass, re-check that:
+
+* public pages do not expose private merchant/admin data
+* merchant routes remain tenant-scoped
+* admin routes remain admin-only
+* restaurant visibility rules are respected publicly
+* suspended/inactive restaurants are handled correctly
+* route guards are still working after UI changes
+
+Do not weaken access control while polishing.
+
+---
+
+## Part 14 — Performance and code quality cleanup
+
+While polishing, improve:
+
+* repeated UI code where easy
+* broken component structure
+* loading strategy
+* over-rendered heavy sections if obvious
+* image fallbacks
+* reusable formatting helpers
+* reusable state components
+* maintainability of route/layout code
+
+Do not overengineer.
+Just leave the architecture cleaner and more production-minded.
+
+---
+
+## UI/UX direction
+
+### Public side
+
+Should feel like:
+
+* premium
+* modern
+* polished
+* discovery-friendly
+* SaaS-aware
+* French-first
+* client-ready
+
+### Merchant side
+
+Should feel like:
+
+* operational
+* trustworthy
+* premium SaaS dashboard
+* organized
+* clean
+
+### Admin side
+
+Should feel like:
+
+* platform control center
+* clear
+* structured
+* powerful
+* reliable
+
+### Design standards
+
+* modern typography hierarchy
+* consistent cards
+* refined shadows/borders
+* better spacing rhythm
+* stronger CTA hierarchy
+* cleaner status badges
+* proper empty/loading/error states
+* better responsive behavior
+* no rough prototype feeling
+
+---
+
+## Deliverables for this task
+
+Complete a real validation + fix + premium polish pass that includes:
+
+1. validation of public / merchant / admin route separation
+2. validation of auth and redirect behavior
+3. validation of real DB-backed public listing behavior
+4. fixes for any broken routing, middleware, or access issues
+5. premium polish of homepage
+6. premium polish of restaurants listing
+7. premium polish of public restaurant page
+8. premium polish of merchant login and merchant shell
+9. premium polish of admin login and admin shell
+10. proper empty/loading/error states
+11. mobile and responsive improvements
+12. French-first text cleanup
+13. DA currency consistency cleanup
+14. tenant-safety re-check
+15. maintainable code cleanup without breaking architecture
+
+---
+
+## Important implementation rules
+
+* do not break previous phases
+* do not rebuild from scratch
+* do not remove existing working modules
+* do not revert the 3-space architecture
+* do not make login the homepage again
+* do not make Arabic the default language
+* do not use a non-DA visible currency
+* do not leave English leftovers in key UI areas
+* do not weaken middleware or auth protections
+* build like this is a real SaaS product being prepared for client demos and future VPS deployment
+
+Now perform a true **Validate, Fix, and Premium Polish** pass on the current **Public Homepage + Merchant Space + Admin Space** architecture and leave the product cleaner, stronger, more reliable, and more premium.
