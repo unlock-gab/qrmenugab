@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { formatDA } from "@/lib/i18n";
 import { getBranchId } from "@/components/dashboard/BranchSwitcher";
+import { useSubmitGuard } from "@/hooks/useSubmitGuard";
 
 interface OrderItem { id: string; nameSnapshot: string; quantity: number; unitPrice: number; }
 interface Order {
@@ -149,7 +150,7 @@ export default function CashierPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Order | null>(null);
-  const [paying, setPaying] = useState(false);
+  const { pending: paying, guard } = useSubmitGuard({ minDelayMs: 600 });
   const [branchId, setBranchIdState] = useState<string | null>(null);
 
   useEffect(() => {
@@ -174,22 +175,25 @@ export default function CashierPage() {
     return () => clearInterval(i);
   }, [fetchOrders]);
 
-  const handlePay = async (method: string) => {
-    if (!selected) return;
-    setPaying(true);
-    try {
-      const res = await fetch(`/api/orders/${selected.id}/pay`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentMethod: method }),
-      });
-      if (res.ok) {
-        const paid = await res.json();
-        setSelected(null);
-        fetchOrders();
-        window.open(`/print/${paid.id}`, "_blank");
-      }
-    } finally { setPaying(false); }
+  const handlePayWithMethod = guard(async () => {
+    if (!selected || !methodRef.current) return;
+    const res = await fetch(`/api/orders/${selected.id}/pay`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paymentMethod: methodRef.current }),
+    });
+    if (res.ok) {
+      const paid = await res.json();
+      setSelected(null);
+      fetchOrders();
+      window.open(`/print/${paid.id}`, "_blank");
+    }
+  });
+
+  const methodRef = useRef("CASH");
+  const handlePay = (method: string) => {
+    methodRef.current = method;
+    handlePayWithMethod();
   };
 
   const served = orders.filter((o) => o.status === "SERVED");

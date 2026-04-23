@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { getBranchId } from "@/components/dashboard/BranchSwitcher";
 
 interface OrderItem {
@@ -125,6 +125,7 @@ export default function KitchenPage() {
   const [loading, setLoading] = useState(true);
   const [lastCount, setLastCount] = useState(0);
   const [branchId, setBranchIdState] = useState<string | null>(null);
+  const inflightRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     setBranchIdState(getBranchId());
@@ -171,12 +172,18 @@ export default function KitchenPage() {
   }, [fetchOrders]);
 
   const handleAction = async (orderId: string, status: string) => {
-    const res = await fetch(`/api/orders/${orderId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    if (res.ok) fetchOrders();
+    if (inflightRef.current.has(orderId)) return;
+    inflightRef.current.add(orderId);
+    try {
+      const res = await fetch(`/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (res.ok) fetchOrders();
+    } finally {
+      inflightRef.current.delete(orderId);
+    }
   };
 
   const filtered = filter === "ALL" ? orders : orders.filter((o) => o.status === filter);

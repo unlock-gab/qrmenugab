@@ -102,6 +102,62 @@ A production-ready multi-restaurant QR ordering SaaS platform built with Next.js
 - Cashier PayDialog shows: itemized + discount row + المبلغ المستحق (finalTotal)
 - Cashier card shows finalTotal prominently
 
+## Phase 7 Features (Complete)
+- T701–T710: Multi-branch, Delivery/Takeaway, Customer Accounts, Loyalty, Notifications
+- BranchSwitcher (localStorage), branch-filtered kitchen/cashier/waiter/reports
+- OrderType enum: DINE_IN / TAKEAWAY / DELIVERY; tableId optional for non DINE_IN
+- Customer JWT auth; loyalty points (1pt/1 DA); LoyaltyAccount auto-create
+- NotificationLog model; notification events: ORDER_CREATED, READY, PAID, etc.
+- FR-first UX throughout dashboard (Sidebar, Kitchen, Cashier, Reports, pages)
+
+## Phase 8 Features (In Progress — Production Hardening)
+
+### ✅ T801: PWA Foundation
+- `public/manifest.json` (FR labels, #f97316 theme, shortcuts to /kitchen /cashier)
+- `public/sw.js` (network-first SW, skips /api/* and /_next/*)
+- `src/app/layout.tsx` (lang=fr, PWA meta, viewport, SW registration)
+
+### ✅ T802: Network Resilience
+- `src/hooks/useNetworkStatus.ts` — pings /api/health every 15s
+- `src/hooks/useRetryFetch.ts` — auto-retry with exponential backoff
+- `src/components/NetworkBanner.tsx` — FR/AR bilingual top banner
+- Integrated into dashboard layout
+
+### ✅ T803: Print Workflow Rewrite
+- PrintClient.tsx: FR-first receipt labels, formatDA() currency, thermal 80mm print CSS
+- Shows: branch name, orderType badge, customer info, itemized options, discount, finalTotal
+
+### ✅ T804: Docker + Deployment
+- `Dockerfile` (multi-stage, standalone output, non-root user, HEALTHCHECK)
+- `.dockerignore`, `docker-compose.yml` (app+postgres with health checks)
+- `scripts/startup.sh` (migrate deploy → db push fallback)
+- `.env.example` (all required variables documented)
+- `next.config.ts`: `output: "standalone"` for Docker build
+- `/api/health` endpoint with DB ping
+
+### ✅ T805: Notification Architecture
+- `src/lib/notifications.ts` — FR/AR bilingual TEMPLATES, fireNotification()
+- `src/lib/providers/types.ts` — NotificationProvider interface
+- `src/lib/providers/log-provider.ts` — dev mock (logs to DB)
+- `src/lib/providers/twilio-provider.ts` — SMS/WhatsApp placeholders
+- Events: ORDER_CREATED, ORDER_READY, ORDER_PAID, RESERVATION_CONFIRMED, LOW_STOCK, SUBSCRIPTION_EXPIRING
+
+### ✅ T806: In-App Notification Center
+- `src/components/dashboard/NotificationBell.tsx` — dropdown bell with badge
+- `/api/notifications/unread` — counts orders/reservations/waiterRequests + recent 8 logs
+- Integrated in dashboard layout top bar (auto-refresh every 20s)
+
+### ✅ T807: Subscription UX
+- `SubscriptionClient.tsx` fully rewritten in French
+- TrialBanner + ExpiryBanner (shows when ≤14 days remaining, urgent at ≤3 days)
+- Usage bars with FR labels and "Limite presque atteinte" warning
+- formatDA() for pricing display
+
+### ✅ T808: Safer Transactional UX
+- `src/hooks/useSubmitGuard.ts` — useRef lock + pending state, minDelayMs
+- Cashier: useSubmitGuard on pay action with methodRef for payment method
+- Kitchen: per-order inflight Set (inflightRef) to prevent duplicate status updates
+
 ## Important Technical Notes
 - Prisma Decimal fields → always convert with `Number()` before sending to client
 - translationsJson stored as string; parse with JSON.parse safely
