@@ -2,13 +2,20 @@
 
 import { useEffect, useState } from "react";
 
-type Staff = { id: string; name: string; email: string; isActive: boolean; createdAt: string };
+type Staff = { id: string; name: string; email: string; role: string; isActive: boolean; createdAt: string };
+
+const ROLE_OPTIONS = [
+  { value: "MERCHANT_STAFF", label: "موظف عام", color: "bg-gray-100 text-gray-600" },
+  { value: "STAFF_KITCHEN", label: "🍳 مطبخ", color: "bg-green-100 text-green-700" },
+  { value: "STAFF_WAITER", label: "🍽️ نادل", color: "bg-blue-100 text-blue-700" },
+  { value: "STAFF_CASHIER", label: "💰 كاشير", color: "bg-violet-100 text-violet-700" },
+];
 
 export function StaffClient() {
   const [staff, setStaff] = useState<Staff[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", role: "MERCHANT_STAFF" });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -37,7 +44,7 @@ export function StaffClient() {
       return;
     }
     setShowForm(false);
-    setForm({ name: "", email: "", password: "" });
+    setForm({ name: "", email: "", password: "", role: "MERCHANT_STAFF" });
     load();
   };
 
@@ -85,6 +92,19 @@ export function StaffClient() {
               className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-gray-800 focus:outline-none focus:border-orange-400"
               placeholder="Temporary password" required />
           </div>
+          <div>
+            <label className="block text-sm text-gray-600 mb-1.5">الدور *</label>
+            <div className="grid grid-cols-2 gap-2">
+              {ROLE_OPTIONS.map((opt) => (
+                <button key={opt.value} type="button"
+                  onClick={() => setForm((f) => ({ ...f, role: opt.value }))}
+                  className={`py-2.5 px-3 rounded-xl text-sm font-semibold border transition-colors ${form.role === opt.value ? "border-orange-400 bg-orange-50 text-orange-700" : "border-gray-200 text-gray-600 hover:border-gray-300"}`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-red-600 text-sm">{error}</div>
@@ -121,6 +141,9 @@ export function StaffClient() {
               <div>
                 <p className="font-semibold text-gray-800">{s.name}</p>
                 <p className="text-sm text-gray-500">{s.email}</p>
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${ROLE_OPTIONS.find((r) => r.value === s.role)?.color ?? "bg-gray-100 text-gray-600"}`}>
+                  {ROLE_OPTIONS.find((r) => r.value === s.role)?.label ?? s.role}
+                </span>
               </div>
             </div>
             <div className="flex items-center gap-3">

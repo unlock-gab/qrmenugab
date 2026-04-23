@@ -18,8 +18,11 @@ pnpm workspace monorepo using TypeScript. Contains a multi-restaurant QR orderin
 
 ### User Roles
 - `PLATFORM_ADMIN` — Platform owner; manages all restaurants, users, plans via `/admin/*`
-- `MERCHANT_OWNER` — Restaurant owner; manages their restaurant via `/dashboard/*`
-- `MERCHANT_STAFF` — Restaurant staff; limited access to operational pages
+- `MERCHANT_OWNER` — Restaurant owner; full access to dashboard + all operational modes
+- `MERCHANT_STAFF` — General staff; dashboard + all operational modes
+- `STAFF_KITCHEN` — Kitchen-only access; redirects to `/kitchen` on login
+- `STAFF_WAITER` — Waiter-only access; redirects to `/waiter` on login
+- `STAFF_CASHIER` — Cashier-only access; redirects to `/cashier` on login
 
 ### Demo Credentials
 - **Platform Admin**: admin@platform.com / admin123
@@ -84,14 +87,21 @@ pnpm workspace monorepo using TypeScript. Contains a multi-restaurant QR orderin
 - `/admin/users` — all users with role filter
 
 ### Merchant (`/dashboard/*`)
-- `/dashboard` — restaurant overview
+- `/dashboard` — restaurant overview (with operational shortcuts + unpaid orders stat)
 - `/orders` — orders management
 - `/tables` — tables + QR codes
 - `/categories` — menu categories
 - `/menu-items` — menu items
-- `/staff` — staff management (owner only)
+- `/staff` — staff management (owner only, supports role selection)
 - `/subscription` — current plan + usage
 - `/settings` — restaurant settings
+
+### Operational Modes (Phase 5)
+- `/kitchen` — Kitchen Display System (dark theme, shows NEW/PREPARING/READY, auto-refresh 8s, beep on new order)
+- `/waiter` — Waiter workspace (table-centric, mark as SERVED, quick order overview)
+- `/waiter/new-order` — Manual order entry (choose table + items + notes)
+- `/cashier` — Cashier workspace (unpaid orders, mark as PAID + payment method)
+- `/print/[orderId]` — Printable receipt (restaurant branding, items, total, payment method)
 
 ### Onboarding
 - `/onboarding` — multi-step setup (PENDING_SETUP merchants redirected here)
@@ -126,6 +136,14 @@ pnpm workspace monorepo using TypeScript. Contains a multi-restaurant QR orderin
 - `/api/admin/plans/[id]` — PATCH, DELETE (deactivate)
 - `/api/admin/users` — GET all users
 
+### Operational APIs (Phase 5)
+- `/api/kitchen` — GET active orders for KDS (NEW/PREPARING/READY)
+- `/api/waiter` — GET table overview with active orders
+- `/api/cashier` — GET unpaid orders
+- `/api/orders/[id]/pay` — POST mark order as PAID with payment method
+- `/api/orders/manual` — POST create manual order (waiter access)
+- `/api/orders/[id]` — PATCH extended with preparedAt/servedAt auto-timestamps
+
 ### Public APIs
 - `/api/public/menu` — customer menu data
 - `/api/orders` (public POST) — place order
@@ -135,9 +153,12 @@ pnpm workspace monorepo using TypeScript. Contains a multi-restaurant QR orderin
 ## Database Schema (Prisma)
 
 ### Enums
-- `UserRole`: PLATFORM_ADMIN, MERCHANT_OWNER, MERCHANT_STAFF
+- `UserRole`: PLATFORM_ADMIN, MERCHANT_OWNER, MERCHANT_STAFF, STAFF_KITCHEN, STAFF_WAITER, STAFF_CASHIER
 - `RestaurantStatus`: ACTIVE, INACTIVE, SUSPENDED, PENDING_SETUP
 - `OrderStatus`: NEW, PREPARING, READY, SERVED, PAID, CANCELLED
+- `PaymentStatus`: UNPAID, PAID
+- `PaymentMethod`: CASH, CARD, TRANSFER, OTHER
+- `OrderSource`: QR, MANUAL
 - `SubscriptionStatus`: TRIAL, ACTIVE, EXPIRED, CANCELLED
 
 ### Models
@@ -146,7 +167,9 @@ pnpm workspace monorepo using TypeScript. Contains a multi-restaurant QR orderin
 - `SubscriptionPlan` — name, price, maxTables, maxMenuItems, maxStaffUsers
 - `RestaurantSubscription` — links restaurant ↔ plan with status/dates
 - `Table` — with qrToken, isActive
-- `Category`, `MenuItem`, `Order`, `OrderItem`
+- `Category`, `MenuItem`
+- `Order` — extended with paymentStatus, paymentMethod, orderSource, preparedAt, servedAt, paidAt
+- `OrderItem`
 
 ---
 

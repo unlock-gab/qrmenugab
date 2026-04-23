@@ -11,7 +11,7 @@ export async function GET() {
     if (!restaurantId) return NextResponse.json({ error: "No restaurant" }, { status: 400 });
 
     const staff = await prisma.user.findMany({
-      where: { restaurantId, role: "MERCHANT_STAFF" },
+      where: { restaurantId, role: { in: ["MERCHANT_STAFF", "STAFF_KITCHEN", "STAFF_WAITER", "STAFF_CASHIER"] } },
       orderBy: { createdAt: "desc" },
       select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true },
     });
@@ -36,15 +36,18 @@ export async function POST(req: NextRequest) {
       }, { status: 403 });
     }
 
-    const { name, email, password } = await req.json();
+    const { name, email, password, role: rawRole } = await req.json();
     if (!name || !email || !password) return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+
+    const allowedRoles = ["MERCHANT_STAFF", "STAFF_KITCHEN", "STAFF_WAITER", "STAFF_CASHIER"];
+    const role = allowedRoles.includes(rawRole) ? rawRole : "MERCHANT_STAFF";
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) return NextResponse.json({ error: "Email already in use" }, { status: 409 });
 
     const passwordHash = await bcrypt.hash(password, 10);
     const staff = await prisma.user.create({
-      data: { name, email, passwordHash, role: "MERCHANT_STAFF", restaurantId, isActive: true },
+      data: { name, email, passwordHash, role, restaurantId, isActive: true },
       select: { id: true, name: true, email: true, role: true, isActive: true, createdAt: true },
     });
 

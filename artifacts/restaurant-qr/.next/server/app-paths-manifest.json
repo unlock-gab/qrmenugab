@@ -1,12 +1,5 @@
 {
-  "/api/contact/route": "app/api/contact/route.js",
-  "/api/signup/route": "app/api/signup/route.js",
-  "/api/public/plans/route": "app/api/public/plans/route.js",
-  "/signup/page": "app/signup/page.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
   "/(marketing)/page": "app/(marketing)/page.js",
-  "/(marketing)/pricing/page": "app/(marketing)/pricing/page.js",
-  "/(marketing)/features/page": "app/(marketing)/features/page.js",
-  "/(marketing)/how-it-works/page": "app/(marketing)/how-it-works/page.js",
-  "/(marketing)/faq/page": "app/(marketing)/faq/page.js",
-  "/(marketing)/contact/page": "app/(marketing)/contact/page.js"
+  "/(auth)/login/page": "app/(auth)/login/page.js"
 }

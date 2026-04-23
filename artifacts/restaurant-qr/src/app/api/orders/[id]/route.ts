@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const updateOrderSchema = z.object({
   status: z.enum(["NEW", "PREPARING", "READY", "SERVED", "PAID", "CANCELLED"]).optional(),
   seenAt: z.string().datetime().optional().nullable(),
+  preparedAt: z.string().datetime().optional().nullable(),
+  servedAt: z.string().datetime().optional().nullable(),
 });
 
 export async function PATCH(
@@ -34,9 +36,25 @@ export async function PATCH(
   }
 
   const updateData: Record<string, unknown> = {};
-  if (parsed.data.status !== undefined) updateData.status = parsed.data.status;
+  const now = new Date();
+
+  if (parsed.data.status !== undefined) {
+    updateData.status = parsed.data.status;
+    if (parsed.data.status === "PREPARING" && !order.preparedAt) {
+      updateData.preparedAt = now;
+    }
+    if (parsed.data.status === "SERVED" && !order.servedAt) {
+      updateData.servedAt = now;
+    }
+  }
   if (parsed.data.seenAt !== undefined) {
     updateData.seenAt = parsed.data.seenAt ? new Date(parsed.data.seenAt) : null;
+  }
+  if (parsed.data.preparedAt !== undefined) {
+    updateData.preparedAt = parsed.data.preparedAt ? new Date(parsed.data.preparedAt) : null;
+  }
+  if (parsed.data.servedAt !== undefined) {
+    updateData.servedAt = parsed.data.servedAt ? new Date(parsed.data.servedAt) : null;
   }
 
   const updated = await prisma.order.update({

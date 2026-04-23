@@ -17,6 +17,7 @@ async function getStats(restaurantId: string) {
     recentOrders,
     totalOrdersToday,
     servedPaidToday,
+    unpaidOrders,
   ] = await Promise.all([
     prisma.table.count({ where: { restaurantId, isActive: true } }),
     prisma.menuItem.count({ where: { restaurantId, isAvailable: true } }),
@@ -50,6 +51,9 @@ async function getStats(restaurantId: string) {
         createdAt: { gte: today() },
       },
     }),
+    prisma.order.count({
+      where: { restaurantId, paymentStatus: "UNPAID", status: { notIn: ["CANCELLED"] } },
+    }),
   ]);
 
   return {
@@ -62,6 +66,7 @@ async function getStats(restaurantId: string) {
     recentOrders,
     totalOrdersToday,
     servedPaidToday,
+    unpaidOrders,
   };
 }
 
@@ -162,7 +167,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
           <p className="text-2xl font-bold text-gray-900">{stats.totalOrdersToday}</p>
           <p className="text-sm text-gray-500 mt-0.5">Orders Today</p>
@@ -171,10 +176,36 @@ export default async function DashboardPage() {
           <p className="text-2xl font-bold text-gray-900">{stats.tableCount}</p>
           <p className="text-sm text-gray-500 mt-0.5">Active Tables</p>
         </div>
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-          <p className="text-2xl font-bold text-gray-900">{stats.menuItemCount}</p>
-          <p className="text-sm text-gray-500 mt-0.5">Menu Items</p>
-        </div>
+        <Link href="/cashier" className="group bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-red-200 hover:shadow-md transition-all">
+          <p className={`text-2xl font-bold ${stats.unpaidOrders > 0 ? "text-red-600" : "text-gray-900"}`}>{stats.unpaidOrders}</p>
+          <p className="text-sm text-gray-500 mt-0.5">Unpaid Orders</p>
+          {stats.unpaidOrders > 0 && <span className="text-xs text-red-500 font-medium">→ Cashier</span>}
+        </Link>
+      </div>
+
+      {/* Operational Shortcuts */}
+      <div className="grid grid-cols-3 gap-3 mb-8">
+        <Link href="/kitchen" className="flex items-center gap-3 bg-gray-900 hover:bg-gray-800 rounded-2xl p-4 transition-all">
+          <span className="text-2xl">🍳</span>
+          <div>
+            <p className="text-white font-semibold text-sm">شاشة المطبخ</p>
+            <p className="text-gray-400 text-xs">{stats.newOrders + stats.preparingOrders} active</p>
+          </div>
+        </Link>
+        <Link href="/waiter" className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 rounded-2xl p-4 transition-all">
+          <span className="text-2xl">🍽️</span>
+          <div>
+            <p className="text-white font-semibold text-sm">وضع النادل</p>
+            <p className="text-blue-200 text-xs">{stats.readyOrders} ready</p>
+          </div>
+        </Link>
+        <Link href="/cashier" className="flex items-center gap-3 bg-violet-600 hover:bg-violet-700 rounded-2xl p-4 transition-all">
+          <span className="text-2xl">💰</span>
+          <div>
+            <p className="text-white font-semibold text-sm">وضع الكاشير</p>
+            <p className="text-violet-200 text-xs">{stats.unpaidOrders} unpaid</p>
+          </div>
+        </Link>
       </div>
 
       {stats.recentOrders.length > 0 ? (
