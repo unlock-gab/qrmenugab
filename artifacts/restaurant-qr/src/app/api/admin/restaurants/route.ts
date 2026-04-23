@@ -8,18 +8,40 @@ export async function GET(req: NextRequest) {
     await requirePlatformAdmin();
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
+    const limit = Math.min(100, parseInt(searchParams.get("limit") || "100"));
+    const skip = (page - 1) * limit;
 
-    const restaurants = await prisma.restaurant.findMany({
-      where: status ? { status: status as "ACTIVE" | "INACTIVE" | "SUSPENDED" | "PENDING_SETUP" } : undefined,
-      orderBy: { createdAt: "desc" },
-      include: {
-        users: { where: { role: "MERCHANT_OWNER" }, select: { id: true, name: true, email: true } },
-        subscription: { include: { plan: { select: { name: true } } } },
-        _count: { select: { tables: true, menuItems: true, orders: true } },
-      },
+    const [restaurants, total] = await Promise.all([
+      prisma.restaurant.findMany({
+        where: status ? { status: status as "ACTIVE" | "INACTIVE" | "SUSPENDED" | "PENDING_SETUP" } : undefined,
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        skip,
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          status: true,
+          createdAt: true,
+          users: {
+            where: { role: "MERCHANT_OWNER" },
+            select: { id: true, name: true, email: true },
+          },
+          subscription: {
+            select: { status: true, plan: { select: { name: true } } },
+          },
+          _count: { select: { tables: true, menuItems: true, orders: true } },
+        },
+      }),
+      prisma.restaurant.count({
+        where: status ? { status: status as "ACTIVE" | "INACTIVE" | "SUSPENDED" | "PENDING_SETUP" } : undefined,
+      }),
+    ]);
+
+    return NextResponse.json(restaurants, {
+      headers: { "X-Total-Count": total.toString() },
     });
-
-    return NextResponse.json(restaurants);
   } catch {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

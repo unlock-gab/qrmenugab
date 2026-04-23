@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -143,10 +144,12 @@ export default async function RestaurantsPage({
               >
                 <div className="relative h-44 bg-gradient-to-br from-orange-100 to-amber-50 overflow-hidden">
                   {r.coverImageUrl ? (
-                    <img
+                    <Image
                       src={r.coverImageUrl}
                       alt={r.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
@@ -160,7 +163,7 @@ export default async function RestaurantsPage({
                   )}
                   {r.logoUrl && (
                     <div className="absolute bottom-3 left-3 w-12 h-12 bg-white rounded-xl shadow-md overflow-hidden border-2 border-white">
-                      <img src={r.logoUrl} alt={`Logo ${r.name}`} className="w-full h-full object-cover" />
+                      <Image src={r.logoUrl} alt={`Logo ${r.name}`} fill sizes="48px" className="object-cover" />
                     </div>
                   )}
                 </div>

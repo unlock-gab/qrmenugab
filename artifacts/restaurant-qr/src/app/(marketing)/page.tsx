@@ -2,12 +2,14 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import {
   QrCode, ChefHat, Zap, BarChart3, Smartphone, Users,
   Star, Check, ArrowRight, Bell, Settings, MapPin, Utensils
 } from "lucide-react";
 
+export const revalidate = 300;
 export const metadata = { title: "QRMenu — Commande QR pour Restaurants & Cafés en Algérie" };
 
 export default async function HomePage() {
@@ -216,7 +218,7 @@ function FeaturedRestaurantsSection({ restaurants }: { restaurants: PublicRestau
             >
               <div className="relative h-40 bg-gradient-to-br from-orange-100 to-amber-50 overflow-hidden">
                 {r.coverImageUrl ? (
-                  <img src={r.coverImageUrl} alt={r.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  <Image src={r.coverImageUrl} alt={r.name} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <span className="text-5xl opacity-25">🍽️</span>

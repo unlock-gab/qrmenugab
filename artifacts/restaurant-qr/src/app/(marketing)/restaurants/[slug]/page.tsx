@@ -1,26 +1,11 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Metadata } from "next";
+import { cache } from "react";
 
 export const revalidate = 60;
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
-  const restaurant = await prisma.restaurant.findFirst({
-    where: { slug, isPublic: true, status: "ACTIVE" },
-    select: { name: true, publicDescription: true },
-  });
-  if (!restaurant) return { title: "Restaurant introuvable" };
-  return {
-    title: `${restaurant.name} — QRMenu`,
-    description: restaurant.publicDescription ?? `Découvrez le menu de ${restaurant.name}`,
-  };
-}
 
 const TYPE_LABELS: Record<string, string> = {
   algerian: "Cuisine algérienne",
@@ -32,14 +17,9 @@ const TYPE_LABELS: Record<string, string> = {
   other: "Autre",
 };
 
-export default async function RestaurantDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
-
-  const restaurant = await prisma.restaurant.findFirst({
+// cache() deduplicates DB calls between generateMetadata and the page — one hit per request
+const getRestaurant = cache(async (slug: string) =>
+  prisma.restaurant.findFirst({
     where: { slug, isPublic: true, status: "ACTIVE" },
     select: {
       id: true,
@@ -73,30 +53,53 @@ export default async function RestaurantDetailPage({
       },
       branches: {
         where: { status: "ACTIVE" },
-        select: {
-          id: true,
-          name: true,
-          address: true,
-          phone: true,
-          slug: true,
-        },
+        select: { id: true, name: true, address: true, phone: true, slug: true },
       },
     },
-  });
+  })
+);
 
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const restaurant = await getRestaurant(slug);
+  if (!restaurant) return { title: "Restaurant introuvable" };
+  return {
+    title: `${restaurant.name} — QRMenu`,
+    description: restaurant.publicDescription ?? `Découvrez le menu de ${restaurant.name}`,
+    openGraph: {
+      title: `${restaurant.name} — QRMenu`,
+      description: restaurant.publicDescription ?? `Découvrez le menu de ${restaurant.name}`,
+      images: restaurant.coverImageUrl ? [{ url: restaurant.coverImageUrl }] : [],
+    },
+  };
+}
+
+export default async function RestaurantDetailPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const restaurant = await getRestaurant(slug);
   if (!restaurant) notFound();
 
   const hasMenu = restaurant.categories.some((c) => c.menuItems.length > 0);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16">
-      {/* Hero cover */}
       <div className="relative h-56 md:h-72 bg-gradient-to-br from-orange-100 to-amber-50 overflow-hidden">
         {restaurant.coverImageUrl ? (
-          <img
+          <Image
             src={restaurant.coverImageUrl}
             alt={restaurant.name}
-            className="w-full h-full object-cover"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
@@ -107,42 +110,41 @@ export default async function RestaurantDetailPage({
       </div>
 
       <div className="max-w-4xl mx-auto px-5 -mt-12 pb-16 relative">
-        {/* Restaurant info card */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6">
           <div className="flex items-start gap-4">
             {restaurant.logoUrl ? (
-              <img
-                src={restaurant.logoUrl}
-                alt={`Logo ${restaurant.name}`}
-                className="w-16 h-16 rounded-xl object-cover border-2 border-white shadow-md shrink-0"
-              />
+              <div className="relative w-16 h-16 rounded-xl overflow-hidden border-2 border-white shadow-md shrink-0">
+                <Image
+                  src={restaurant.logoUrl}
+                  alt={`Logo ${restaurant.name}`}
+                  fill
+                  sizes="64px"
+                  className="object-cover"
+                />
+              </div>
             ) : (
               <div className="w-16 h-16 bg-orange-100 rounded-xl flex items-center justify-center shrink-0">
                 <span className="text-2xl">🍽️</span>
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h1 className="text-2xl font-black text-gray-900">{restaurant.name}</h1>
-                  <div className="flex flex-wrap items-center gap-2 mt-1">
-                    {restaurant.city && (
-                      <span className="text-sm text-gray-500 flex items-center gap-1">
-                        📍 {restaurant.city}
-                      </span>
-                    )}
-                    {restaurant.restaurantType && TYPE_LABELS[restaurant.restaurantType] && (
-                      <span className="text-xs bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full font-medium">
-                        {TYPE_LABELS[restaurant.restaurantType]}
-                      </span>
-                    )}
-                    {restaurant.isFeatured && (
-                      <span className="text-xs bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full font-semibold">
-                        ⭐ À la une
-                      </span>
-                    )}
-                  </div>
-                </div>
+              <h1 className="text-2xl font-black text-gray-900">{restaurant.name}</h1>
+              <div className="flex flex-wrap items-center gap-2 mt-1">
+                {restaurant.city && (
+                  <span className="text-sm text-gray-500 flex items-center gap-1">
+                    📍 {restaurant.city}
+                  </span>
+                )}
+                {restaurant.restaurantType && TYPE_LABELS[restaurant.restaurantType] && (
+                  <span className="text-xs bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full font-medium">
+                    {TYPE_LABELS[restaurant.restaurantType]}
+                  </span>
+                )}
+                {restaurant.isFeatured && (
+                  <span className="text-xs bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded-full font-semibold">
+                    ⭐ À la une
+                  </span>
+                )}
               </div>
               {restaurant.publicDescription && (
                 <p className="text-gray-600 text-sm mt-3 leading-relaxed">
@@ -154,14 +156,16 @@ export default async function RestaurantDetailPage({
               )}
               {restaurant.phone && (
                 <p className="text-xs text-gray-400 mt-1">
-                  📞 <a href={`tel:${restaurant.phone}`} className="hover:text-orange-600">{restaurant.phone}</a>
+                  📞{" "}
+                  <a href={`tel:${restaurant.phone}`} className="hover:text-orange-600">
+                    {restaurant.phone}
+                  </a>
                 </p>
               )}
             </div>
           </div>
         </div>
 
-        {/* Branches */}
         {restaurant.branches.length > 1 && (
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6">
             <h2 className="font-bold text-gray-900 mb-3">Nos établissements</h2>
@@ -177,7 +181,6 @@ export default async function RestaurantDetailPage({
           </div>
         )}
 
-        {/* Menu */}
         {hasMenu ? (
           <div className="space-y-8">
             <h2 className="text-xl font-black text-gray-900">Notre Menu</h2>
@@ -195,11 +198,16 @@ export default async function RestaurantDetailPage({
                         className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex gap-3 hover:border-orange-200 transition-all"
                       >
                         {item.imageUrl ? (
-                          <img
-                            src={item.imageUrl}
-                            alt={item.name}
-                            className="w-20 h-20 rounded-lg object-cover shrink-0"
-                          />
+                          <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0">
+                            <Image
+                              src={item.imageUrl}
+                              alt={item.name}
+                              fill
+                              sizes="80px"
+                              className="object-cover"
+                              loading="lazy"
+                            />
+                          </div>
                         ) : (
                           <div className="w-20 h-20 bg-orange-50 rounded-lg flex items-center justify-center shrink-0">
                             <span className="text-2xl">🍽️</span>
@@ -208,10 +216,12 @@ export default async function RestaurantDetailPage({
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-gray-900 text-sm">{item.name}</p>
                           {item.description && (
-                            <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{item.description}</p>
+                            <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
+                              {item.description}
+                            </p>
                           )}
                           <p className="text-orange-600 font-bold text-sm mt-1">
-                            {item.price.toFixed(0)} DA
+                            {Number(item.price).toFixed(0)} DA
                           </p>
                         </div>
                       </div>

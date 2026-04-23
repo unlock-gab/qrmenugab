@@ -186,3 +186,14 @@ A production-ready multi-restaurant QR ordering SaaS platform built with Next.js
 - Cart key format: `${menuItemId}:${sortedOptionIds}` for unique differentiation
 - Stock decrement uses Prisma transaction to prevent race conditions
 - Promo validation: isActive, time window, usage limit, min order amount
+
+### Performance Optimizations Applied
+- **next.config.ts**: `compress: true`, AVIF/WebP image formats, `minimumCacheTTL: 3600`, security headers, immutable cache for static assets, SW cache headers
+- **Admin Users API**: pagination (take/skip/page params), `select` instead of `include` (no passwordHash leak risk)
+- **Admin Restaurants API**: pagination + `select` optimization instead of heavy `include`
+- **Admin Subscriptions page**: `groupBy` for status counts (1 query instead of 4), `take: 100` limit
+- **Homepage**: `revalidate = 300` (5-min ISR), Next.js `<Image>` with proper `sizes`
+- **Restaurants listing**: Next.js `<Image>` for cover + logo images
+- **Restaurant detail**: React `cache()` deduplicates metadata+page DB query, all `<img>` → `<Image>`, `loading="lazy"` on menu images, `priority` on hero
+- **Orders API**: `take` reduced 100→50
+- **Admin loading states**: 7 new `loading.tsx` files (layout, dashboard, restaurants, subscriptions, users, leads, plans) for instant navigation feedback
