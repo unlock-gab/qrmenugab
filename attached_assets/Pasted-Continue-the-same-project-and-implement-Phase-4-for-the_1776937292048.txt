@@ -1,0 +1,588 @@
+Continue the same project and implement **Phase 4** for the multi-restaurant QR ordering SaaS platform.
+
+Important: this project started in Replit, but it is intentionally being built so it can later be migrated to a **VPS using Dokploy and Docker**.
+Keep everything **portable, production-minded, and Docker-friendly**.
+Do not introduce Replit-only architecture.
+Do not break or rewrite the foundations already built in Phases 1, 2, and 3.
+
+This phase is about transforming the product from a SaaS-ready backend/dashboard system into a much more **commercially complete product**, with:
+
+* public marketing website
+* SaaS landing pages
+* subscription checkout foundation
+* billing/payment-ready architecture
+* plan comparison pages
+* merchant subscription experience
+* polished onboarding-to-subscription flow
+* premium UI polish across the whole product
+* stronger product credibility for real sales
+
+Do not overbuild.
+Do not turn this into an enterprise monster.
+Build a strong, sellable, modern SaaS product layer.
+
+---
+
+## Phase 4 objective
+
+Upgrade the platform into a commercially viable SaaS offering by adding:
+
+* public marketing site
+* pricing page
+* feature presentation pages
+* merchant signup / start-trial / subscription flow
+* billing-ready architecture
+* plan selection UX
+* merchant account billing section
+* upgrade/downgrade-ready plan handling
+* premium SaaS product polish
+* stronger trust-building and conversion-focused UX
+
+This phase should make the project feel like a real product that can be shown to café and restaurant owners and sold professionally.
+
+---
+
+## Protect existing architecture
+
+Preserve and protect:
+
+* public QR ordering routes
+* merchant dashboard
+* admin panel
+* restaurant scoping
+* role system
+* onboarding logic
+* subscription-ready database foundation
+* tables, categories, menu items, orders, notifications, settings
+* multi-tenant safety
+* Docker portability
+
+Do not rebuild the project from scratch.
+Refactor only when necessary for better commercial product structure.
+
+---
+
+## Main Phase 4 modules
+
+### 1. Public SaaS marketing website
+
+Build a high-quality public-facing marketing website for the platform.
+
+The website should present the product as a professional SaaS for cafés and restaurants that want:
+
+* QR menus
+* direct table ordering
+* faster service
+* live order management
+* modern customer experience
+
+Create a clean public website structure with pages such as:
+
+* Home
+* Features
+* Pricing
+* How it works
+* FAQ
+* Contact / request demo
+* Sign in
+* Start free trial / Get started
+
+The website must feel premium, modern, and conversion-focused.
+
+---
+
+### 2. Landing page structure
+
+Build a polished homepage with strong SaaS structure.
+
+Recommended sections:
+
+* hero section with strong headline and CTA
+* product value proposition
+* feature highlights
+* “how it works” steps
+* screenshots or UI preview blocks
+* benefits for restaurant owners
+* benefits for customers
+* pricing teaser
+* testimonials-ready section structure
+* CTA section
+* footer
+
+Messaging direction:
+This is a smart digital ordering platform for restaurants and cafés that replaces slow manual ordering with QR-powered table ordering and live merchant management.
+
+Do not make the landing page generic or ugly.
+Make it feel like a serious modern SaaS product.
+
+---
+
+### 3. Features page
+
+Create a strong product features page that explains the product clearly.
+
+Suggested feature groups:
+
+* QR table ordering
+* digital menu management
+* real-time order handling
+* restaurant dashboard
+* table management
+* branding / restaurant identity
+* subscription-ready restaurant management
+* staff operations
+* customer-friendly mobile ordering
+
+Use a premium SaaS presentation style.
+This page should help convert visitors into leads or trial users.
+
+---
+
+### 4. Pricing page
+
+Build a proper SaaS pricing page connected to the plan model from Phase 3.
+
+Requirements:
+
+* show available plans
+* display plan limits clearly
+* highlight most popular plan if useful
+* show included features
+* show differences between plans
+* clear CTA per plan
+* support monthly pricing structure
+* plan cards should feel premium and high-converting
+
+If exact payments are not fully integrated yet, still make the pricing UX complete and ready.
+
+Suggested plan concepts:
+
+* Starter
+* Standard
+* Pro
+
+Possible plan dimensions:
+
+* max tables
+* max menu items
+* max staff users
+* restaurant branding options
+* advanced features later
+
+Make the pricing page visually strong and commercially usable.
+
+---
+
+### 5. Merchant signup and start-trial flow
+
+Build the merchant acquisition flow from the public website.
+
+Visitors should be able to:
+
+* click “Start free trial” or “Get started”
+* create an account
+* create their restaurant
+* choose a plan or trial path
+* begin onboarding
+
+This flow should connect cleanly with the Phase 3 onboarding logic.
+
+Possible flow:
+
+1. create account
+2. create restaurant
+3. select plan or start trial
+4. enter platform
+5. complete setup
+
+Keep the UX smooth and simple.
+Do not create confusing multi-step friction unless needed.
+
+---
+
+### 6. Trial and subscription lifecycle UX
+
+Now that the system has plans and subscription-ready logic, build the merchant-facing subscription experience.
+
+Merchant should be able to:
+
+* view current plan
+* view plan status
+* view usage limits
+* see trial state if applicable
+* see subscription dates
+* see when a plan is expiring
+* upgrade or change plan path if appropriate
+
+Add a clean billing/subscription page in the merchant dashboard.
+
+This does not need full complex invoicing yet, but the experience should feel real and trustworthy.
+
+---
+
+### 7. Billing-ready architecture
+
+Implement a clean billing architecture foundation.
+
+Important:
+You do **not** need to build a huge billing engine if it is not necessary in this phase.
+But structure the project so future payment gateway integration can be added cleanly.
+
+Create architecture that supports:
+
+* checkout session creation flow
+* subscription activation flow
+* trial to paid flow
+* manual activation fallback
+* payment status updates
+* webhook-ready structure
+* invoice/payment history placeholders if needed
+
+Keep it portable and backend-safe.
+
+---
+
+### 8. Payment integration-ready flow
+
+If appropriate for the stack and project direction, create a payment integration layer that is easy to connect later to:
+
+* Stripe
+* local payment gateway
+* manual admin activation flow
+
+Important:
+If real payment gateway integration is added in this phase, do it in a clean and abstracted way.
+Do not hardwire the business logic tightly to one provider.
+Create a payment service abstraction that can support future provider changes.
+
+If real payment integration is not fully implemented, then build:
+
+* payment provider interface
+* checkout placeholder flow
+* subscription activation logic
+* admin/manual payment activation fallback
+* webhook-ready backend structure
+
+The architecture matters more than flashy fake checkout.
+
+---
+
+### 9. Merchant billing page
+
+Add a billing/subscription management page inside the merchant dashboard.
+
+Merchant should be able to see:
+
+* current plan
+* current subscription status
+* usage vs limits
+* next renewal or expiry date
+* trial info
+* upgrade options
+* billing history placeholder or payment records if available
+* payment status if relevant
+
+Add a clean upgrade CTA.
+Do not make it cluttered.
+
+---
+
+### 10. Public contact / demo request flow
+
+Add a simple but professional lead capture flow from the public site.
+
+Possible options:
+
+* request demo form
+* contact sales form
+* general contact form
+
+Fields may include:
+
+* name
+* restaurant name
+* phone
+* email
+* city
+* message
+
+Requirements:
+
+* save leads cleanly
+* validate inputs properly
+* show success states
+* keep it admin-reviewable later if possible
+
+This is useful for real-world selling even before full self-serve signup becomes dominant.
+
+---
+
+### 11. Trust-building and conversion elements
+
+Upgrade the public site to feel sellable and trustworthy.
+
+Include structure for:
+
+* testimonials
+* success metrics
+* feature credibility blocks
+* “who is it for” section
+* clean FAQ
+* polished footer
+* professional CTA repetition
+
+Even if content is placeholder, the structure should be conversion-ready.
+
+---
+
+### 12. Premium SaaS polish across the app
+
+Improve visual polish across:
+
+* public website
+* auth pages
+* onboarding flow
+* pricing page
+* merchant billing page
+* dashboard shell where needed
+
+Direction:
+
+* premium SaaS aesthetic
+* strong spacing
+* better typography hierarchy
+* modern cards
+* subtle animation only where useful
+* polished empty states
+* clean loading states
+* better visual consistency
+
+Do not bloat the app with unnecessary visual effects.
+Keep it premium, fast, and serious.
+
+---
+
+### 13. Subscription enforcement refinement
+
+Extend the plan enforcement from Phase 3 so the UX is more commercially complete.
+
+If a merchant reaches plan limits:
+
+* show clear upgrade messaging
+* explain the blocked action
+* link to upgrade page
+* avoid silent failure
+* avoid ugly raw errors
+
+Potential limit areas:
+
+* tables
+* menu items
+* staff users
+* advanced features in the future
+
+Make enforcement feel productized, not hacked together.
+
+---
+
+### 14. Admin-side subscription and lead visibility
+
+Improve platform admin visibility for the commercial side.
+
+Admin panel should be able to see:
+
+* subscriptions overview
+* trial restaurants
+* expired subscriptions
+* active paid restaurants
+* lead/contact/demo submissions
+* recent signups
+
+Keep admin UX simple and useful.
+Do not overbuild CRM complexity.
+
+---
+
+### 15. Product and sales website routing structure
+
+Create a clean route organization between:
+
+* public marketing pages
+* auth pages
+* merchant app
+* admin app
+* public QR customer menu routes
+
+The routing must stay clean, scalable, and easy to maintain.
+Do not let marketing site logic pollute app logic.
+
+---
+
+## Database and schema evolution
+
+Extend the schema only where useful for this phase.
+
+Possible additions:
+
+* Lead / DemoRequest model
+* PaymentRecord or BillingEvent placeholder model
+* subscription metadata improvements
+* trial fields if not already complete
+* plan presentation fields
+* invoice or receipt placeholder structure if useful
+
+Examples of possible models:
+
+### Lead
+
+* id
+* name
+* restaurantName
+* email
+* phone
+* city
+* message
+* source
+* createdAt
+
+### PaymentRecord
+
+* id
+* restaurantId
+* subscriptionId
+* provider
+* amount
+* currency
+* status
+* reference
+* paidAt
+* createdAt
+
+### SubscriptionPlan
+
+May add:
+
+* displayPrice
+* billingInterval
+* isPublic
+* isFeatured
+* sortOrder
+
+Only add what supports this phase directly.
+Do not create bloated accounting complexity.
+
+---
+
+## Payment and billing safety rules
+
+* keep payment logic server-side where needed
+* do not trust client-side plan activation
+* do not activate subscriptions directly from frontend assumptions
+* prepare for webhooks cleanly
+* ensure plan and restaurant scoping remain safe
+* if payment is simulated/manual for now, still structure it safely
+
+This is critical.
+
+---
+
+## Multi-tenant safety
+
+Still critical.
+
+Ensure:
+
+* merchant billing page only shows their own restaurant subscription data
+* plan enforcement is restaurant-scoped
+* signup/onboarding creates isolated tenant data
+* admin billing visibility is platform-level only
+* public website never leaks private merchant data
+
+---
+
+## UI/UX direction
+
+### Public website
+
+Should feel like:
+
+* modern SaaS product
+* premium but approachable
+* fast-loading
+* conversion-focused
+* mobile-friendly
+* clean and persuasive
+
+### Pricing
+
+Should feel:
+
+* trustworthy
+* clean
+* easy to compare
+* not confusing
+
+### Signup/onboarding
+
+Should feel:
+
+* smooth
+* reassuring
+* simple
+* low friction
+
+### Merchant billing
+
+Should feel:
+
+* professional
+* transparent
+* easy to understand
+
+---
+
+## Performance and maintainability expectations
+
+* keep code clean and modular
+* use TypeScript properly
+* preserve existing architecture
+* keep Docker portability
+* use standard environment variable handling
+* avoid package bloat
+* separate marketing site concerns from app concerns
+* keep payment code abstracted and future-proof
+
+---
+
+## Deliverables for this phase
+
+Implement Phase 4 with:
+
+1. public marketing website
+2. premium landing page
+3. features page
+4. pricing page connected to plan data
+5. merchant signup / start-trial flow
+6. merchant billing/subscription page
+7. billing-ready architecture
+8. payment integration-ready abstraction or clean provider-ready structure
+9. contact/demo request flow
+10. trust-building SaaS sections
+11. admin visibility for subscriptions and leads
+12. subscription enforcement refinement
+13. premium UI polish across product and public site
+14. clean route separation between marketing, app, admin, and QR flows
+
+---
+
+## Important implementation rules
+
+* do not break previous phases
+* do not overbuild invoicing/accounting
+* do not add unnecessary enterprise complexity
+* do not tightly lock billing logic to a single payment provider
+* do not create fake superficial SaaS pages without real structure
+* make this phase commercially useful and sales-ready
+* build like this product will be shown to real café and restaurant owners and sold as a professional SaaS
+
+Now implement Phase 4 accordingly, transforming the platform into a commercially strong SaaS product with a premium public-facing sales layer and billing-ready subscription experience.

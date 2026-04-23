@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { checkTableLimit } from "@/lib/limits";
 import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
 
@@ -33,6 +34,14 @@ export async function POST(req: NextRequest) {
   const parsed = createTableSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+  }
+
+  const limit = await checkTableLimit(session.user.restaurantId);
+  if (!limit.allowed) {
+    return NextResponse.json({
+      error: `Table limit reached (${limit.current}/${limit.max}). Upgrade your plan to add more tables.`,
+      limitReached: true,
+    }, { status: 403 });
   }
 
   const existing = await prisma.table.findFirst({

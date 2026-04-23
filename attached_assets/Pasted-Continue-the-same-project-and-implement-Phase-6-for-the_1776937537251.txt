@@ -1,0 +1,631 @@
+Continue the same project and implement **Phase 6** for the multi-restaurant QR ordering SaaS platform.
+
+Important: this project started in Replit, but it is intentionally being built so it can later be migrated to a **VPS using Dokploy and Docker**.
+Keep everything **portable, production-minded, and Docker-friendly**.
+Do not introduce Replit-only architecture.
+Do not break the foundations built in Phases 1, 2, 3, 4, and 5.
+
+This phase is about making the product much more complete for real restaurant operations and customer experience by adding:
+
+* light inventory/stock logic
+* ingredients and product options structure
+* promo codes / discount logic
+* call waiter feature
+* table reservation foundation
+* multilingual public menu foundation
+* stronger reporting and operational insights
+
+Do not overbuild into a giant ERP.
+Do not create unnecessary complexity.
+Build practical, premium, real-world features that clearly improve the product.
+
+---
+
+## Phase 6 objective
+
+Upgrade the platform into a more mature restaurant SaaS by adding:
+
+* stock-aware menu behavior
+* ingredients/options support
+* discount and promo code system
+* customer “call waiter” workflow
+* reservation-ready foundation
+* multilingual public customer menu support
+* improved reports and operational insights
+* stronger product quality for real commercial use
+
+This phase should make the product feel more complete, more sellable, and more useful for both cafés and restaurants.
+
+---
+
+## Protect existing architecture
+
+Preserve and protect:
+
+* public QR ordering flow
+* merchant dashboard
+* platform admin
+* onboarding and subscription logic
+* restaurant settings
+* staff roles
+* kitchen/waiter/cashier workflows
+* table management
+* categories/menu items/orders
+* payment and receipt logic
+* multi-tenant data isolation
+* Docker portability
+
+Do not rebuild from scratch.
+Refactor only when needed to support these new modules cleanly.
+
+---
+
+## Main Phase 6 modules
+
+### 1. Light inventory / stock foundation
+
+Add a practical and lightweight stock management layer.
+
+Goal:
+Restaurant owners should be able to control whether an item is:
+
+* available
+* unavailable
+* optionally stock-tracked with a quantity
+
+This is not a full warehouse ERP.
+Keep it simple and operational.
+
+Suggested support:
+
+* item availability toggle
+* optional stock quantity
+* optional stock tracking enabled/disabled per item
+* automatic item disable when stock reaches zero if stock tracking is enabled
+
+Requirements:
+
+* menu items can still be simple if stock tracking is not enabled
+* if tracking is enabled, order creation must respect stock quantity
+* unavailable or out-of-stock items should be clearly shown on the public menu
+* merchant dashboard should allow easy stock updates
+
+Do not overcomplicate with supplier/purchase order logic.
+
+---
+
+### 2. Ingredients and item options structure
+
+Add a cleaner product composition layer.
+
+Goal:
+Allow menu items to support:
+
+* ingredients display
+* optional modifiers / add-ons / choices
+* simple customization for customers
+
+Examples:
+
+* extra cheese
+* no sugar
+* spicy level
+* size options
+* drink add-ons
+* flavor choice
+
+Requirements:
+
+* merchant can manage options/modifiers for a menu item
+* public menu can display selectable options where relevant
+* options can affect price where needed
+* order details must capture selected options clearly
+* kitchen/waiter/cashier views should display option choices in a readable way
+
+Optional ingredients display:
+
+* show ingredients text/list on product page/card
+* support allergen-friendly or composition notes if useful
+
+Do not build a huge POS modifier engine.
+Keep it simple but structured correctly.
+
+---
+
+### 3. Promo code and discount system
+
+Add a practical first version of discounts and promo codes.
+
+Goal:
+Allow restaurants to run simple promotions and discounts.
+
+Suggested features:
+
+* promo code creation in merchant dashboard
+* fixed discount or percentage discount
+* active/inactive toggle
+* start/end dates
+* optional usage limit
+* optional minimum order amount
+
+Public ordering flow:
+
+* customer can enter promo code
+* code gets validated
+* cart/order total updates correctly
+* invalid code handling is clear
+* used discount is stored with the order
+
+Order details and receipt:
+
+* show discount amount
+* show final total after discount
+
+Keep the system clean and safe.
+Do not implement overly complex coupon stacking logic.
+
+---
+
+### 4. Call waiter feature
+
+Add a customer-facing **Call Waiter** function.
+
+Goal:
+A customer sitting at a table can request attention without placing a new order.
+
+Examples:
+
+* call waiter
+* request bill
+* ask for assistance
+* ask for water or service attention
+
+Requirements:
+
+* public customer menu/table context should allow a simple request action
+* request should be linked to restaurant + table
+* waiter/merchant operational interface should receive the request
+* request should be visible and actionable
+* requests should be markable as handled/resolved
+
+Possible request types:
+
+* CALL_WAITER
+* REQUEST_BILL
+* HELP
+
+Keep it practical.
+Do not make it too complex.
+This feature can be very valuable for real cafés.
+
+---
+
+### 5. Reservation foundation
+
+Add a first version of table reservation support.
+
+Goal:
+Provide a simple reservation foundation without turning the app into a full booking engine.
+
+Suggested support:
+
+* customer can request a reservation from a public page
+* merchant can manually create or confirm reservations
+* reservation stores:
+
+  * customer name
+  * phone
+  * date
+  * time
+  * guest count
+  * optional notes
+  * status
+
+Suggested statuses:
+
+* PENDING
+* CONFIRMED
+* CANCELLED
+* COMPLETED
+
+Requirements:
+
+* reservation management page in merchant dashboard
+* basic calendar/list view or filtered list
+* clean validation
+* conflict handling can be simple in this phase
+* structure it cleanly for future expansion
+
+Do not build a massive scheduling system yet.
+Just create a clean and useful reservation base.
+
+---
+
+### 6. Multilingual public menu foundation
+
+Add multilingual support for the customer-facing menu.
+
+Goal:
+Restaurants should be able to present their public menu in more than one language.
+
+Suggested first structure:
+
+* default language
+* optional secondary language
+* menu category name translations
+* menu item name translations
+* menu item description translations
+* public UI language switcher
+
+A practical first version could support:
+
+* Arabic
+* French
+* English
+
+Requirements:
+
+* merchant can input translated names/descriptions where available
+* public menu can switch language cleanly
+* if a translation is missing, fallback to default language
+* keep the structure scalable for future localization expansion
+
+Do not overcomplicate the entire dashboard localization unless needed.
+Focus on public menu multilingual capability first.
+
+---
+
+### 7. Better public menu detail experience
+
+Enhance the customer-facing item experience to support:
+
+* ingredients display
+* option selection
+* modifier pricing
+* availability state
+* promo code application in cart
+* multilingual labels
+* call waiter action visibility where appropriate
+
+Make the public ordering UX feel significantly more complete and polished.
+
+Keep it mobile-first, frictionless, and visually premium.
+
+---
+
+### 8. Stronger operational reporting
+
+Add useful reports for restaurant owners.
+
+Goal:
+Provide better visibility into operations and sales without building a heavy BI suite.
+
+Suggested reports/insights:
+
+* sales today / this week / this month
+* order count
+* average order value
+* top-selling items
+* most used tables
+* unpaid vs paid summaries
+* reservations count
+* promo code usage summary
+* waiter calls/request count if useful
+
+Requirements:
+
+* merchant dashboard reporting page or sections
+* simple filters by date range
+* useful summary cards
+* simple charts if appropriate
+* readable tables/lists
+
+Keep reports practical, clean, and fast.
+
+---
+
+### 9. Inventory-aware merchant UX
+
+Improve merchant-side menu management so stock-aware behavior is easy to use.
+
+Possible merchant features:
+
+* quick stock quantity update
+* availability toggle
+* stock warning display
+* low stock badge
+* filter by available / unavailable / low stock
+
+This should not feel like enterprise inventory software.
+It should feel lightweight and directly useful.
+
+---
+
+### 10. Order and receipt discount visibility
+
+Extend order details, kitchen/waiter/cashier views, and print logic where relevant.
+
+Requirements:
+
+* if order has modifiers/options, show them cleanly
+* if order has promo/discount, show discount line clearly
+* receipts should show subtotal, discount, and final total
+* cashier should see correct payable amount
+* owner reports should use correct final revenue logic
+
+Make sure totals remain accurate and consistent.
+
+---
+
+### 11. Reservation and waiter request operational visibility
+
+Add restaurant operational pages or panels for:
+
+* active waiter requests
+* reservation list/management
+* request resolution
+* status updates
+
+Waiter requests should not be lost or hidden.
+Reservations should be easy to review and manage.
+
+Keep the interface practical for real use.
+
+---
+
+### 12. Optional order source and request source refinement
+
+If useful, extend the system to better classify records such as:
+
+* QR order
+* manual order
+* reservation
+* waiter request
+
+Only do this if it improves clarity and architecture.
+Do not introduce bloated classification logic.
+
+---
+
+## Database and schema evolution
+
+Extend the Prisma schema carefully and only where justified.
+
+Potential additions may include:
+
+### MenuItem
+
+* stockTrackingEnabled
+* stockQuantity
+* ingredientsText or related structure
+* translated fields or translation relation if using scalable i18n structure
+
+### MenuItemOptionGroup
+
+* id
+* menuItemId
+* name
+* selectionType
+* isRequired
+* createdAt
+* updatedAt
+
+### MenuItemOption
+
+* id
+* optionGroupId
+* name
+* extraPrice
+* sortOrder
+* isActive
+
+### PromoCode
+
+* id
+* restaurantId
+* code
+* discountType
+* discountValue
+* minimumOrderAmount
+* usageLimit
+* usedCount
+* startsAt
+* endsAt
+* isActive
+* createdAt
+* updatedAt
+
+### Order
+
+Potential additions:
+
+* discountAmount
+* promoCodeId
+* finalTotal cleanup if needed
+
+### WaiterRequest
+
+* id
+* restaurantId
+* tableId
+* type
+* status
+* notes if useful
+* createdAt
+* handledAt
+
+### Reservation
+
+* id
+* restaurantId
+* customerName
+* phone
+* reservationDate
+* guestCount
+* notes
+* status
+* createdAt
+* updatedAt
+
+For multilingual support, choose one clean approach:
+
+* translated columns for first version
+  or
+* translation tables if you want more scalable architecture
+
+Pick the simpler scalable option that best fits the existing codebase.
+
+Use enums where useful:
+
+* DiscountType
+* WaiterRequestType
+* WaiterRequestStatus
+* ReservationStatus
+* SelectionType
+
+Do not bloat the schema unnecessarily.
+
+---
+
+## Business logic and validation rules
+
+### Stock
+
+* if stock tracking disabled, item behaves normally
+* if stock tracking enabled, stock must be respected at order time
+* stock should decrement safely when order is placed if that is the chosen logic
+* handle race conditions reasonably for MVP/SaaS scale
+
+### Promo codes
+
+* validate date range
+* validate active status
+* validate usage limit
+* validate minimum order amount
+* prevent invalid discount totals
+
+### Waiter requests
+
+* require valid table context
+* scope to restaurant/table
+* operational staff can mark resolved
+
+### Reservations
+
+* validate date/time
+* validate guest count
+* handle basic merchant confirmation flow cleanly
+
+### Multilingual
+
+* fallback safely when translation missing
+* avoid breaking old menu items with no translation data
+
+Keep logic centralized and maintainable.
+
+---
+
+## Multi-tenant safety
+
+Still critical.
+
+Ensure:
+
+* promo codes belong only to the correct restaurant
+* stock updates are restaurant-scoped
+* waiter requests are restaurant-scoped
+* reservations are restaurant-scoped
+* multilingual content is restaurant-scoped
+* reports are restaurant-scoped
+* no cross-tenant data leakage anywhere
+
+---
+
+## UI/UX direction
+
+### Merchant side
+
+Should feel:
+
+* more complete
+* more operational
+* still lightweight
+* easy to understand
+* not like bloated ERP software
+
+### Public menu
+
+Should feel:
+
+* modern
+* multilingual-friendly
+* customizable
+* premium food ordering experience
+* very clear on pricing, discounts, options, and availability
+
+### Reporting
+
+Should feel:
+
+* useful
+* clean
+* visual enough
+* fast to scan
+* not overwhelming
+
+### Reservations and waiter requests
+
+Should feel:
+
+* practical
+* responsive
+* straightforward
+* useful during real service
+
+Keep the interface premium, modern, and mobile-aware.
+
+---
+
+## Performance and maintainability expectations
+
+* keep code modular and maintainable
+* use TypeScript properly
+* avoid fragile duplicated logic
+* preserve Docker portability
+* keep environment variable handling standard
+* avoid unnecessary package bloat
+* keep pricing/totals logic centralized
+* preserve existing architecture and previous phase functionality
+
+---
+
+## Deliverables for this phase
+
+Implement Phase 6 with:
+
+1. light stock/inventory foundation
+2. item options/modifiers support
+3. ingredients display support
+4. promo code/discount system
+5. call waiter feature
+6. reservation foundation
+7. multilingual public menu support
+8. stronger operational reporting
+9. merchant UX for stock and promo management
+10. discount-aware receipts and order details
+11. waiter request operational visibility
+12. maintainable schema and logic updates
+
+---
+
+## Important implementation rules
+
+* do not break previous phases
+* do not build a full warehouse/inventory ERP
+* do not build a huge reservation engine
+* do not build an overly complex promo system with stacking, referrals, and campaign automation
+* do not overcomplicate i18n for the whole dashboard unless necessary
+* prioritize practical restaurant value
+* build like this will be sold and used by real cafés and restaurants daily
+
+Now implement Phase 6 accordingly, transforming the platform into a more complete restaurant SaaS with stock awareness, modifiers, discounts, waiter requests, reservations, multilingual menu support, and stronger reporting while preserving everything already built.

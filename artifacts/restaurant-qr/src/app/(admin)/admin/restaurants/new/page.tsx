@@ -1,0 +1,185 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+type Plan = { id: string; name: string; price: number | null };
+
+export default function NewRestaurantPage() {
+  const router = useRouter();
+  const [plans, setPlans] = useState<Plan[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [form, setForm] = useState({
+    restaurantName: "",
+    slug: "",
+    ownerName: "",
+    ownerEmail: "",
+    ownerPassword: "",
+    planId: "",
+    status: "PENDING_SETUP",
+  });
+
+  useEffect(() => {
+    fetch("/api/admin/plans").then((r) => r.json()).then(setPlans);
+  }, []);
+
+  const autoSlug = (name: string) =>
+    name.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "");
+
+  const handleNameChange = (name: string) => {
+    setForm((f) => ({ ...f, restaurantName: name, slug: f.slug || autoSlug(name) }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    const res = await fetch("/api/admin/restaurants", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error || "Failed to create restaurant");
+      setLoading(false);
+      return;
+    }
+
+    router.push(`/admin/restaurants/${data.id}`);
+  };
+
+  return (
+    <div className="p-8 max-w-2xl mx-auto">
+      <div className="mb-8">
+        <button onClick={() => router.back()} className="text-slate-500 hover:text-slate-300 text-sm mb-4 flex items-center gap-1">
+          ← Back
+        </button>
+        <h1 className="text-2xl font-bold text-white">Create New Restaurant</h1>
+        <p className="text-slate-400 mt-1">Set up a restaurant account and owner credentials</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 space-y-4">
+          <h2 className="font-semibold text-white">Restaurant Info</h2>
+
+          <div>
+            <label className="block text-sm text-slate-400 mb-1.5">Restaurant Name *</label>
+            <input
+              type="text"
+              value={form.restaurantName}
+              onChange={(e) => handleNameChange(e.target.value)}
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+              placeholder="My Restaurant"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-400 mb-1.5">Slug (URL identifier) *</label>
+            <div className="flex items-center bg-slate-900 border border-slate-700 rounded-xl overflow-hidden focus-within:border-indigo-500 transition-colors">
+              <span className="px-3 text-slate-500 text-sm">/menu/</span>
+              <input
+                type="text"
+                value={form.slug}
+                onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
+                className="flex-1 bg-transparent px-2 py-2.5 text-white placeholder-slate-600 focus:outline-none"
+                placeholder="my-restaurant"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-400 mb-1.5">Initial Status</label>
+            <select
+              value={form.status}
+              onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+            >
+              <option value="PENDING_SETUP">Pending Setup</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-400 mb-1.5">Subscription Plan</label>
+            <select
+              value={form.planId}
+              onChange={(e) => setForm((f) => ({ ...f, planId: e.target.value }))}
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-indigo-500 transition-colors"
+            >
+              <option value="">No plan assigned</option>
+              {plans.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} {p.price ? `($${p.price}/mo)` : "(free)"}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="bg-slate-800/40 border border-slate-700/50 rounded-2xl p-6 space-y-4">
+          <h2 className="font-semibold text-white">Owner Account</h2>
+
+          <div>
+            <label className="block text-sm text-slate-400 mb-1.5">Owner Full Name *</label>
+            <input
+              type="text"
+              value={form.ownerName}
+              onChange={(e) => setForm((f) => ({ ...f, ownerName: e.target.value }))}
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+              placeholder="John Doe"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-400 mb-1.5">Owner Email *</label>
+            <input
+              type="email"
+              value={form.ownerEmail}
+              onChange={(e) => setForm((f) => ({ ...f, ownerEmail: e.target.value }))}
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+              placeholder="owner@restaurant.com"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-slate-400 mb-1.5">Initial Password *</label>
+            <input
+              type="text"
+              value={form.ownerPassword}
+              onChange={(e) => setForm((f) => ({ ...f, ownerPassword: e.target.value }))}
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+              placeholder="Temporary password"
+              required
+            />
+            <p className="text-xs text-slate-500 mt-1">Owner will use this to first log in</p>
+          </div>
+        </div>
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 text-red-400 text-sm">
+            {error}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold py-3 rounded-xl transition-all"
+        >
+          {loading ? "Creating..." : "Create Restaurant & Owner Account"}
+        </button>
+      </form>
+    </div>
+  );
+}

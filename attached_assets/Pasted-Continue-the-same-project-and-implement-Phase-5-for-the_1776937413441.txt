@@ -1,0 +1,629 @@
+Continue the same project and implement **Phase 5** for the multi-restaurant QR ordering SaaS platform.
+
+Important: this project started in Replit, but it is intentionally being built so it can later be migrated to a **VPS using Dokploy and Docker**.
+Keep everything **portable, production-minded, and Docker-friendly**.
+Do not introduce Replit-only architecture.
+Do not break the foundations built in Phases 1, 2, 3, and 4.
+
+This phase is about evolving the product from a commercially strong SaaS into a much more **operational restaurant system**, by adding:
+
+* kitchen display system
+* waiter mode
+* cashier mode
+* dining room operational workflow
+* payment marking flow
+* printable ticket / receipt foundation
+* more advanced internal order handling
+* role-specific restaurant operations UX
+
+Do not overbuild into a huge ERP.
+Do not destroy the simplicity of the product.
+Build a practical, premium, real-world restaurant operations layer.
+
+---
+
+## Phase 5 objective
+
+Upgrade the platform into a stronger restaurant operating system by adding:
+
+* kitchen screen / kitchen display system
+* waiter workspace
+* cashier workspace
+* cleaner internal order lifecycle
+* service and payment handling
+* table service operational workflow
+* print-ready ticket/receipt support
+* role-based restaurant operations views
+* better coordination between front-of-house and back-of-house
+
+This phase should make the product much more usable in real cafés and restaurants, not just as a QR menu SaaS.
+
+---
+
+## Protect existing architecture
+
+Preserve and protect:
+
+* public QR ordering flow
+* merchant dashboard
+* platform admin
+* subscription/billing structure
+* restaurant settings
+* multi-tenant data safety
+* table management
+* category/menu management
+* customer ordering UX
+* order creation flow
+* merchant role foundation
+* Docker portability
+
+Do not rebuild the app from scratch.
+Refactor only when needed to support the new restaurant operations layer cleanly.
+
+---
+
+## Main Phase 5 modules
+
+### 1. Kitchen Display System (KDS)
+
+Add a dedicated **kitchen display mode** for restaurant staff.
+
+Goal:
+Kitchen staff should be able to see incoming food/drink orders in a focused operational interface optimized for speed and clarity.
+
+Requirements:
+
+* dedicated kitchen route/page or workspace
+* show relevant active orders only
+* strong visibility of:
+
+  * order number
+  * table number
+  * order age / time since placed
+  * items
+  * item quantities
+  * notes
+  * current status
+* kitchen-friendly large readable layout
+* easy status actions such as:
+
+  * NEW
+  * PREPARING
+  * READY
+
+The KDS should be visually optimized for continuous operational use on a screen or tablet.
+
+Do not clutter it with subscription/billing/admin concerns.
+Make it operational and fast.
+
+---
+
+### 2. KDS filtering and routing
+
+Kitchen screen should support practical filtering.
+
+Examples:
+
+* show only active food prep orders
+* hide completed/paid/cancelled orders
+* optional filtering by status
+* optional grouping by newest/oldest
+* clear separation of urgent vs older orders
+
+If useful, add:
+
+* full-screen mode friendly layout
+* compact vs expanded order cards
+* highlight for newly arrived orders
+
+Do not overcomplicate with too many controls.
+Keep it practical for real service use.
+
+---
+
+### 3. Waiter mode
+
+Add a dedicated **waiter mode** or waiter workspace.
+
+Goal:
+Waiters should be able to handle front-of-house activity in a clean operational interface.
+
+Possible responsibilities:
+
+* view live table orders
+* check order status per table
+* mark orders as served
+* view active tables
+* see if a table has unpaid orders
+* possibly create manual internal orders if allowed
+
+Minimum requirements:
+
+* waiter sees restaurant-scoped orders/tables only
+* easy table-centric interface
+* quick access to:
+
+  * table number
+  * active orders
+  * order status
+  * total amount
+  * payment state if relevant
+
+The waiter UI should be optimized for quick use on tablet/mobile or a compact desktop view.
+
+---
+
+### 4. Cashier mode
+
+Add a dedicated **cashier mode** or cashier workspace.
+
+Goal:
+Cashier staff should be able to manage payment-related order completion in a simple and trustworthy interface.
+
+Requirements:
+
+* view active and completed-but-unpaid orders
+* view totals per order
+* see table number
+* mark an order as paid
+* optionally mark payment method
+* access printable receipt/ticket flow
+* simple list/filtering for unpaid orders
+
+Suggested payment methods enum support:
+
+* CASH
+* CARD
+* TRANSFER
+* OTHER
+
+Do not implement full accounting.
+Just implement a clean restaurant payment completion flow.
+
+---
+
+### 5. Internal order lifecycle refinement
+
+The product now needs a more operationally correct workflow.
+
+Review and refine the order lifecycle to support restaurant operations cleanly.
+
+Suggested status flow:
+
+* NEW
+* PREPARING
+* READY
+* SERVED
+* PAID
+* CANCELLED
+
+Also consider operational flags or timestamps if useful:
+
+* seenAt
+* preparedAt
+* servedAt
+* paidAt
+
+Important:
+
+* keep the flow understandable
+* avoid status confusion
+* do not add too many unnecessary states
+* preserve compatibility with existing orders logic
+
+Make sure:
+
+* kitchen focuses on NEW / PREPARING / READY
+* waiter focuses on READY / SERVED
+* cashier focuses on SERVED / unpaid / PAID
+
+---
+
+### 6. Payment state foundation
+
+Add a cleaner payment state foundation if not already properly modeled.
+
+Suggested payment state:
+
+* UNPAID
+* PAID
+* REFUNDED (optional only if useful later)
+
+You may separate operational order status from payment status if that makes the system cleaner.
+
+Example:
+
+* Order status = SERVED
+* Payment status = UNPAID
+
+This is often cleaner than forcing everything into one status dimension.
+
+Do this only if it improves architecture significantly.
+Keep it maintainable.
+
+---
+
+### 7. Table operations view
+
+Add a more operational **table view** inside the restaurant workspace.
+
+Goal:
+Restaurant staff should see tables in a practical way, not just as QR setup entries.
+
+Possible table view features:
+
+* active tables
+* idle tables
+* number of active orders per table
+* table total unpaid amount
+* quick open table details
+* table service state overview
+
+This should help waiter/cashier/front-desk workflows.
+
+Do not turn this into a full complex floor-planning system yet.
+Keep it simple, clean, and genuinely useful.
+
+---
+
+### 8. Printable ticket / receipt foundation
+
+Add print-ready support for orders.
+
+Use case examples:
+
+* kitchen prep ticket
+* cashier receipt
+* simple order summary print
+
+Requirements:
+
+* clean print layout
+* restaurant branding/basic info
+* order number
+* table number
+* item list
+* quantities
+* total
+* payment method if available
+* timestamps where relevant
+
+This does not need to be a full legal invoicing system.
+It is a restaurant operational print/ticket layer.
+
+Implementation direction:
+
+* browser print-friendly layout
+* printable ticket/receipt route or modal
+* portable approach that can later be adapted for thermal printer workflows
+
+Do not use Replit-specific printing tricks.
+
+---
+
+### 9. Role-specific restaurant workspaces
+
+Now that merchant staff roles exist, make the restaurant app more role-aware.
+
+Support role-oriented workspace access such as:
+
+* MERCHANT_OWNER
+* MERCHANT_STAFF_KITCHEN
+* MERCHANT_STAFF_WAITER
+* MERCHANT_STAFF_CASHIER
+
+If adding these specific role variants is cleaner than a single generic staff role, update the schema carefully.
+If not, implement a lightweight capability structure.
+
+Important:
+
+* keep access control server-safe
+* do not rely only on hidden links
+* ensure kitchen users cannot access admin/billing areas unless allowed
+* ensure cashier/waiter views remain restaurant-scoped
+* keep it practical, not overcomplicated
+
+---
+
+### 10. Role-based navigation and UX
+
+Update restaurant-side navigation to reflect role-specific views.
+
+Examples:
+
+* owner sees full restaurant dashboard
+* kitchen user sees kitchen screen as primary workspace
+* waiter sees table/orders workspace
+* cashier sees payment/unpaid orders workspace
+
+Do not make navigation confusing.
+Keep each role focused on what they actually need.
+
+The app should feel more like an operational product now.
+
+---
+
+### 11. Real-time / near-real-time operational updates
+
+Phase 2 introduced live or near-live order behavior.
+Now strengthen this across operational modes.
+
+Requirements:
+
+* kitchen screen should receive new or updated orders without manual refresh
+* waiter screen should reflect status updates
+* cashier screen should reflect paid/unpaid updates
+* avoid messy duplicate notification logic
+* maintain a clean implementation that is easy to port to Docker/VPS
+
+If polling is still the cleanest choice, improve it properly.
+If sockets are now justified, implement them in a clean maintainable way.
+Do not create an unstable hack.
+
+---
+
+### 12. Kitchen and service notifications
+
+Extend notifications more intelligently.
+
+Potential useful behaviors:
+
+* kitchen gets a clear signal for new kitchen-relevant orders
+* waiter can see when orders become READY
+* cashier can see new unpaid served orders
+
+Do not overwhelm users with sound spam.
+Keep notifications role-appropriate and useful.
+
+Make the architecture clean so future notification preferences can be added later.
+
+---
+
+### 13. Manual order entry foundation
+
+Add a clean first version of **manual internal order entry** if appropriate.
+
+Use case:
+A waiter or cashier may want to create an order manually from inside the restaurant app, without requiring customer QR scanning.
+
+This is useful for:
+
+* customers who order verbally
+* staff-assisted ordering
+* exceptional workflow cases
+
+Requirements if implemented:
+
+* choose table
+* choose items
+* add quantities
+* optional notes
+* create order under the same restaurant rules
+
+This should reuse as much existing order/cart/business logic as possible.
+Do not duplicate logic in a messy way.
+
+If implementing this in Phase 5, keep it simple and operational.
+
+---
+
+### 14. Better order detail page/modal
+
+Upgrade order details so operational staff can use them confidently.
+
+A detailed order view should clearly show:
+
+* order number
+* table number
+* created time
+* preparation time markers if available
+* service/payment states
+* items
+* notes
+* total
+* payment method if selected
+* actions relevant to current role
+
+Keep it readable and practical.
+
+---
+
+### 15. Operational dashboard improvements for owner
+
+Improve the restaurant owner dashboard so it better reflects operations.
+
+Possible additions:
+
+* active orders now
+* ready orders waiting service
+* unpaid served orders
+* revenue today
+* active tables
+* average preparation flow indicators if easy
+* recent payment activity
+
+Do not build a huge analytics system.
+Keep it operational and useful.
+
+---
+
+## Database and schema evolution
+
+Extend the existing Prisma schema carefully to support restaurant operations.
+
+Possible additions:
+
+* paymentMethod enum
+* paymentStatus enum
+* paidAt
+* servedAt
+* preparedAt
+* seenByKitchenAt if useful
+* role expansion for staff types
+* order source type such as QR or MANUAL if useful
+
+Possible enums:
+
+* OrderStatus
+* PaymentStatus
+* PaymentMethod
+* StaffRole or expanded UserRole
+* OrderSource
+
+Only add fields that directly support Phase 5.
+Avoid bloated schema design.
+Preserve multi-tenant safety and maintainability.
+
+---
+
+## Suggested model evolution ideas
+
+### Order
+
+Potential additions:
+
+* paymentStatus
+* paymentMethod
+* orderSource
+* preparedAt
+* servedAt
+* paidAt
+
+### User / staff role system
+
+Potential evolution:
+
+* PLATFORM_ADMIN
+* MERCHANT_OWNER
+* STAFF_KITCHEN
+* STAFF_WAITER
+* STAFF_CASHIER
+
+or another equivalent clean structure.
+
+### Order source
+
+Possible enum values:
+
+* QR_CUSTOMER
+* MANUAL_STAFF
+
+Use only if this improves clarity.
+
+---
+
+## Multi-tenant safety
+
+Still critical.
+
+Ensure:
+
+* all kitchen/waiter/cashier data is scoped to the authenticated restaurant
+* no role can see another restaurant’s orders
+* role-based workspaces remain restaurant-scoped
+* print/ticket routes do not leak cross-tenant data
+* manual order creation remains tenant-safe
+* public/customer and internal orders follow the same scoping rules
+
+---
+
+## UI/UX direction
+
+### Kitchen Display System
+
+Should feel like:
+
+* bold
+* operational
+* readable from distance
+* fast to scan
+* minimal distractions
+* optimized for long-running use
+
+### Waiter mode
+
+Should feel like:
+
+* quick
+* table-centric
+* mobile/tablet friendly
+* efficient for service flow
+
+### Cashier mode
+
+Should feel like:
+
+* clean
+* trustworthy
+* fast
+* focused on unpaid/completion flow
+
+### Print views
+
+Should feel:
+
+* clean
+* structured
+* compact
+* practical
+
+### Owner dashboard
+
+Should feel:
+
+* premium
+* informative
+* operational
+* not bloated
+
+Keep the design premium and modern, but operational first.
+
+---
+
+## Validation, safety, and maintainability
+
+* keep server-side business rules clean
+* validate operational actions properly
+* prevent invalid status transitions where reasonable
+* do not trust client-side role assumptions
+* avoid duplicate order logic
+* reuse shared services where possible
+* use TypeScript properly
+* preserve Docker portability
+* keep environment handling standard
+* avoid unnecessary package bloat
+
+---
+
+## Deliverables for this phase
+
+Implement Phase 5 with:
+
+1. kitchen display system
+2. waiter mode
+3. cashier mode
+4. refined internal order lifecycle
+5. payment status/method handling
+6. role-specific restaurant operational workspaces
+7. better table operations view
+8. printable ticket/receipt foundation
+9. improved real-time or near-real-time operational sync
+10. optional simple manual internal order entry
+11. better operational order detail UI
+12. owner dashboard operational improvements
+13. maintainable schema updates and role-safe architecture
+
+---
+
+## Important implementation rules
+
+* do not break previous phases
+* do not build a full accounting or ERP system
+* do not build an overly complex floor-map planner
+* do not add legal invoicing complexity unless lightly structuring for future support
+* do not overcomplicate permissions
+* do not create duplicate business logic between QR orders and manual orders
+* prioritize practical restaurant operations
+* build like this will be used by real cafés and restaurants during daily service
+
+Now implement Phase 5 accordingly, transforming the platform into a stronger real-world restaurant operations system with kitchen, waiter, cashier, and print-ready workflows while preserving everything already built.

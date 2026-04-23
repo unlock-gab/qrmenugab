@@ -8,15 +8,16 @@ datasource db {
 }
 
 enum UserRole {
-  SUPER_ADMIN
-  MERCHANT
-  STAFF
+  PLATFORM_ADMIN
+  MERCHANT_OWNER
+  MERCHANT_STAFF
 }
 
 enum RestaurantStatus {
   ACTIVE
   INACTIVE
   SUSPENDED
+  PENDING_SETUP
 }
 
 enum OrderStatus {
@@ -28,12 +29,20 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
 model User {
   id           String      @id @default(cuid())
   name         String
   email        String      @unique
   passwordHash String
-  role         UserRole    @default(MERCHANT)
+  role         UserRole    @default(MERCHANT_OWNER)
+  isActive     Boolean     @default(true)
   restaurantId String?
   restaurant   Restaurant? @relation(fields: [restaurantId], references: [id])
   createdAt    DateTime    @default(now())
@@ -43,25 +52,62 @@ model User {
 }
 
 model Restaurant {
-  id              String           @id @default(cuid())
-  name            String
-  slug            String           @unique
-  description     String?
-  phone           String?
-  address         String?
-  logoUrl         String?
-  currency        String           @default("USD")
-  soundEnabled    Boolean          @default(true)
-  status          RestaurantStatus @default(ACTIVE)
-  users           User[]
-  tables          Table[]
-  categories      Category[]
-  menuItems       MenuItem[]
-  orders          Order[]
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id                   String                @id @default(cuid())
+  name                 String
+  slug                 String                @unique
+  description          String?
+  phone                String?
+  address              String?
+  logoUrl              String?
+  currency             String                @default("USD")
+  soundEnabled         Boolean               @default(true)
+  status               RestaurantStatus      @default(PENDING_SETUP)
+  onboardingCompleted  Boolean               @default(false)
+  primaryColor         String?
+  secondaryColor       String?
+  users                User[]
+  tables               Table[]
+  categories           Category[]
+  menuItems            MenuItem[]
+  orders               Order[]
+  subscription         RestaurantSubscription?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
 
   @@map("restaurants")
+}
+
+model SubscriptionPlan {
+  id              String                  @id @default(cuid())
+  name            String
+  description     String?
+  price           Decimal?                @db.Decimal(10, 2)
+  maxTables       Int                     @default(10)
+  maxMenuItems    Int                     @default(50)
+  maxStaffUsers   Int                     @default(3)
+  featuresJson    String?
+  isActive        Boolean                 @default(true)
+  subscriptions   RestaurantSubscription[]
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  @@map("subscription_plans")
+}
+
+model RestaurantSubscription {
+  id           String             @id @default(cuid())
+  restaurantId String             @unique
+  restaurant   Restaurant         @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  planId       String
+  plan         SubscriptionPlan   @relation(fields: [planId], references: [id])
+  status       SubscriptionStatus @default(TRIAL)
+  startDate    DateTime           @default(now())
+  endDate      DateTime?
+  trialEndsAt  DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@map("restaurant_subscriptions")
 }
 
 model Table {

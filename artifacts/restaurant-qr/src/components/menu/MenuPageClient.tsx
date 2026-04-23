@@ -28,12 +28,13 @@ type CartItem = {
 };
 
 type Props = {
-  restaurant: { id: string; name: string; logoUrl: string | null; currency?: string };
+  restaurant: { id: string; name: string; logoUrl: string | null; currency?: string; primaryColor?: string | null };
   table: { id: string; tableNumber: string };
   categories: Category[];
 };
 
 export function MenuPageClient({ restaurant, table, categories }: Props) {
+  const brand = restaurant.primaryColor || "#f97316";
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [notes, setNotes] = useState("");
@@ -149,7 +150,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
 
   return (
     <div className="min-h-screen bg-gray-50 relative">
-      <div className="bg-gradient-to-br from-orange-500 to-amber-500">
+      <div style={{ background: `linear-gradient(135deg, ${brand}, ${brand}cc)` }}>
         <div className="max-w-lg mx-auto px-4 py-5 flex items-center gap-4">
           {restaurant.logoUrl ? (
             <img src={restaurant.logoUrl} alt={restaurant.name} className="w-12 h-12 rounded-xl object-cover bg-white/20 shrink-0" />
@@ -158,7 +159,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
           )}
           <div className="min-w-0">
             <h1 className="text-lg font-black text-white leading-tight truncate">{restaurant.name}</h1>
-            <p className="text-orange-100 text-sm">Table {table.tableNumber}</p>
+            <p className="text-white/80 text-sm">Table {table.tableNumber}</p>
           </div>
           {itemCount > 0 && (
             <button
