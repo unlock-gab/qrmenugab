@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { formatDA } from "@/lib/i18n";
 
 interface OrderItem { id: string; nameSnapshot: string; quantity: number; }
 interface Order {
@@ -189,7 +190,7 @@ export default function WaiterPage() {
                         )}
                       </div>
                       {table.unpaidTotal > 0 && (
-                        <span className="text-sm font-semibold text-gray-600">{table.unpaidTotal.toFixed(2)}</span>
+                        <span className="text-sm font-semibold text-gray-600">{formatDA(table.unpaidTotal)}</span>
                       )}
                     </div>
                     <div className="space-y-2">

@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { toast } from "sonner";
+import { formatDA } from "@/lib/i18n";
 
 type OptionItem = { id: string; name: string; extraPrice: number };
 type OptionGroup = {
@@ -251,7 +252,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
           </p>
           {orderPlaced.finalTotal > 0 && (
             <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 mb-6 text-sm text-orange-700 font-semibold">
-              {t("Total", "الإجمالي")}: {orderPlaced.finalTotal.toFixed(2)} {currency}
+              {t("Total", "الإجمالي")}: {formatDA(orderPlaced.finalTotal)}
             </div>
           )}
           <button
@@ -369,7 +370,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
                         )}
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-sm font-bold text-gray-900">
-                            {item.price.toFixed(2)} <span className="text-xs font-normal text-gray-400">{currency}</span>
+                            {formatDA(item.price)}
                           </span>
                           {!unavailable && (
                             qty > 0 ? (
@@ -409,7 +410,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
           >
             <span className="bg-white/20 rounded-xl px-2 py-0.5 text-sm">{itemCount}</span>
             <span className="flex-1 text-center">{t("View Cart", "عرض السلة")}</span>
-            <span className="text-sm opacity-90">{finalTotal.toFixed(2)} {currency}</span>
+            <span className="text-sm opacity-90">{formatDA(finalTotal)}</span>
           </button>
         </div>
       )}
@@ -446,7 +447,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
                           {isOptionSelected(opt.id) && <div className="w-2 h-2 bg-white rounded-full" />}
                         </div>
                         <span className="flex-1 text-sm text-gray-800">{opt.name}</span>
-                        {opt.extraPrice > 0 && <span className="text-sm text-gray-500 font-medium">+{opt.extraPrice.toFixed(2)}</span>}
+                        {opt.extraPrice > 0 && <span className="text-sm text-gray-500 font-medium">+{formatDA(opt.extraPrice)}</span>}
                       </label>
                     ))}
                   </div>
@@ -457,7 +458,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
               <div className="flex items-center justify-between mb-4">
                 <span className="text-sm text-gray-600">{t("Item total", "المجموع")}</span>
                 <span className="font-bold text-gray-900">
-                  {(selectedItem.price + itemSelections.reduce((s, o) => s + o.extraPrice, 0)).toFixed(2)} {currency}
+                  {formatDA(selectedItem.price + itemSelections.reduce((s, o) => s + o.extraPrice, 0))}
                 </span>
               </div>
               <button
@@ -490,7 +491,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
                       {item.selectedOptions.length > 0 && (
                         <p className="text-xs text-gray-400 mt-0.5">{item.selectedOptions.map((o) => o.name).join(", ")}</p>
                       )}
-                      <p className="text-xs text-gray-500 mt-0.5">{((item.basePrice + item.optionsPrice) * item.quantity).toFixed(2)} {currency}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{formatDA((item.basePrice + item.optionsPrice) * item.quantity)}</p>
                     </div>
                     <div className="flex items-center gap-2 bg-gray-100 rounded-xl px-2 py-1">
                       <button onClick={() => removeCartItem(item.cartKey)} className="w-5 h-5 flex items-center justify-center text-gray-500 font-bold hover:text-red-500">−</button>
@@ -528,7 +529,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
                 ) : (
                   <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2">
                     <span className="text-green-700 text-sm font-medium flex-1">
-                      ✓ {promoCode} — −{promoResult.discountAmount.toFixed(2)} {currency}
+                      ✓ {promoCode} — −{formatDA(promoResult.discountAmount)}
                     </span>
                     <button onClick={removePromo} className="text-green-500 hover:text-green-700 text-sm">✕</button>
                   </div>
@@ -539,17 +540,17 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
               <div className="border-t border-gray-100 pt-4 space-y-1.5">
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>{t("Subtotal", "المجموع الجزئي")}</span>
-                  <span>{subtotal.toFixed(2)} {currency}</span>
+                  <span>{formatDA(subtotal)}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-sm text-green-600 font-medium">
                     <span>{t("Discount", "الخصم")}</span>
-                    <span>−{discount.toFixed(2)} {currency}</span>
+                    <span>−{formatDA(discount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-bold text-gray-900">
                   <span>{t("Total", "الإجمالي")}</span>
-                  <span>{finalTotal.toFixed(2)} {currency}</span>
+                  <span>{formatDA(finalTotal)}</span>
                 </div>
               </div>
             </div>

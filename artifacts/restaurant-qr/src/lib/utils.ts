@@ -9,10 +9,7 @@ export function formatPrice(
   price: number | string | { toNumber: () => number }
 ): string {
   const num = typeof price === "object" ? price.toNumber() : Number(price);
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(num);
+  return `${num.toLocaleString("fr-DZ")} Da`;
 }
 
 export function generateOrderNumber(): string {

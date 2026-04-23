@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { formatDA } from "@/lib/i18n";
 
 interface PromoCode {
   id: string;
@@ -249,11 +250,11 @@ export default function PromosPage() {
                   <td className="px-5 py-4 text-gray-700">
                     {promo.discountType === "PERCENTAGE"
                       ? `${promo.discountValue}%`
-                      : promo.discountValue.toFixed(2)}
+                      : formatDA(promo.discountValue)}
                     {" — "}{DISCOUNT_AR[promo.discountType]}
                     {promo.minimumOrderAmount && (
                       <span className="text-xs text-gray-400 block">
-                        الحد الأدنى: {promo.minimumOrderAmount}
+                        الحد الأدنى: {formatDA(promo.minimumOrderAmount)}
                       </span>
                     )}
                   </td>

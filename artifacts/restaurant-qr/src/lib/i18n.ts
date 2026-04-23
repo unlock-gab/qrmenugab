@@ -81,7 +81,7 @@ export function t(key: TranslationKey, locale: Locale): string {
 }
 
 export function formatDA(amount: number): string {
-  return `${amount.toLocaleString("fr-DZ")} DA`;
+  return `${amount.toLocaleString("fr-DZ")} Da`;
 }
 
 export function getLang(): Locale {

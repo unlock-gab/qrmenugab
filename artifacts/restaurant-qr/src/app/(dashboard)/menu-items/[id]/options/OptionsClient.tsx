@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { formatDA } from "@/lib/i18n";
 
 interface OptionItem { id: string; name: string; extraPrice: number; isActive: boolean; sortOrder: number; }
 interface OptionGroup {
@@ -206,7 +207,7 @@ export default function OptionsClient({ item }: { item: ItemData }) {
                         <div key={opt.id} className="flex items-center justify-between py-1.5 px-3 bg-gray-50 rounded-lg">
                           <span className="text-sm text-gray-800">{opt.name}</span>
                           <div className="flex items-center gap-3">
-                            {opt.extraPrice > 0 && <span className="text-xs text-emerald-600 font-medium">+{opt.extraPrice.toFixed(2)}</span>}
+                            {opt.extraPrice > 0 && <span className="text-xs text-emerald-600 font-medium">+{formatDA(opt.extraPrice)}</span>}
                             <button onClick={() => deleteOption(group.id, opt.id)} className="text-red-400 hover:text-red-600 text-xs">حذف</button>
                           </div>
                         </div>

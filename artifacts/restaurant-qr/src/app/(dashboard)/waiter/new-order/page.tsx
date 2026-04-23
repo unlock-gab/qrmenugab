@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { formatDA } from "@/lib/i18n";
 
 interface Table { id: string; tableNumber: string; }
 interface Category { id: string; name: string; }
@@ -137,7 +138,7 @@ export default function NewManualOrderPage() {
                   <div className="flex-1">
                     <p className="font-semibold text-gray-900 text-sm">{item.name}</p>
                     {item.description && <p className="text-xs text-gray-400 line-clamp-1">{item.description}</p>}
-                    <p className="text-base font-bold text-indigo-600 mt-1">{Number(item.price).toFixed(2)}</p>
+                    <p className="text-base font-bold text-indigo-600 mt-1">{formatDA(Number(item.price))}</p>
                   </div>
                   <div className="flex items-center justify-between gap-1">
                     {qty > 0 ? (
@@ -169,12 +170,12 @@ export default function NewManualOrderPage() {
                 {cart.map((item) => (
                   <div key={item.menuItemId} className="flex justify-between items-center text-sm">
                     <span className="text-gray-700">{item.quantity}× {item.name}</span>
-                    <span className="font-medium text-gray-900">{(item.price * item.quantity).toFixed(2)}</span>
+                    <span className="font-medium text-gray-900">{formatDA(item.price * item.quantity)}</span>
                   </div>
                 ))}
                 <div className="border-t border-gray-100 pt-2 flex justify-between font-bold text-gray-900">
                   <span>الإجمالي</span>
-                  <span>{total.toFixed(2)}</span>
+                  <span>{formatDA(total)}</span>
                 </div>
               </div>
             )}
