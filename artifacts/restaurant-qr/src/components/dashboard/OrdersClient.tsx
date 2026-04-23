@@ -212,12 +212,12 @@ function OrderDetailModal({ order, onClose, onUpdateStatus, updatingId }: Detail
 }
 
 type Props = {
-  initialOrders: Order[];
-  soundEnabled: boolean;
+  initialOrders?: Order[];
+  soundEnabled?: boolean;
 };
 
-export function OrdersClient({ initialOrders, soundEnabled }: Props) {
-  const [orders, setOrders] = useState(initialOrders);
+export function OrdersClient({ initialOrders = [], soundEnabled = true }: Props) {
+  const [orders, setOrders] = useState<Order[]>(initialOrders);
   const [filterStatus, setFilterStatus] = useState<string>("ACTIVE");
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -256,6 +256,8 @@ export function OrdersClient({ initialOrders, soundEnabled }: Props) {
   }, []);
 
   useEffect(() => {
+    // Fetch immediately on mount (so page can be thin — no server-side DB query needed)
+    fetchOrders(true);
     const handler = () => unlockAudioContext();
     document.addEventListener("click", handler, { once: true });
     const interval = setInterval(() => fetchOrders(true), 8000);
