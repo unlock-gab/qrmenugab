@@ -24,7 +24,17 @@ export async function GET() {
       orderBy: { createdAt: "asc" },
     });
 
-    return NextResponse.json(orders);
+    return NextResponse.json(orders.map((o) => ({
+      ...o,
+      total: Number(o.total),
+      subtotal: Number(o.subtotal),
+      discountAmount: Number(o.discountAmount),
+      orderItems: o.orderItems.map((i) => ({
+        ...i,
+        unitPrice: Number((i as { unitPrice: unknown }).unitPrice ?? 0),
+        totalPrice: Number((i as { totalPrice: unknown }).totalPrice ?? 0),
+      })),
+    })));
   } catch {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }

@@ -16,12 +16,18 @@ const STATUS_AR: Record<string, string> = {
   CANCELLED: "ملغي",
 };
 
+interface OrderItemOption {
+  id: string;
+  nameSnapshot: string;
+  extraPrice: number;
+}
 interface OrderItem {
   id: string;
   nameSnapshot: string;
   quantity: number;
   unitPrice: number;
   totalPrice: number;
+  orderItemOptions?: OrderItemOption[];
 }
 
 interface Order {
@@ -34,6 +40,9 @@ interface Order {
   notes?: string | null;
   subtotal: number;
   total: number;
+  discountAmount?: number;
+  discountCode?: string | null;
+  finalTotal?: number;
   createdAt: string;
   servedAt?: string | null;
   paidAt?: string | null;
@@ -121,12 +130,19 @@ export default function PrintClient({ order }: { order: Order }) {
             <p className="text-xs text-gray-500 font-semibold mb-2 uppercase tracking-wider">الأصناف</p>
             <div className="space-y-2">
               {order.orderItems.map((item) => (
-                <div key={item.id} className="flex justify-between text-sm">
-                  <div>
-                    <span className="text-gray-500">{item.quantity}×</span>{" "}
-                    <span className="text-gray-900">{item.nameSnapshot}</span>
+                <div key={item.id}>
+                  <div className="flex justify-between text-sm">
+                    <div>
+                      <span className="text-gray-500">{item.quantity}×</span>{" "}
+                      <span className="text-gray-900">{item.nameSnapshot}</span>
+                    </div>
+                    <span className="font-medium text-gray-900">{item.totalPrice.toFixed(2)}</span>
                   </div>
-                  <span className="font-medium text-gray-900">{item.totalPrice.toFixed(2)}</span>
+                  {item.orderItemOptions && item.orderItemOptions.length > 0 && (
+                    <div className="text-xs text-gray-400 mr-4 mt-0.5">
+                      {item.orderItemOptions.map((o) => `• ${o.nameSnapshot}`).join("  ")}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -138,9 +154,15 @@ export default function PrintClient({ order }: { order: Order }) {
               <span className="text-gray-500">المجموع الفرعي</span>
               <span>{order.subtotal.toFixed(2)}</span>
             </div>
+            {(order.discountAmount ?? 0) > 0 && (
+              <div className="flex justify-between text-sm text-emerald-700 font-medium">
+                <span>خصم {order.discountCode ? `(${order.discountCode})` : ""}</span>
+                <span>−{(order.discountAmount ?? 0).toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex justify-between text-base font-black text-gray-900 pt-1 border-t border-gray-200">
               <span>الإجمالي</span>
-              <span>{order.total.toFixed(2)} {order.restaurant.currency}</span>
+              <span>{(order.finalTotal ?? order.total).toFixed(2)} {order.restaurant.currency}</span>
             </div>
             {order.paymentMethod && (
               <div className="flex justify-between text-sm">

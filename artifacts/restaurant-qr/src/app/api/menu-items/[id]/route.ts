@@ -8,10 +8,14 @@ const updateMenuItemSchema = z.object({
   categoryId: z.string().min(1).optional(),
   name: z.string().min(1).max(200).optional(),
   description: z.string().max(1000).optional().nullable(),
+  ingredientsText: z.string().max(500).optional().nullable(),
+  translationsJson: z.string().optional().nullable(),
   price: z.number().positive().optional(),
   imageUrl: z.string().url().optional().nullable().or(z.literal("")),
   isAvailable: z.boolean().optional(),
   sortOrder: z.number().int().min(0).optional(),
+  stockTrackingEnabled: z.boolean().optional(),
+  stockQuantity: z.number().int().min(0).optional().nullable(),
 });
 
 async function getItemForMerchant(id: string, restaurantId: string) {

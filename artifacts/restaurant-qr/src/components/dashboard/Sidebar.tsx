@@ -13,6 +13,9 @@ const OWNER_NAV: NavItem[] = [
   { href: "/tables", label: "الطاولات", icon: "⊞" },
   { href: "/categories", label: "التصنيفات", icon: "≡" },
   { href: "/menu-items", label: "عناصر القائمة", icon: "✦" },
+  { href: "/promos", label: "كودات الخصم", icon: "🏷️" },
+  { href: "/reservations", label: "الحجوزات", icon: "📅" },
+  { href: "/reports", label: "التقارير", icon: "📊" },
   { href: "/staff", label: "الموظفون", icon: "👥" },
   { href: "/settings", label: "الإعدادات", icon: "⚙" },
 ];

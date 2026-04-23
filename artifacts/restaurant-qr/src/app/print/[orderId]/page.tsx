@@ -17,6 +17,7 @@ export default async function PrintPage({ params }: { params: Promise<{ orderId:
     include: {
       table: { select: { tableNumber: true } },
       orderItems: {
+        include: { orderItemOptions: true },
         orderBy: { createdAt: "asc" },
       },
       restaurant: { select: { name: true, phone: true, address: true, currency: true } },
@@ -29,10 +30,14 @@ export default async function PrintPage({ params }: { params: Promise<{ orderId:
     ...order,
     subtotal: Number(order.subtotal),
     total: Number(order.total),
+    discountAmount: Number(order.discountAmount),
+    discountCode: order.discountCode ?? null,
+    finalTotal: Number(order.total) - Number(order.discountAmount),
     orderItems: order.orderItems.map((i) => ({
       ...i,
       unitPrice: Number(i.unitPrice),
       totalPrice: Number(i.totalPrice),
+      orderItemOptions: i.orderItemOptions.map((o) => ({ ...o, extraPrice: Number(o.extraPrice) })),
     })),
     createdAt: order.createdAt.toISOString(),
     updatedAt: order.updatedAt.toISOString(),

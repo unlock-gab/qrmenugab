@@ -9,9 +9,13 @@ const createMenuItemSchema = z.object({
   categoryId: z.string().min(1),
   name: z.string().min(1).max(200),
   description: z.string().max(1000).optional(),
+  ingredientsText: z.string().max(500).optional(),
+  translationsJson: z.string().optional(),
   price: z.number().positive(),
   imageUrl: z.string().url().optional().or(z.literal("")),
   sortOrder: z.number().int().min(0).optional().default(0),
+  stockTrackingEnabled: z.boolean().optional().default(false),
+  stockQuantity: z.number().int().min(0).optional(),
 });
 
 export async function GET() {
@@ -57,15 +61,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Category not found" }, { status: 400 });
   }
 
+  const { stockTrackingEnabled, stockQuantity, ingredientsText, translationsJson, ...rest } = parsed.data;
   const item = await prisma.menuItem.create({
     data: {
       restaurantId: session.user.restaurantId,
-      categoryId: parsed.data.categoryId,
-      name: parsed.data.name,
-      description: parsed.data.description || null,
-      price: parsed.data.price,
-      imageUrl: parsed.data.imageUrl || null,
-      sortOrder: parsed.data.sortOrder,
+      categoryId: rest.categoryId,
+      name: rest.name,
+      description: rest.description || null,
+      ingredientsText: ingredientsText || null,
+      translationsJson: translationsJson || null,
+      price: rest.price,
+      imageUrl: rest.imageUrl || null,
+      sortOrder: rest.sortOrder,
+      stockTrackingEnabled: stockTrackingEnabled ?? false,
+      stockQuantity: (stockTrackingEnabled && stockQuantity != null) ? stockQuantity : null,
     },
     include: { category: { select: { id: true, name: true } } },
   });

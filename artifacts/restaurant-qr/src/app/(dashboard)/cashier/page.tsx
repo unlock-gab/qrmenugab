@@ -11,6 +11,8 @@ interface Order {
   paymentStatus: string;
   paymentMethod?: string | null;
   total: number;
+  discountAmount?: number;
+  discountCode?: string | null;
   createdAt: string;
   notes?: string | null;
   table: { tableNumber: string };
@@ -38,9 +40,17 @@ function PayDialog({ order, onPay, onClose }: { order: Order; onPay: (method: st
               <span className="font-medium">{(i.unitPrice * i.quantity).toFixed(2)}</span>
             </div>
           ))}
-          <div className="border-t border-gray-200 mt-2 pt-2 flex justify-between font-bold text-gray-900">
-            <span>الإجمالي</span>
-            <span>{Number(order.total).toFixed(2)}</span>
+          <div className="border-t border-gray-200 mt-2 pt-2 space-y-1">
+            {(order.discountAmount ?? 0) > 0 && (
+              <div className="flex justify-between text-sm text-emerald-600 font-medium">
+                <span>خصم {order.discountCode ? `(${order.discountCode})` : ""}</span>
+                <span>−{Number(order.discountAmount).toFixed(2)}</span>
+              </div>
+            )}
+            <div className="flex justify-between font-bold text-gray-900">
+              <span>المبلغ المستحق</span>
+              <span>{Math.max(0, Number(order.total) - Number(order.discountAmount ?? 0)).toFixed(2)}</span>
+            </div>
           </div>
         </div>
         <p className="text-sm font-semibold text-gray-700 mb-2">طريقة الدفع</p>
@@ -103,7 +113,8 @@ export default function CashierPage() {
 
   const served = orders.filter((o) => o.status === "SERVED");
   const other = orders.filter((o) => o.status !== "SERVED");
-  const totalUnpaid = orders.reduce((s, o) => s + Number(o.total), 0);
+  const getFinalTotal = (o: Order) => Math.max(0, Number(o.total) - Number(o.discountAmount ?? 0));
+  const totalUnpaid = orders.reduce((s, o) => s + getFinalTotal(o), 0);
 
   return (
     <div className="p-4 md:p-6 max-w-4xl mx-auto">
@@ -184,7 +195,7 @@ function OrderCard({ order, onPay, priority }: { order: Order; onPay: () => void
           </div>
         </div>
         <div className="flex flex-col items-end gap-2 flex-shrink-0">
-          <span className="text-xl font-black text-gray-900">{Number(order.total).toFixed(2)}</span>
+          <span className="text-xl font-black text-gray-900">{Math.max(0, Number(order.total) - Number(order.discountAmount ?? 0)).toFixed(2)}</span>
           <div className="flex gap-1.5">
             <Link
               href={`/print/${order.id}`}

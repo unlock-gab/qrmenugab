@@ -1,0 +1,876 @@
+Continue the same project and implement **Phase 7** for the multi-restaurant QR ordering SaaS platform.
+
+Important: this project started in Replit, but it is intentionally being built so it can later be migrated to a **VPS using Dokploy and Docker**.
+Keep everything **portable, production-minded, and Docker-friendly**.
+Do not introduce Replit-only architecture.
+Do not break the foundations built in Phases 1, 2, 3, 4, 5, and 6.
+
+This phase is about evolving the platform into a much stronger, more realistic restaurant SaaS by adding:
+
+* multi-branch restaurant support
+* branch-level operations and scoping
+* delivery and takeaway mode
+* customer accounts and order history
+* loyalty/rewards foundation
+* WhatsApp/SMS notification-ready architecture
+* stronger admin controls for complex restaurant organizations
+
+---
+
+## Mandatory language and currency rules
+
+This project must now follow these product rules everywhere:
+
+* **French is the default language across the entire platform**
+* **Arabic is the secondary language that users can switch to**
+* the app must open and operate in **French by default**
+* the public website, customer ordering flow, merchant dashboard, admin panel, billing pages, onboarding, and operational screens must all be **French-first**
+* Arabic must be supported as an optional switchable language
+* if Arabic translation is missing for a field or UI section, fallback to French
+* all prices and financial values must be displayed in **Algerian dinar**
+* use **DA** as the main visible currency format in the UI
+* store monetary values safely in the database and format them consistently in the frontend as examples like:
+
+  * `250 DA`
+  * `1 200 DA`
+  * `3 500 DA`
+
+The multilingual structure must safely support:
+
+* **French (default / LTR)**
+* **Arabic (secondary / RTL)**
+
+All UI components must remain stable in both French and Arabic.
+Do not make Arabic the default language.
+Do not build English as the main product language.
+French-first is mandatory.
+
+---
+
+## Phase 7 objective
+
+Upgrade the platform into a more advanced restaurant SaaS by adding:
+
+* multi-branch support for one restaurant brand
+* branch-specific tables, orders, staff, and settings
+* delivery and takeaway ordering flows in addition to dine-in QR ordering
+* customer account foundation for repeat users
+* customer order history
+* loyalty/reward-ready structure
+* notification architecture ready for WhatsApp/SMS/email integrations
+* stronger platform and merchant controls for more complex restaurant businesses
+
+This phase should make the product much more scalable and commercially attractive for restaurant groups, chains, and ambitious independent businesses.
+
+---
+
+## Protect existing architecture
+
+Preserve and protect:
+
+* public QR ordering flow
+* merchant dashboard
+* platform admin
+* subscription/billing structure
+* kitchen/waiter/cashier workflows
+* stock/modifiers/promo/reservations/waiter request logic
+* multi-tenant safety
+* Docker portability
+
+Do not rebuild from scratch.
+Refactor only where needed to support branch-aware architecture cleanly.
+
+---
+
+## Main Phase 7 modules
+
+### 1. Multi-branch restaurant architecture
+
+Upgrade the data model so a restaurant brand can have one or more **branches/locations**.
+
+Goal:
+A single merchant organization can manage multiple physical locations, each with its own:
+
+* tables
+* orders
+* kitchen activity
+* waiter/cashier activity
+* settings
+* staff
+* QR routes
+* reservations
+* stock/menu availability if needed
+
+Important design direction:
+
+* keep the top-level restaurant/organization concept
+* introduce a branch/location layer below it
+* scope operational records to the branch where appropriate
+* do not break existing single-location restaurants
+
+Suggested architecture:
+
+* Restaurant = organization/brand/account
+* Branch = physical location
+
+Single-branch restaurants should still work cleanly with minimal friction.
+
+---
+
+### 2. Branch-level scoping
+
+Refine the platform so branch-sensitive data is scoped properly.
+
+Records that likely need branch relation:
+
+* tables
+* orders
+* staff assignments
+* reservations
+* waiter requests
+* kitchen/waiter/cashier views
+* stock quantities if stock is branch-specific
+* possibly menu availability if certain items differ by branch
+
+Requirements:
+
+* merchant users should only see allowed branch data
+* owner can see all branches under their restaurant organization
+* branch staff sees only their assigned branch
+* public dine-in QR flow resolves correctly to the right branch + table
+* no cross-branch leakage
+
+This scoping must be clean and safe.
+
+---
+
+### 3. Branch management UI
+
+Add branch management tools for merchant owners.
+
+Merchant owner should be able to:
+
+* create branch
+* edit branch
+* deactivate branch if needed
+* set branch name
+* set branch address
+* set phone
+* set operating info
+* set branch status
+* optionally configure branch-specific branding/settings if useful later
+
+Create a clean branch management page inside merchant dashboard.
+
+Also add a clear branch switcher or branch selector UX for owner users where helpful.
+
+All labels and flows must be **French by default**.
+Arabic translation support must be available as secondary language.
+
+Examples of French-first merchant UI wording:
+
+* `Succursales`
+* `Ajouter une succursale`
+* `Modifier la succursale`
+* `Statut`
+* `Adresse`
+* `Téléphone`
+
+---
+
+### 4. Delivery and takeaway order modes
+
+Until now, the system focused mainly on dine-in QR table ordering.
+Now extend it to support:
+
+* **DINE_IN**
+* **TAKEAWAY**
+* **DELIVERY**
+
+Goal:
+A restaurant can receive not only table QR orders but also direct non-table customer orders.
+
+Requirements:
+
+* public ordering flow should support branch-specific takeaway/delivery ordering
+* dine-in flow must keep table context
+* takeaway/delivery flow must work without table context
+* order type must be stored clearly
+* operational interfaces should display order type clearly
+
+Delivery orders may include:
+
+* customer name
+* phone
+* address
+* optional note
+
+Takeaway orders may include:
+
+* customer name
+* phone
+* optional note
+
+Do not build a full delivery logistics platform.
+Keep it focused on order intake and restaurant handling.
+
+French-first customer wording examples:
+
+* `Sur place`
+* `À emporter`
+* `Livraison`
+* `Nom`
+* `Téléphone`
+* `Adresse`
+* `Note`
+
+Arabic translations should be supported as optional secondary UI language.
+
+---
+
+### 5. Public ordering mode selection
+
+Add a clean public ordering entry experience.
+
+For a branch, users may be able to:
+
+* scan table QR and order dine-in directly
+* open a public branch order page and choose takeaway
+* open a public branch order page and choose delivery
+
+Requirements:
+
+* ordering UX should stay simple and mobile-friendly
+* branch identity should remain clear
+* order mode should be obvious throughout checkout
+* totals and order data should remain accurate
+* all visible prices must use **DA**
+
+Do not make the public flow confusing.
+
+French-first public UX examples:
+
+* `Choisissez votre mode de commande`
+* `Commander sur place`
+* `Commander à emporter`
+* `Commander en livraison`
+* `Total : 1 250 DA`
+
+---
+
+### 6. Customer accounts foundation
+
+Add optional customer account support.
+
+Goal:
+Customers who order takeaway/delivery or repeat dine-in interactions can have:
+
+* account creation
+* login
+* profile info
+* saved phone/name
+* order history
+
+This should be optional and lightweight.
+Do not force account creation for all ordering unless strategically necessary.
+
+Suggested capabilities:
+
+* guest checkout still supported
+* customer can optionally create account
+* customer can log in and view past orders
+* future loyalty can attach to customer account
+
+Keep the architecture clean and safe.
+
+French-first auth/customer wording examples:
+
+* `Créer un compte`
+* `Se connecter`
+* `Mon profil`
+* `Historique des commandes`
+
+Arabic version must be available as secondary switchable language.
+
+---
+
+### 7. Customer order history
+
+For logged-in customers, add:
+
+* list of previous orders
+* order status history if useful
+* branch name
+* order type
+* total
+* date/time
+* order detail view
+
+This should help repeat use and support future loyalty/reorder features.
+
+Keep it clean and user-friendly.
+
+French-first examples:
+
+* `Mes commandes`
+* `Détails de la commande`
+* `Succursale`
+* `Type de commande`
+* `Montant total`
+* `Date`
+
+All order amounts must display in **DA**.
+
+---
+
+### 8. Loyalty / rewards foundation
+
+Add a lightweight loyalty-ready structure.
+
+Goal:
+Lay the foundation for repeat-customer rewards without building a giant CRM.
+
+Possible first version:
+
+* points earned per paid order
+* restaurant-configurable reward logic later
+* points balance on customer account
+* loyalty transaction history structure
+* optional reward redemption-ready architecture
+
+For this phase, you may implement:
+
+* points accumulation on eligible paid orders
+* simple customer loyalty summary
+* admin/merchant visibility of loyalty data if useful
+
+Do not overcomplicate with tiers, referrals, and gamification yet.
+Build a clean base.
+
+French-first examples:
+
+* `Programme de fidélité`
+* `Points`
+* `Solde de points`
+* `Historique des points`
+
+Arabic support must remain optional and secondary.
+
+---
+
+### 9. Notification-ready architecture for WhatsApp/SMS/email
+
+Create a clean communication/notification architecture so future integrations can support:
+
+* WhatsApp order notifications
+* SMS order status updates
+* email confirmations
+* reservation confirmations
+* delivery/takeaway updates
+
+Important:
+You do not need to fully integrate every provider now.
+But build a clean architecture that supports:
+
+* provider abstraction
+* notification event types
+* message templates
+* queued send-ready structure
+* delivery logs or notification logs if useful
+
+Possible initial events:
+
+* order created
+* order ready
+* order paid
+* reservation confirmed
+* waiter request handled
+
+If one lightweight provider or mock service is implemented, keep it abstracted and portable.
+
+French-first settings/examples:
+
+* `Notifications client`
+* `Canaux de notification`
+* `WhatsApp`
+* `SMS`
+* `E-mail`
+
+---
+
+### 10. Merchant notification settings
+
+Add merchant-side communication settings.
+
+Merchant owner should be able to manage simple preferences such as:
+
+* enable/disable customer notifications
+* choose allowed channels (future-ready)
+* set business phone
+* set sender-related settings if needed later
+
+Do not overbuild provider configuration UI yet.
+Keep it clean and future-ready.
+
+French-first merchant settings examples:
+
+* `Paramètres de notification`
+* `Activer les notifications client`
+* `Téléphone professionnel`
+
+---
+
+### 11. Branch-aware operational workspaces
+
+Upgrade kitchen/waiter/cashier modes so they are branch-aware.
+
+Requirements:
+
+* staff sees only their assigned branch workspace
+* owner can switch between branches or view by branch
+* kitchen screen shows only branch-relevant active orders
+* waiter/cashier/table views remain branch-scoped
+* unpaid/paid/order counts are branch-specific where relevant
+
+This is critical for multi-location operations.
+
+All restaurant operational labels and statuses must be **French-first**.
+Arabic should be optional.
+
+Examples:
+
+* `Cuisine`
+* `Serveur`
+* `Caisse`
+* `Commandes actives`
+* `Non payé`
+* `Payé`
+
+---
+
+### 12. Branch-aware menu and stock strategy
+
+Review how menu and stock should behave in multi-branch mode.
+
+Possible direction:
+
+* menu items belong to restaurant organization
+* branch can toggle availability or stock per branch
+* shared catalog with branch-level availability overrides
+
+This is usually cleaner than fully duplicating menu data per branch.
+
+Implement a clean version that fits the existing architecture without causing heavy complexity.
+
+Examples:
+
+* menu item exists globally under restaurant
+* branch can mark item unavailable
+* branch can manage stock quantity if stock is tracked per branch
+
+Keep it maintainable.
+
+Merchant UI examples in French:
+
+* `Disponibilité par succursale`
+* `Stock`
+* `Rupture de stock`
+* `Disponible`
+* `Indisponible`
+
+---
+
+### 13. Delivery/takeaway operational handling
+
+Upgrade operational interfaces to support non-table orders.
+
+Kitchen, waiter, cashier, and owner views should clearly distinguish:
+
+* DINE_IN
+* TAKEAWAY
+* DELIVERY
+
+For delivery/takeaway orders, show:
+
+* customer name
+* phone
+* delivery address if relevant
+* order type badge
+* notes
+* payment and order status
+
+Do not let table-centric UI assumptions break these flows.
+
+French-first labels:
+
+* `Sur place`
+* `À emporter`
+* `Livraison`
+* `Client`
+* `Adresse de livraison`
+* `Mode de paiement`
+
+---
+
+### 14. Merchant dashboard and reports evolution
+
+Improve merchant analytics and dashboard summaries to support:
+
+* branch breakdown
+* dine-in vs takeaway vs delivery counts
+* revenue by branch
+* top-selling items by branch
+* customer repeat activity if feasible
+* loyalty summary if implemented
+* reservation and request stats by branch
+
+Keep reports practical and readable.
+Do not build a massive BI system.
+
+All revenue and financial KPIs must display in **DA**.
+
+French-first examples:
+
+* `Chiffre d'affaires`
+* `Aujourd'hui`
+* `Cette semaine`
+* `Par succursale`
+* `Produits les plus vendus`
+
+---
+
+### 15. Platform admin enhancements for multi-branch SaaS
+
+Upgrade platform admin visibility to support branch-aware SaaS operations.
+
+Admin should be able to:
+
+* view restaurants and their branch counts
+* inspect branch activity summary
+* see subscription usage in relation to branch support if applicable
+* view recent customer/order growth signals
+* monitor SaaS complexity as restaurants scale
+
+Do not overbuild admin complexity.
+Keep it operational and useful.
+
+The admin interface must also remain **French-first**, with Arabic as optional switchable language.
+
+Examples:
+
+* `Restaurants`
+* `Nombre de succursales`
+* `Abonnements`
+* `Croissance`
+* `Utilisation`
+
+---
+
+### 16. Branch and order routing hardening
+
+Public and internal routing must be hardened for branch support.
+
+Requirements:
+
+* QR route must resolve restaurant + branch + table safely
+* invalid branch/table combinations handled gracefully
+* delivery/takeaway public routes must be branch-specific and clear
+* internal staff routing must remain safe and scoped
+* no cross-branch or cross-restaurant exposure
+
+This is critical.
+
+Ensure route design remains clean for both French-first UX and Arabic language switching without breaking path logic.
+
+---
+
+## Database and schema evolution
+
+Extend the Prisma schema carefully to support this phase.
+
+Potential additions include:
+
+### Branch
+
+* id
+* restaurantId
+* name
+* slug
+* address
+* phone
+* status
+* createdAt
+* updatedAt
+
+### User
+
+Potential additions:
+
+* assignedBranchId nullable for branch-scoped staff
+* customer account role if you prefer one unified user system
+  or
+* separate customer model if that is cleaner
+
+### Table
+
+* add branchId
+
+### Order
+
+Potential additions:
+
+* branchId
+* orderType enum
+* customerId nullable
+* customerName snapshot
+* customerPhone snapshot
+* deliveryAddress snapshot
+* branch-scoped operational fields if needed
+
+### Reservation
+
+* add branchId
+
+### WaiterRequest
+
+* add branchId
+
+### LoyaltyAccount or CustomerLoyalty
+
+Potential structure:
+
+* id
+* customerId
+* restaurantId
+* pointsBalance
+* createdAt
+* updatedAt
+
+### LoyaltyTransaction
+
+* id
+* loyaltyAccountId
+* orderId nullable
+* pointsDelta
+* type
+* note
+* createdAt
+
+### NotificationTemplate / NotificationLog / OutboundMessage
+
+Only if useful and lightweight.
+
+You may also need:
+
+* branch-specific item availability or stock override table
+
+### Language / i18n support
+
+The multilingual architecture should support:
+
+* French as default locale
+* Arabic as secondary locale
+* safe fallback to French
+* UI labels translated cleanly
+* restaurant menu content translations where relevant
+
+Do not make English the primary locale.
+
+### Currency handling
+
+Store money safely in a standard database-friendly way.
+Format display values as **DA** in the frontend.
+Keep pricing logic centralized and consistent.
+
+Possible enum additions:
+
+* BranchStatus
+* OrderType (DINE_IN, TAKEAWAY, DELIVERY)
+* NotificationChannel
+* LoyaltyTransactionType
+
+Add only what directly supports Phase 7.
+Avoid bloated schema design.
+Preserve backward compatibility and multi-tenant safety.
+
+---
+
+## Business logic and validation rules
+
+### Multi-branch
+
+* owner can access all branches of their restaurant
+* branch staff only their assigned branch
+* branch deactivation handled gracefully
+* existing single-branch restaurants remain functional
+
+### Order types
+
+* DINE_IN requires table context
+* TAKEAWAY does not require table
+* DELIVERY requires customer + address fields
+* operational views must handle each mode correctly
+
+### Customer accounts
+
+* guest ordering can still exist
+* authenticated customers can view their own history only
+* customer data must not leak across restaurants inappropriately
+
+### Loyalty
+
+* only eligible paid orders should add points
+* points logic should be centralized
+* keep reward logic simple and extensible
+
+### Notifications
+
+* notification events should be structured
+* actual provider send logic should be abstracted
+* failures should be logged cleanly if implemented
+
+### Language and currency
+
+* French must be the default locale everywhere
+* Arabic must be switchable
+* fallback to French if Arabic content is missing
+* all totals, prices, subscriptions, revenue, and billing amounts must display in **DA**
+* RTL support must be handled correctly when Arabic is active
+
+Keep logic centralized and maintainable.
+
+---
+
+## Multi-tenant and security safety
+
+Still critical.
+
+Ensure:
+
+* restaurant organizations are isolated
+* branches are isolated within allowed scopes
+* staff cannot access unauthorized branches
+* customer accounts only see their own data
+* public routes do not leak other restaurant/branch data
+* notification data remains scoped safely
+* no cross-tenant or cross-branch leakage anywhere
+
+Also ensure:
+
+* language switching does not break tenant routing
+* Arabic UI mode does not break layout, forms, or operational screens
+* French remains the default fallback in all cases
+
+---
+
+## UI/UX direction
+
+### Merchant owner UX
+
+Should feel:
+
+* scalable
+* organized by branch
+* professional
+* powerful but not cluttered
+* **French-first by default**
+
+### Branch staff UX
+
+Should feel:
+
+* focused
+* branch-specific
+* operational
+* simple
+* **French-first by default**
+
+### Public customer UX
+
+Should feel:
+
+* smooth
+* mobile-friendly
+* clear on order mode
+* trustworthy for delivery/takeaway
+* premium for dine-in QR ordering
+* **French-first with optional Arabic switch**
+
+### Customer account UX
+
+Should feel:
+
+* lightweight
+* convenient
+* modern
+* easy to use
+
+### Loyalty UX
+
+Should feel:
+
+* simple
+* rewarding
+* not gimmicky
+
+### Language UX
+
+* default locale must be French
+* Arabic switch must be visible and clean
+* RTL support must be correct in Arabic mode
+* no broken layouts between French and Arabic
+* all currency displays should remain clear in both languages as **DA**
+
+---
+
+## Performance and maintainability expectations
+
+* keep code modular and maintainable
+* use TypeScript properly
+* preserve Docker portability
+* keep environment variable handling standard
+* avoid package bloat
+* reuse existing ordering/business logic where possible
+* avoid duplicating dine-in and takeaway/delivery logic unnecessarily
+* keep notification architecture abstracted and future-proof
+* keep language and currency formatting centralized in reusable helpers
+
+---
+
+## Deliverables for this phase
+
+Implement Phase 7 with:
+
+1. multi-branch restaurant architecture
+2. branch management UI
+3. branch-scoped operations and routing
+4. delivery and takeaway order modes
+5. public order mode selection flow
+6. optional customer account foundation
+7. customer order history
+8. loyalty/rewards base structure
+9. notification-ready WhatsApp/SMS/email architecture
+10. merchant notification settings
+11. branch-aware kitchen/waiter/cashier workspaces
+12. branch-aware menu/stock strategy
+13. delivery/takeaway operational handling
+14. branch-aware reports and admin insights
+15. French-first multilingual support with Arabic as secondary language
+16. DA / DZD currency display handling across the product
+17. maintainable schema evolution and role-safe architecture
+
+---
+
+## Important implementation rules
+
+* do not break previous phases
+* do not build a full delivery fleet management system
+* do not overbuild CRM and loyalty complexity
+* do not turn the app into a bloated enterprise suite
+* do not create messy duplicated order logic
+* do not make Arabic the default language
+* do not use a non-Algerian default currency
+* prioritize practical scalability for real restaurant businesses in Algeria and French-speaking markets
+* build like this product will be sold to independent restaurants and multi-branch chains
+
+Now implement Phase 7 accordingly, transforming the platform into a more advanced restaurant SaaS with multi-branch operations, takeaway/delivery flows, customer accounts, loyalty-ready architecture, French-first product UX, Arabic as secondary language, and DA currency support while preserving everything already built.

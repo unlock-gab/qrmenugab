@@ -1,0 +1,691 @@
+Continue the same project and implement **Phase 8** for the multi-restaurant QR ordering SaaS platform.
+
+Important: this project started in Replit, but it is intentionally being built so it can later be migrated to a **VPS using Dokploy and Docker**.
+Keep everything **portable, production-minded, and Docker-friendly**.
+Do not introduce Replit-only architecture.
+Do not break the foundations built in Phases 1, 2, 3, 4, 5, 6, and 7.
+
+This phase is about strengthening the product for more serious real-world usage by adding:
+
+* mobile companion app strategy
+* better resilience for poor connections
+* advanced print workflow foundation
+* real notification/automation readiness
+* stronger Algerian market localization
+* deployment hardening for Dokploy + Docker
+
+---
+
+## Mandatory product rules that remain active
+
+These rules apply across this phase and must be preserved everywhere:
+
+* **French is the default language across the entire platform**
+* **Arabic is the secondary language users can switch to**
+* default locale must be **French**
+* fallback must always be **French**
+* all customer-facing pages, merchant dashboard pages, admin pages, operational screens, and billing flows must remain **French-first**
+* Arabic must be supported as a secondary switchable UI language
+* RTL must be handled correctly in Arabic mode
+* all prices and financial amounts must display in **Algerian dinar**
+* use **DA** as the visible currency format in the UI
+* all money formatting must remain centralized and consistent
+
+Examples:
+
+* `250 DA`
+* `1 200 DA`
+* `3 500 DA`
+
+These language and currency rules are mandatory and must not be weakened.
+
+---
+
+## Phase 8 objective
+
+Upgrade the platform into a more robust and deployment-ready restaurant SaaS by adding:
+
+* a mobile companion strategy for operational staff
+* better UX under unstable or slow internet conditions
+* stronger print workflow foundations for restaurant operations
+* real notification/automation architecture improvements
+* stronger Algeria-focused localization details
+* Docker and Dokploy deployment hardening
+* better production-readiness without overcomplicating the product
+
+This phase should make the product feel closer to a serious deployable SaaS for real Algerian cafés and restaurants.
+
+---
+
+## Protect existing architecture
+
+Preserve and protect:
+
+* public QR ordering flow
+* merchant dashboard
+* platform admin
+* branch architecture
+* kitchen/waiter/cashier workspaces
+* customer accounts
+* loyalty
+* delivery/takeaway/dine-in flows
+* subscription structure
+* multi-tenant safety
+* French-first language system
+* Arabic secondary language system
+* DA currency handling
+* Docker portability
+
+Do not rebuild from scratch.
+Refactor only where needed to harden the system and support the new capabilities.
+
+---
+
+## Main Phase 8 modules
+
+### 1. Mobile companion app strategy
+
+Design and implement a **mobile companion-ready architecture** for operational users.
+
+Important:
+You do not necessarily need to build a full native mobile app in this phase.
+But you should structure the product so it can support:
+
+* mobile operational use
+* app-like installability
+* touch-friendly screens
+* possible future React Native / PWA expansion
+
+Practical direction for this phase:
+
+* improve mobile responsiveness for waiter/cashier/kitchen interfaces
+* create app-like navigation patterns where useful
+* ensure operational screens feel usable on phones and tablets
+* consider a PWA-friendly structure if appropriate and clean
+* prepare an architecture that can later connect to a real companion app
+
+Focus on operational mobility:
+
+* waiter using phone/tablet
+* cashier using tablet
+* kitchen screen on tablet or secondary display
+* owner checking dashboard from mobile
+
+Do not build a bloated mobile framework if not necessary.
+Build the right foundation.
+
+---
+
+### 2. Progressive Web App readiness
+
+If it fits the stack cleanly, add a **PWA-friendly foundation**.
+
+Possible capabilities:
+
+* installable app experience
+* app manifest
+* basic service worker strategy
+* icon support
+* splash/startup-friendly setup
+* mobile home screen shortcut support
+
+Important:
+Do not break SSR or main web UX.
+Do not create a fragile offline illusion for transactional data.
+PWA support must be practical and stable.
+
+Focus on making the platform feel more app-like for restaurant staff.
+
+French-first examples in UI:
+
+* `Installer l'application`
+* `Accéder rapidement au tableau de bord`
+* `Ajouter à l'écran d'accueil`
+
+Arabic translation support must remain secondary.
+
+---
+
+### 3. Poor connection / unstable network resilience
+
+Improve the UX and architecture for weak internet conditions.
+
+Goal:
+The platform should degrade gracefully when internet is slow or unstable.
+
+Requirements:
+
+* better loading states
+* retry behavior where appropriate
+* clearer error messaging
+* optimistic UI only where safe
+* visible sync/update status where useful for operational views
+* reduce confusion during live order updates
+* avoid silent failures on order actions, payment marking, status changes, and waiter requests
+
+Examples:
+
+* merchant sees when data is reconnecting
+* kitchen screen shows stale/loading state clearly
+* customer order submission handles temporary failure gracefully
+* cashier is warned if payment action was not confirmed server-side
+
+Do not fake offline capabilities for critical business actions unless safe.
+Be explicit and trustworthy in the UX.
+
+French-first examples:
+
+* `Connexion faible`
+* `Nouvelle tentative...`
+* `Synchronisation en cours`
+* `Impossible de charger les données`
+* `Vérifiez votre connexion`
+
+---
+
+### 4. Safer transactional behavior
+
+Harden important operational actions so they behave more reliably in real conditions.
+
+This includes:
+
+* order status changes
+* payment marking
+* waiter request handling
+* reservation confirmation/cancellation
+* stock updates
+* promo code validation
+* order creation
+
+Where useful, add:
+
+* idempotency-safe patterns
+* duplicate action prevention
+* disabled buttons during pending operations
+* clearer success/error confirmations
+* anti-double-submit behavior
+
+Important:
+Do not create race-condition-prone UX.
+Make critical actions feel safe and professional.
+
+---
+
+### 5. Advanced print workflow foundation
+
+Upgrade the print support beyond basic print views.
+
+Goal:
+Prepare the system for more realistic restaurant printing workflows.
+
+Suggested print outputs:
+
+* kitchen prep ticket
+* cashier receipt
+* order summary
+* branch-specific print formatting
+* compact thermal-like print layout foundation
+
+Requirements:
+
+* better print styles
+* print-specific layout optimization
+* cleaner typography for printing
+* optional simplified black-and-white friendly layout
+* order type visible on print
+* table / customer / branch context visible
+* discount / total / payment method clarity where relevant
+
+Important:
+Do not fully integrate hardware thermal printer drivers in this phase unless the architecture remains simple and portable.
+But make the print system realistic and extensible.
+
+Potential future-readiness:
+
+* print queue service
+* auto-print hook points
+* role-based print triggers
+
+Keep the current build browser-friendly and portable.
+
+---
+
+### 6. Print trigger architecture
+
+Add a cleaner internal architecture for future print automation.
+
+Examples of future print trigger points:
+
+* new order arrives → kitchen ticket
+* order marked ready → service slip
+* order paid → customer receipt
+
+For this phase, create the foundation so these triggers can be plugged in later cleanly.
+
+Possible direction:
+
+* print event service
+* printable template layer
+* branch-aware print settings placeholder
+* order-to-print mapping logic
+
+Do not overbuild a print server.
+Just build clean extensibility.
+
+---
+
+### 7. Real notification and automation readiness
+
+Strengthen the communication layer so it is closer to real operational automation.
+
+Goal:
+The system should be architecturally ready for real notifications such as:
+
+* merchant alerts
+* customer order confirmations
+* order ready notifications
+* reservation confirmations
+* internal operational alerts
+
+Possible channels:
+
+* WhatsApp
+* SMS
+* email
+* in-app notifications
+
+Important:
+You do not need to fully build all provider integrations in this phase.
+But the architecture should become more real and structured.
+
+Suggested improvements:
+
+* notification event system
+* message templates by language
+* provider abstraction
+* delivery status logging
+* retry-friendly structure
+* simple queue-ready design
+
+French should remain the default message language, with optional Arabic support when relevant.
+
+---
+
+### 8. WhatsApp/SMS real-world integration foundation
+
+Prepare the codebase for realistic future integration with WhatsApp and SMS providers.
+
+This phase can include:
+
+* provider adapter interface
+* message template service
+* event-driven message dispatch preparation
+* placeholder/mock provider for local testing
+* admin/merchant settings for message enablement
+* logging and failure state design
+
+Do not hardwire the app to one provider.
+Do not build a brittle integration.
+Keep it abstract, portable, and production-minded.
+
+French-first examples of outgoing customer messages:
+
+* order confirmation
+* order ready
+* reservation confirmed
+
+Arabic can be supported as an optional secondary output language if customer language preference exists later.
+
+---
+
+### 9. In-app notification center foundation
+
+Add a lightweight internal notification center for merchants/staff if it fits cleanly.
+
+Possible use cases:
+
+* new order alert
+* reservation pending
+* waiter request
+* payment issue
+* stock warning
+* branch status notice
+
+Requirements:
+
+* scoped per restaurant/branch/user role where relevant
+* simple unread/read pattern
+* not too complex
+* useful and operational
+
+This should improve the professional feel of the platform without bloating it.
+
+French-first examples:
+
+* `Notifications`
+* `Nouveau message`
+* `Nouvelle commande`
+* `Demande de serveur`
+* `Stock faible`
+
+---
+
+### 10. Stronger Algerian market localization
+
+Deepen the product’s fit for the Algerian market.
+
+Requirements:
+
+* keep **French-first** product UX
+* keep Arabic as optional secondary language
+* keep all prices in **DA**
+* ensure phone-related fields and UX can support common Algerian usage patterns
+* tune wording for restaurant owners in a practical French-speaking Algerian context
+* ensure date/time formatting feels appropriate and clear
+* review labels for real-world usability in cafés/restaurants in Algeria
+
+Examples of useful Algerian-localized product thinking:
+
+* branch/contact formatting
+* payment labels that match local expectations
+* practical restaurant wording
+* clean bilingual visibility where useful
+
+Do not localize the product to generic US SaaS defaults.
+
+---
+
+### 11. Better billing/subscription communication UX
+
+Strengthen merchant-facing subscription and billing communication.
+
+Goal:
+Merchants should clearly understand:
+
+* current plan
+* usage
+* expiry
+* trial state
+* what happens if subscription expires
+* what is blocked by plan limits
+* upgrade path
+
+This phase does not need deep payment gateway work if already deferred.
+But the communication and account-state UX should be more robust and professional.
+
+French-first examples:
+
+* `Votre abonnement expire bientôt`
+* `Limite atteinte`
+* `Mettre à niveau`
+* `Essai gratuit`
+* `Abonnement actif`
+
+All billing values must display in **DA** where applicable.
+
+---
+
+### 12. Deployment hardening for Docker and Dokploy
+
+This is a major part of Phase 8.
+
+Harden the project for real VPS deployment via Dokploy and Docker.
+
+Requirements:
+
+* clean environment variable strategy
+* production-safe config separation
+* no Replit-only assumptions
+* reliable build/start commands
+* portable file and storage handling
+* proper health/readiness awareness if useful
+* clear database connection handling
+* safer seed/dev separation
+* Docker-friendly folder and startup structure
+* make adding Dockerfile / docker-compose / Dokploy config straightforward if not already present
+
+You may add or improve:
+
+* Dockerfile
+* .dockerignore
+* environment examples
+* production config docs/comments
+* startup scripts
+* health endpoint if useful
+* database migration startup strategy
+* media/upload strategy notes or structure
+
+Important:
+Do not create deployment hacks.
+Build with clean production intent.
+
+---
+
+### 13. Upload and storage strategy hardening
+
+If the project already supports images/logos/uploads, review the storage approach.
+
+Goal:
+Ensure uploads and assets are portable and deployment-safe.
+
+Requirements:
+
+* avoid fragile local-only assumptions where possible
+* structure for future object storage compatibility
+* keep current implementation simple but portable
+* ensure logo/menu images/settings media do not break when moving to Docker/VPS
+
+Do not overbuild a full storage abstraction unless needed.
+But prevent obvious deployment traps.
+
+---
+
+### 14. Monitoring and operational support foundation
+
+Add lightweight production support elements if appropriate.
+
+Possible additions:
+
+* health check endpoint
+* simple system status info
+* safer logging patterns
+* operational error boundaries
+* clearer admin visibility for failed jobs/notifications if already present
+* better handling for background-ready features
+
+Keep it lightweight and useful.
+Do not build a giant observability stack.
+
+---
+
+### 15. Performance and UX polish for daily usage
+
+Refine the product for smoother daily use.
+
+Potential improvements:
+
+* reduce unnecessary refreshes
+* improve loading skeletons
+* improve large list handling for orders
+* improve dashboard responsiveness
+* improve mobile navigation
+* improve branch switching UX
+* improve operational empty states
+* improve print dialog experience
+* improve notification clarity
+
+The product should feel more stable and “daily-usable” after this phase.
+
+---
+
+## Database and schema evolution
+
+Extend the schema only where directly justified.
+
+Possible additions:
+
+* Notification model or NotificationEvent model
+* PrintJob / PrintEvent placeholder model if useful
+* user/device/app installation related metadata if needed for PWA readiness
+* subscription warning metadata if useful
+* communication preference fields
+* idempotency or operation log helpers where justified
+
+Only add what directly supports this phase.
+Avoid bloated schema design.
+
+Maintain:
+
+* French-first locale strategy
+* Arabic secondary support
+* DA display consistency
+* multi-tenant safety
+* backward compatibility
+
+---
+
+## Business logic and validation rules
+
+### Connection resilience
+
+* failed actions must surface clear UI feedback
+* retries must not cause duplicate critical actions
+* revalidation and polling must remain tenant-safe
+* optimistic behavior only when safe
+
+### Printing
+
+* print views must always use server-confirmed order data
+* print triggers should not produce ambiguous duplicates
+* print architecture must stay portable
+
+### Notifications
+
+* notifications must remain scoped correctly
+* provider abstraction must stay clean
+* message templates must support French first and Arabic secondary where useful
+
+### Deployment
+
+* no environment secrets hardcoded
+* no Replit-specific build assumptions
+* no fragile path logic tied to local-only runtime
+* ensure Docker/Dokploy deployment path remains realistic
+
+---
+
+## Multi-tenant and security safety
+
+Still critical.
+
+Ensure:
+
+* all new notification/print/mobile-support features remain properly scoped by restaurant and branch
+* no cross-tenant leakage
+* operational alerts are visible only to allowed users
+* print views are authorization-safe
+* mobile/PWA access respects authentication and role boundaries
+* language switching does not interfere with route security
+* deployment hardening does not weaken existing protections
+
+---
+
+## UI/UX direction
+
+### Public/customer UX
+
+Should remain:
+
+* French-first
+* mobile-first
+* reliable under weak connection
+* clear on submission success/failure
+* premium and simple
+
+### Merchant operational UX
+
+Should feel:
+
+* app-like
+* responsive
+* reliable
+* practical for tablets and phones
+* calm under real service pressure
+
+### Print UX
+
+Should feel:
+
+* clean
+* compact
+* operational
+* realistic for restaurant use
+
+### Billing/account UX
+
+Should feel:
+
+* transparent
+* reassuring
+* productized
+* trustworthy
+
+### Localization UX
+
+Should feel:
+
+* naturally Algerian-market friendly
+* French by default
+* Arabic available but not forced
+* consistent with DA pricing
+
+---
+
+## Performance and maintainability expectations
+
+* keep code modular and maintainable
+* use TypeScript properly
+* avoid unnecessary package bloat
+* preserve Docker portability
+* centralize language and currency formatting
+* centralize print and notification abstractions
+* avoid fragile client-only business logic
+* harden the codebase instead of adding superficial features
+* keep the project sellable, deployable, and extensible
+
+---
+
+## Deliverables for this phase
+
+Implement Phase 8 with:
+
+1. mobile companion-ready UX improvements
+2. PWA-friendly foundation if appropriate
+3. poor-connection resilience improvements
+4. safer transactional UX and duplicate-prevention
+5. advanced print workflow foundation
+6. print trigger architecture
+7. stronger notification and automation architecture
+8. WhatsApp/SMS integration-ready abstraction
+9. lightweight in-app notification center foundation
+10. stronger Algerian market localization details
+11. clearer billing/subscription communication UX
+12. Docker + Dokploy deployment hardening
+13. upload/storage portability hardening
+14. lightweight monitoring/health support foundation
+15. daily-usage performance and UX polish
+
+---
+
+## Important implementation rules
+
+* do not break previous phases
+* do not build fake offline support for critical transactions
+* do not hardwire to one messaging or print provider
+* do not introduce Replit-specific deployment assumptions
+* do not make Arabic the default language
+* do not use a non-Algerian visible default currency
+* prioritize reliability, deployment readiness, and Algerian market fit
+* build like this product will actually be deployed on a VPS with Dokploy and Docker for real restaurant clients
+
+Now implement Phase 8 accordingly, transforming the platform into a more robust, deployment-ready, French-first restaurant SaaS with Arabic as secondary language, DA currency support, stronger operational resilience, advanced print/notification foundations, and production-minded Docker/Dokploy hardening.

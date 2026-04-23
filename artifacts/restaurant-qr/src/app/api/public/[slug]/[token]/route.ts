@@ -16,6 +16,8 @@ export async function GET(
       logoUrl: true,
       phone: true,
       address: true,
+      currency: true,
+      primaryColor: true,
     },
   });
 
@@ -36,20 +38,50 @@ export async function GET(
     where: { restaurantId: restaurant.id, isActive: true },
     include: {
       menuItems: {
-        where: { isAvailable: true },
         orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
         select: {
           id: true,
           name: true,
           description: true,
+          ingredientsText: true,
+          translationsJson: true,
           price: true,
           imageUrl: true,
           isAvailable: true,
+          stockTrackingEnabled: true,
+          stockQuantity: true,
+          optionGroups: {
+            include: {
+              options: {
+                where: { isActive: true },
+                orderBy: { sortOrder: "asc" },
+              },
+            },
+            orderBy: { sortOrder: "asc" },
+          },
         },
       },
     },
     orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
   });
 
-  return NextResponse.json({ restaurant, table, categories });
+  return NextResponse.json({
+    restaurant,
+    table,
+    categories: categories.map((cat) => ({
+      ...cat,
+      menuItems: cat.menuItems.map((item) => ({
+        ...item,
+        price: Number(item.price),
+        isOutOfStock: item.stockTrackingEnabled && (item.stockQuantity ?? 0) <= 0,
+        optionGroups: item.optionGroups.map((g) => ({
+          ...g,
+          options: g.options.map((o) => ({
+            ...o,
+            extraPrice: Number(o.extraPrice),
+          })),
+        })),
+      })),
+    })),
+  });
 }

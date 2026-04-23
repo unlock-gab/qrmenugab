@@ -23,6 +23,13 @@ interface TableData {
   hasNewOrders: boolean;
   unpaidTotal: number;
 }
+interface WaiterRequest {
+  id: string;
+  type: "CALL_WAITER" | "REQUEST_BILL" | "HELP";
+  status: "PENDING" | "HANDLED";
+  createdAt: string;
+  table: { tableNumber: string };
+}
 
 const STATUS_COLORS: Record<string, string> = {
   NEW: "bg-red-100 text-red-700 border-red-200",
@@ -33,24 +40,42 @@ const STATUS_COLORS: Record<string, string> = {
 const STATUS_AR: Record<string, string> = {
   NEW: "جديد", PREPARING: "يُحضَّر", READY: "جاهز ✓", SERVED: "قُدِّم",
 };
+const REQUEST_LABELS: Record<string, string> = {
+  CALL_WAITER: "🙋 نداء نادل",
+  REQUEST_BILL: "🧾 طلب الحساب",
+  HELP: "❓ مساعدة",
+};
+
+function timeAgo(dateStr: string) {
+  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+  if (diff < 60) return `${diff}ث`;
+  if (diff < 3600) return `${Math.floor(diff / 60)}د`;
+  return `${Math.floor(diff / 3600)}س`;
+}
 
 export default function WaiterPage() {
   const [tables, setTables] = useState<TableData[]>([]);
+  const [requests, setRequests] = useState<WaiterRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [serving, setServing] = useState<string | null>(null);
+  const [handling, setHandling] = useState<string | null>(null);
 
-  const fetchTables = useCallback(async () => {
+  const fetchAll = useCallback(async () => {
     try {
-      const res = await fetch("/api/waiter", { cache: "no-store" });
-      if (res.ok) setTables(await res.json());
+      const [tableRes, reqRes] = await Promise.all([
+        fetch("/api/waiter", { cache: "no-store" }),
+        fetch("/api/waiter-requests?status=PENDING", { cache: "no-store" }),
+      ]);
+      if (tableRes.ok) setTables(await tableRes.json());
+      if (reqRes.ok) setRequests(await reqRes.json());
     } finally { setLoading(false); }
   }, []);
 
   useEffect(() => {
-    fetchTables();
-    const i = setInterval(fetchTables, 10000);
+    fetchAll();
+    const i = setInterval(fetchAll, 8000);
     return () => clearInterval(i);
-  }, [fetchTables]);
+  }, [fetchAll]);
 
   const handleServe = async (orderId: string) => {
     setServing(orderId);
@@ -60,12 +85,25 @@ export default function WaiterPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "SERVED" }),
       });
-      if (res.ok) fetchTables();
+      if (res.ok) fetchAll();
     } finally { setServing(null); }
+  };
+
+  const handleRequest = async (id: string) => {
+    setHandling(id);
+    try {
+      await fetch(`/api/waiter-requests/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "HANDLED" }),
+      });
+      fetchAll();
+    } finally { setHandling(null); }
   };
 
   const activeTables = tables.filter((t) => t.activeOrderCount > 0);
   const idleTables = tables.filter((t) => t.activeOrderCount === 0);
+  const pendingRequests = requests.filter((r) => r.status === "PENDING");
 
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
@@ -81,6 +119,34 @@ export default function WaiterPage() {
           + طلب يدوي
         </Link>
       </div>
+
+      {/* Waiter requests alert */}
+      {pendingRequests.length > 0 && (
+        <div className="mb-6 bg-amber-50 border-2 border-amber-300 rounded-2xl p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-lg">🔔</span>
+            <h2 className="font-bold text-amber-800">طلبات جديدة ({pendingRequests.length})</h2>
+          </div>
+          <div className="space-y-2">
+            {pendingRequests.map((req) => (
+              <div key={req.id} className="flex items-center justify-between bg-white rounded-xl px-4 py-2.5 border border-amber-200">
+                <div className="flex items-center gap-3">
+                  <span className="font-bold text-gray-700">طاولة {req.table.tableNumber}</span>
+                  <span className="text-sm text-gray-600">{REQUEST_LABELS[req.type]}</span>
+                  <span className="text-xs text-gray-400">{timeAgo(req.createdAt)} مضت</span>
+                </div>
+                <button
+                  onClick={() => handleRequest(req.id)}
+                  disabled={handling === req.id}
+                  className="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold transition disabled:opacity-50"
+                >
+                  {handling === req.id ? "..." : "تم ✓"}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mb-6">
@@ -119,15 +185,11 @@ export default function WaiterPage() {
                       <div className="flex items-center gap-2">
                         <h3 className="text-lg font-bold text-gray-900">طاولة {table.tableNumber}</h3>
                         {table.hasReadyOrders && (
-                          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500 text-white animate-pulse">
-                            جاهز!
-                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-emerald-500 text-white animate-pulse">جاهز!</span>
                         )}
                       </div>
                       {table.unpaidTotal > 0 && (
-                        <span className="text-sm font-semibold text-gray-600">
-                          {table.unpaidTotal.toFixed(2)}
-                        </span>
+                        <span className="text-sm font-semibold text-gray-600">{table.unpaidTotal.toFixed(2)}</span>
                       )}
                     </div>
                     <div className="space-y-2">
@@ -140,14 +202,14 @@ export default function WaiterPage() {
                             <span className="text-sm text-gray-500 font-mono truncate">#{order.orderNumber}</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-gray-600">
+                            <span className="text-xs text-gray-500 truncate max-w-32">
                               {order.orderItems.map((i) => `${i.quantity}× ${i.nameSnapshot}`).join("، ")}
                             </span>
                             {order.status === "READY" && (
                               <button
                                 onClick={() => handleServe(order.id)}
                                 disabled={serving === order.id}
-                                className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50"
+                                className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg transition disabled:opacity-50"
                               >
                                 {serving === order.id ? "..." : "قُدِّم ✓"}
                               </button>
