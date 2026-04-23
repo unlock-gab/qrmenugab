@@ -13,6 +13,7 @@ export default async function OrdersPage() {
       include: {
         table: { select: { tableNumber: true } },
         orderItems: true,
+        branch: { select: { name: true } },
       },
       orderBy: { createdAt: "desc" },
       take: 200,
@@ -27,6 +28,7 @@ export default async function OrdersPage() {
     ...o,
     subtotal: o.subtotal.toNumber(),
     total: o.total.toNumber(),
+    discountAmount: o.discountAmount.toNumber(),
     createdAt: o.createdAt.toISOString(),
     updatedAt: o.updatedAt.toISOString(),
     seenAt: o.seenAt?.toISOString() ?? null,

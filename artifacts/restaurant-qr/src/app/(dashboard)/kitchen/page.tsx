@@ -14,11 +14,15 @@ interface Order {
   orderNumber: string;
   status: "NEW" | "PREPARING" | "READY";
   orderSource: string;
+  orderType?: string | null;
   notes?: string | null;
   createdAt: string;
-  table: { tableNumber: string };
+  customerName?: string | null;
+  table: { tableNumber: string } | null;
   orderItems: OrderItem[];
 }
+
+const ORDER_TYPE_ICON: Record<string, string> = { DINE_IN: "🍽️", TAKEAWAY: "🥡", DELIVERY: "🛵" };
 
 const STATUS_CONFIG = {
   NEW: { label: "جديد", color: "bg-red-500", ring: "ring-red-400", text: "text-red-100" },
@@ -63,9 +67,14 @@ function KDSCard({ order, onAction }: { order: Order; onAction: (id: string, sta
         <OrderAge createdAt={order.createdAt} />
       </div>
 
-      <div className="flex items-baseline gap-3">
+      <div className="flex items-baseline gap-3 flex-wrap">
         <h2 className="text-3xl font-black text-white">#{order.orderNumber}</h2>
-        <span className="text-2xl font-bold text-gray-300">طاولة {order.table.tableNumber}</span>
+        {order.table
+          ? <span className="text-2xl font-bold text-gray-300">طاولة {order.table.tableNumber}</span>
+          : <span className="text-xl font-bold text-gray-400">{order.customerName || "—"}</span>}
+        {order.orderType && ORDER_TYPE_ICON[order.orderType] && (
+          <span className="text-2xl">{ORDER_TYPE_ICON[order.orderType]}</span>
+        )}
       </div>
 
       <ul className="space-y-1.5 border-t border-gray-700 pt-3">

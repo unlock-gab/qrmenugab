@@ -10,14 +10,19 @@ interface Order {
   status: string;
   paymentStatus: string;
   paymentMethod?: string | null;
+  orderType?: string | null;
+  customerName?: string | null;
+  customerPhone?: string | null;
   total: number;
   discountAmount?: number;
   discountCode?: string | null;
   createdAt: string;
   notes?: string | null;
-  table: { tableNumber: string };
+  table: { tableNumber: string } | null;
   orderItems: OrderItem[];
 }
+
+const ORDER_TYPE_AR: Record<string, string> = { DINE_IN: "🍽️ داخلي", TAKEAWAY: "🥡 استلام", DELIVERY: "🛵 توصيل" };
 
 const METHOD_LABELS: Record<string, string> = {
   CASH: "كاش 💵", CARD: "بطاقة 💳", TRANSFER: "تحويل 📲", OTHER: "أخرى",
@@ -32,7 +37,11 @@ function PayDialog({ order, onPay, onClose }: { order: Order; onPay: (method: st
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-1">تأكيد الدفع</h2>
-        <p className="text-sm text-gray-500 mb-4">طاولة {order.table.tableNumber} — طلب #{order.orderNumber}</p>
+        <p className="text-sm text-gray-500 mb-4">
+          {order.table ? `طاولة ${order.table.tableNumber}` : order.customerName || "—"}
+          {order.orderType && ORDER_TYPE_AR[order.orderType] ? ` · ${ORDER_TYPE_AR[order.orderType]}` : ""}
+          {" — طلب #"}{order.orderNumber}
+        </p>
         <div className="bg-gray-50 rounded-xl p-4 mb-4">
           {order.orderItems.map((i) => (
             <div key={i.id} className="flex justify-between text-sm py-1">
@@ -182,7 +191,14 @@ function OrderCard({ order, onPay, priority }: { order: Order; onPay: () => void
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
             <span className="text-lg font-black text-gray-900">#{order.orderNumber}</span>
-            <span className="text-sm font-semibold text-gray-500">طاولة {order.table.tableNumber}</span>
+            <span className="text-sm font-semibold text-gray-500">
+              {order.table ? `طاولة ${order.table.tableNumber}` : order.customerName || "—"}
+            </span>
+            {order.orderType && ORDER_TYPE_AR[order.orderType] && (
+              <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full">
+                {ORDER_TYPE_AR[order.orderType]}
+              </span>
+            )}
             <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${priority ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
               {STATUS_AR[order.status] || order.status}
             </span>

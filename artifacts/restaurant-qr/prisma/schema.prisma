@@ -7,6 +7,8 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
 enum UserRole {
   PLATFORM_ADMIN
   MERCHANT_OWNER
@@ -23,6 +25,11 @@ enum RestaurantStatus {
   PENDING_SETUP
 }
 
+enum BranchStatus {
+  ACTIVE
+  INACTIVE
+}
+
 enum OrderStatus {
   NEW
   PREPARING
@@ -30,6 +37,12 @@ enum OrderStatus {
   SERVED
   PAID
   CANCELLED
+}
+
+enum OrderType {
+  DINE_IN
+  TAKEAWAY
+  DELIVERY
 }
 
 enum PaymentStatus {
@@ -42,11 +55,13 @@ enum PaymentMethod {
   CARD
   TRANSFER
   OTHER
+  ONLINE
 }
 
 enum OrderSource {
   QR
   MANUAL
+  ONLINE
 }
 
 enum SubscriptionStatus {
@@ -84,17 +99,41 @@ enum SelectionType {
   MULTIPLE
 }
 
+enum LoyaltyTransactionType {
+  EARNED
+  REDEEMED
+  ADJUSTED
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  WHATSAPP
+  PUSH
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}
+
+// ─── Core Platform ────────────────────────────────────────────────────────────
+
 model User {
-  id           String      @id @default(cuid())
-  name         String
-  email        String      @unique
-  passwordHash String
-  role         UserRole    @default(MERCHANT_OWNER)
-  isActive     Boolean     @default(true)
-  restaurantId String?
-  restaurant   Restaurant? @relation(fields: [restaurantId], references: [id])
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  id               String      @id @default(cuid())
+  name             String
+  email            String      @unique
+  passwordHash     String
+  role             UserRole    @default(MERCHANT_OWNER)
+  isActive         Boolean     @default(true)
+  restaurantId     String?
+  restaurant       Restaurant? @relation(fields: [restaurantId], references: [id])
+  assignedBranchId String?
+  assignedBranch   Branch?     @relation("BranchStaff", fields: [assignedBranchId], references: [id])
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
 
   @@map("users")
 }
@@ -113,7 +152,15 @@ model Restaurant {
   onboardingCompleted Boolean                 @default(false)
   primaryColor        String?
   secondaryColor      String?
+  // Notification settings
+  notificationsEnabled Boolean               @default(false)
+  notifyOnNewOrder     Boolean               @default(false)
+  notifyOnOrderReady   Boolean               @default(false)
+  notifyChannels       String?               // JSON array of NotificationChannel values
+  // Points config (loyalty)
+  pointsPerUnit        Int                   @default(1)
   users               User[]
+  branches            Branch[]
   tables              Table[]
   categories          Category[]
   menuItems           MenuItem[]
@@ -121,11 +168,35 @@ model Restaurant {
   promoCodes          PromoCode[]
   waiterRequests      WaiterRequest[]
   reservations        Reservation[]
+  loyaltyAccounts     LoyaltyAccount[]
+  notificationLogs    NotificationLog[]
   subscription        RestaurantSubscription?
   createdAt           DateTime                @default(now())
   updatedAt           DateTime                @updatedAt
 
   @@map("restaurants")
+}
+
+model Branch {
+  id           String       @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant   @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  name         String
+  slug         String
+  address      String?
+  phone        String?
+  status       BranchStatus @default(ACTIVE)
+  isDefault    Boolean      @default(false)
+  staff        User[]       @relation("BranchStaff")
+  tables       Table[]
+  orders       Order[]
+  reservations Reservation[]
+  waiterRequests WaiterRequest[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@unique([restaurantId, slug])
+  @@map("branches")
 }
 
 model SubscriptionPlan {
@@ -138,6 +209,7 @@ model SubscriptionPlan {
   maxTables       Int                      @default(10)
   maxMenuItems    Int                      @default(50)
   maxStaffUsers   Int                      @default(3)
+  maxBranches     Int                      @default(1)
   featuresJson    String?
   isActive        Boolean                  @default(true)
   isPublic        Boolean                  @default(true)
@@ -181,10 +253,14 @@ model Lead {
   @@map("leads")
 }
 
+// ─── Menu ─────────────────────────────────────────────────────────────────────
+
 model Table {
   id             String          @id @default(cuid())
   restaurantId   String
   restaurant     Restaurant      @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  branchId       String?
+  branch         Branch?         @relation(fields: [branchId], references: [id])
   tableNumber    String
   qrToken        String          @unique @default(cuid())
   isActive       Boolean         @default(true)
@@ -252,31 +328,21 @@ model MenuItemOptionGroup {
 }
 
 model MenuItemOption {
-  id              String              @id @default(cuid())
-  optionGroupId   String
-  optionGroup     MenuItemOptionGroup @relation(fields: [optionGroupId], references: [id], onDelete: Cascade)
-  name            String
-  extraPrice      Decimal             @default(0) @db.Decimal(10, 2)
-  sortOrder       Int                 @default(0)
-  isActive        Boolean             @default(true)
+  id               String              @id @default(cuid())
+  optionGroupId    String
+  optionGroup      MenuItemOptionGroup @relation(fields: [optionGroupId], references: [id], onDelete: Cascade)
+  name             String
+  extraPrice       Decimal             @default(0) @db.Decimal(10, 2)
+  sortOrder        Int                 @default(0)
+  isActive         Boolean             @default(true)
   orderItemOptions OrderItemOption[]
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
 
   @@map("menu_item_options")
 }
 
-model OrderItemOption {
-  id            String         @id @default(cuid())
-  orderItemId   String
-  orderItem     OrderItem      @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
-  optionId      String
-  option        MenuItemOption @relation(fields: [optionId], references: [id], onDelete: Restrict)
-  nameSnapshot  String
-  extraPrice    Decimal        @db.Decimal(10, 2)
-
-  @@map("order_item_options")
-}
+// ─── Orders ───────────────────────────────────────────────────────────────────
 
 model PromoCode {
   id                 String       @id @default(cuid())
@@ -299,62 +365,42 @@ model PromoCode {
   @@map("promo_codes")
 }
 
-model WaiterRequest {
-  id           String              @id @default(cuid())
-  restaurantId String
-  restaurant   Restaurant          @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  tableId      String
-  table        Table               @relation(fields: [tableId], references: [id], onDelete: Cascade)
-  type         WaiterRequestType
-  status       WaiterRequestStatus @default(PENDING)
-  notes        String?
-  createdAt    DateTime            @default(now())
-  handledAt    DateTime?
-
-  @@map("waiter_requests")
-}
-
-model Reservation {
-  id              String            @id @default(cuid())
-  restaurantId    String
-  restaurant      Restaurant        @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  customerName    String
-  phone           String
-  reservationDate DateTime
-  guestCount      Int
-  notes           String?
-  status          ReservationStatus @default(PENDING)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-
-  @@map("reservations")
-}
-
 model Order {
-  id             String        @id @default(cuid())
-  restaurantId   String
-  restaurant     Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
-  tableId        String
-  table          Table         @relation(fields: [tableId], references: [id], onDelete: Restrict)
-  orderNumber    String
-  status         OrderStatus   @default(NEW)
-  paymentStatus  PaymentStatus @default(UNPAID)
-  paymentMethod  PaymentMethod?
-  orderSource    OrderSource   @default(QR)
-  notes          String?
-  subtotal       Decimal       @db.Decimal(10, 2)
-  total          Decimal       @db.Decimal(10, 2)
-  discountAmount Decimal       @default(0) @db.Decimal(10, 2)
-  discountCode   String?
-  promoCodeId    String?
-  promoCode      PromoCode?    @relation(fields: [promoCodeId], references: [id])
-  seenAt         DateTime?
-  preparedAt     DateTime?
-  servedAt       DateTime?
-  paidAt         DateTime?
-  orderItems     OrderItem[]
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id              String        @id @default(cuid())
+  restaurantId    String
+  restaurant      Restaurant    @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  branchId        String?
+  branch          Branch?       @relation(fields: [branchId], references: [id])
+  tableId         String?
+  table           Table?        @relation(fields: [tableId], references: [id], onDelete: Restrict)
+  customerId      String?
+  customer        Customer?     @relation(fields: [customerId], references: [id])
+  orderNumber     String
+  orderType       OrderType     @default(DINE_IN)
+  status          OrderStatus   @default(NEW)
+  paymentStatus   PaymentStatus @default(UNPAID)
+  paymentMethod   PaymentMethod?
+  orderSource     OrderSource   @default(QR)
+  // Customer snapshot (for takeaway/delivery or guest dine-in)
+  customerName    String?
+  customerPhone   String?
+  deliveryAddress String?
+  notes           String?
+  subtotal        Decimal       @db.Decimal(10, 2)
+  total           Decimal       @db.Decimal(10, 2)
+  discountAmount  Decimal       @default(0) @db.Decimal(10, 2)
+  discountCode    String?
+  promoCodeId     String?
+  promoCode       PromoCode?    @relation(fields: [promoCodeId], references: [id])
+  seenAt               DateTime?
+  preparedAt           DateTime?
+  servedAt             DateTime?
+  paidAt               DateTime?
+  loyaltyPointsAwarded Int?
+  orderItems      OrderItem[]
+  loyaltyTransaction LoyaltyTransaction?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   @@unique([restaurantId, orderNumber])
   @@map("orders")
@@ -376,4 +422,118 @@ model OrderItem {
   updatedAt        DateTime          @updatedAt
 
   @@map("order_items")
+}
+
+model OrderItemOption {
+  id           String         @id @default(cuid())
+  orderItemId  String
+  orderItem    OrderItem      @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  optionId     String
+  option       MenuItemOption @relation(fields: [optionId], references: [id], onDelete: Restrict)
+  nameSnapshot String
+  extraPrice   Decimal        @db.Decimal(10, 2)
+
+  @@map("order_item_options")
+}
+
+// ─── Operations ───────────────────────────────────────────────────────────────
+
+model WaiterRequest {
+  id           String              @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant          @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  branchId     String?
+  branch       Branch?             @relation(fields: [branchId], references: [id])
+  tableId      String
+  table        Table               @relation(fields: [tableId], references: [id], onDelete: Cascade)
+  type         WaiterRequestType
+  status       WaiterRequestStatus @default(PENDING)
+  notes        String?
+  createdAt    DateTime            @default(now())
+  handledAt    DateTime?
+
+  @@map("waiter_requests")
+}
+
+model Reservation {
+  id              String            @id @default(cuid())
+  restaurantId    String
+  restaurant      Restaurant        @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  branchId        String?
+  branch          Branch?           @relation(fields: [branchId], references: [id])
+  customerName    String
+  phone           String
+  reservationDate DateTime
+  guestCount      Int
+  notes           String?
+  status          ReservationStatus @default(PENDING)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@map("reservations")
+}
+
+// ─── Customer Accounts ────────────────────────────────────────────────────────
+
+model Customer {
+  id             String           @id @default(cuid())
+  email          String           @unique
+  name           String
+  phone          String?
+  passwordHash   String
+  isActive       Boolean          @default(true)
+  orders         Order[]
+  loyaltyAccounts LoyaltyAccount[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@map("customers")
+}
+
+model LoyaltyAccount {
+  id            String               @id @default(cuid())
+  customerId    String
+  customer      Customer             @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  restaurantId  String
+  restaurant    Restaurant           @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  pointsBalance Int                  @default(0)
+  transactions  LoyaltyTransaction[]
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  @@unique([customerId, restaurantId])
+  @@map("loyalty_accounts")
+}
+
+model LoyaltyTransaction {
+  id               String                 @id @default(cuid())
+  loyaltyAccountId String
+  loyaltyAccount   LoyaltyAccount         @relation(fields: [loyaltyAccountId], references: [id], onDelete: Cascade)
+  orderId          String?                @unique
+  order            Order?                 @relation(fields: [orderId], references: [id])
+  type             LoyaltyTransactionType
+  pointsDelta      Int
+  note             String?
+  createdAt        DateTime               @default(now())
+
+  @@map("loyalty_transactions")
+}
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+model NotificationLog {
+  id           String              @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant          @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  channel      NotificationChannel
+  status       NotificationStatus  @default(PENDING)
+  eventType    String
+  recipient    String
+  subject      String?
+  body         String?
+  sentAt       DateTime?
+  error        String?
+  createdAt    DateTime            @default(now())
+
+  @@map("notification_logs")
 }

@@ -10,6 +10,7 @@ type NavItem = { href: string; label: string; icon: string; exact?: boolean };
 const OWNER_NAV: NavItem[] = [
   { href: "/dashboard", label: "الرئيسية", icon: "◉", exact: true },
   { href: "/orders", label: "الطلبات", icon: "📋" },
+  { href: "/branches", label: "الفروع", icon: "🏪" },
   { href: "/tables", label: "الطاولات", icon: "⊞" },
   { href: "/categories", label: "التصنيفات", icon: "≡" },
   { href: "/menu-items", label: "عناصر القائمة", icon: "✦" },
@@ -17,6 +18,7 @@ const OWNER_NAV: NavItem[] = [
   { href: "/reservations", label: "الحجوزات", icon: "📅" },
   { href: "/reports", label: "التقارير", icon: "📊" },
   { href: "/staff", label: "الموظفون", icon: "👥" },
+  { href: "/notifications", label: "الإشعارات", icon: "🔔" },
   { href: "/settings", label: "الإعدادات", icon: "⚙" },
 ];
 

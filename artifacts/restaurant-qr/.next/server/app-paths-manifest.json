@@ -1,4 +1,12 @@
 {
-  "/(marketing)/page": "app/(marketing)/page.js",
-  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js"
+  "/api/customer/auth/me/route": "app/api/customer/auth/me/route.js",
+  "/api/notifications/route": "app/api/notifications/route.js",
+  "/api/customer/auth/register/route": "app/api/customer/auth/register/route.js",
+  "/api/branches/route": "app/api/branches/route.js",
+  "/api/public/order/route": "app/api/public/order/route.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/order/[restaurantSlug]/[branchSlug]/page": "app/order/[restaurantSlug]/[branchSlug]/page.js",
+  "/(dashboard)/dashboard/page": "app/(dashboard)/dashboard/page.js",
+  "/customer/login/page": "app/customer/login/page.js",
+  "/(auth)/login/page": "app/(auth)/login/page.js"
 }

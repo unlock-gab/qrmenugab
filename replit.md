@@ -146,7 +146,33 @@ pnpm workspace monorepo using TypeScript. Contains a multi-restaurant QR orderin
 
 ### Public APIs
 - `/api/public/menu` — customer menu data
-- `/api/orders` (public POST) — place order
+- `/api/orders` (public POST) — place order (legacy QR/DINE_IN)
+- `/api/public/order` (POST) — place TAKEAWAY/DELIVERY order with customer info, loyalty, notifications
+
+### Customer APIs (JWT cookie `customer_token`)
+- `/api/customer/auth/register` — POST register customer
+- `/api/customer/auth/login` — POST login customer
+- `/api/customer/auth/me` — GET authenticated customer profile
+- `/api/customer/auth/logout` — POST logout
+- `/api/customer/orders` — GET order history for logged-in customer
+- `/api/customer/loyalty` — GET loyalty accounts + transactions
+
+### Branch APIs
+- `/api/branches` — GET/POST (merchant-scoped)
+- `/api/branches/[id]` — PATCH/DELETE
+
+### Notification APIs
+- `/api/notifications` — GET notification log (merchant-scoped)
+
+---
+
+## Phase 7 Routes
+- `/order/[restaurantSlug]/[branchSlug]` — Public branch ordering page (takeaway/delivery)
+- `/customer/login` — Customer login
+- `/customer/register` — Customer registration
+- `/customer/orders` — Customer order history
+- `/branches` — Merchant branch management
+- `/notifications` — Merchant notification log + settings
 
 ---
 
@@ -158,18 +184,27 @@ pnpm workspace monorepo using TypeScript. Contains a multi-restaurant QR orderin
 - `OrderStatus`: NEW, PREPARING, READY, SERVED, PAID, CANCELLED
 - `PaymentStatus`: UNPAID, PAID
 - `PaymentMethod`: CASH, CARD, TRANSFER, OTHER
-- `OrderSource`: QR, MANUAL
+- `OrderSource`: QR, MANUAL, ONLINE
+- `OrderType`: DINE_IN, TAKEAWAY, DELIVERY
+- `BranchStatus`: ACTIVE, INACTIVE
 - `SubscriptionStatus`: TRIAL, ACTIVE, EXPIRED, CANCELLED
+- `NotificationChannel`: EMAIL, SMS, WHATSAPP, PUSH
+- `NotificationStatus`: PENDING, SENT, FAILED, SKIPPED
+- `LoyaltyTransactionType`: EARN, REDEEM, EXPIRE, ADJUST
 
 ### Models
-- `User` — with role, isActive, restaurantId
-- `Restaurant` — with status, onboardingCompleted, primaryColor, secondaryColor
-- `SubscriptionPlan` — name, price, maxTables, maxMenuItems, maxStaffUsers
-- `RestaurantSubscription` — links restaurant ↔ plan with status/dates
-- `Table` — with qrToken, isActive
+- `User` — with role, isActive, restaurantId, assignedBranchId
+- `Restaurant` — with status, primaryColor, notificationsEnabled, notifyChannels, pointsPerUnit
+- `Branch` — name, slug, address, phone, isDefault, status (branchId on Table/Order/Reservation/WaiterRequest)
+- `SubscriptionPlan`, `RestaurantSubscription`
+- `Table` — with qrToken, isActive, branchId
 - `Category`, `MenuItem`
-- `Order` — extended with paymentStatus, paymentMethod, orderSource, preparedAt, servedAt, paidAt
-- `OrderItem`
+- `Order` — orderType, orderSource, customerName, customerPhone, deliveryAddress, customerId, branchId, loyaltyPointsAwarded
+- `OrderItem`, `OrderItemOption`
+- `Customer` — email, name, phone, passwordHash, isActive (separate JWT auth)
+- `LoyaltyAccount` — customerId + restaurantId unique, pointsBalance
+- `LoyaltyTransaction` — loyaltyAccountId, orderId, type, pointsDelta
+- `NotificationLog` — channel, status, eventType, recipient, body, sentAt
 
 ---
 
@@ -179,6 +214,9 @@ pnpm workspace monorepo using TypeScript. Contains a multi-restaurant QR orderin
 - `src/lib/auth.ts` — NextAuth config
 - `src/lib/prisma.ts` — Prisma client
 - `src/lib/sound.ts` — Web Audio API beep
+- `src/lib/customerAuth.ts` — Customer JWT (jose, httpOnly cookie `customer_token`, 30d)
+- `src/lib/loyalty.ts` — awardLoyaltyPoints() — called when order marked PAID
+- `src/lib/notifications.ts` — fireNotification() — logs events to NotificationLog
 
 ## Docker / VPS Readiness
 - No Replit-specific services used

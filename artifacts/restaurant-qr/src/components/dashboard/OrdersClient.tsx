@@ -22,8 +22,18 @@ type Order = {
   subtotal: { toNumber: () => number } | number | string;
   createdAt: string | Date;
   seenAt: string | Date | null;
-  table: { tableNumber: string };
+  table: { tableNumber: string } | null;
+  orderType?: string | null;
+  customerName?: string | null;
+  customerPhone?: string | null;
+  deliveryAddress?: string | null;
   orderItems: OrderItem[];
+};
+
+const ORDER_TYPE_CONFIG: Record<string, { label: string; badge: string; icon: string }> = {
+  DINE_IN: { label: "داخلي", badge: "bg-indigo-50 text-indigo-600 border-indigo-200", icon: "🍽️" },
+  TAKEAWAY: { label: "استلام", badge: "bg-amber-50 text-amber-600 border-amber-200", icon: "🥡" },
+  DELIVERY: { label: "توصيل", badge: "bg-emerald-50 text-emerald-600 border-emerald-200", icon: "🛵" },
 };
 
 const STATUS_FLOW = ["NEW", "PREPARING", "READY", "SERVED", "PAID", "CANCELLED"];
@@ -124,8 +134,13 @@ function OrderDetailModal({ order, onClose, onUpdateStatus, updatingId }: Detail
             <span className={`text-xs px-3 py-1 rounded-full font-semibold border ${STATUS_CONFIG[order.status].badge}`}>
               {STATUS_CONFIG[order.status].label}
             </span>
+            {order.orderType && ORDER_TYPE_CONFIG[order.orderType] && (
+              <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${ORDER_TYPE_CONFIG[order.orderType].badge}`}>
+                {ORDER_TYPE_CONFIG[order.orderType].icon} {ORDER_TYPE_CONFIG[order.orderType].label}
+              </span>
+            )}
             <span className="text-sm text-gray-500">
-              Table {order.table.tableNumber} &bull; {timeAgo(order.createdAt)}
+              {order.table ? `Table ${order.table.tableNumber}` : order.customerName || "—"} &bull; {timeAgo(order.createdAt)}
             </span>
           </div>
 
@@ -146,6 +161,17 @@ function OrderDetailModal({ order, onClose, onUpdateStatus, updatingId }: Detail
               </div>
             ))}
           </div>
+
+          {(order.customerName || order.customerPhone || order.deliveryAddress) && (
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-4 space-y-1">
+              <p className="text-xs font-semibold text-blue-700 mb-1">
+                {order.orderType === "DELIVERY" ? "🛵 معلومات التوصيل" : "🥡 معلومات الاستلام"}
+              </p>
+              {order.customerName && <p className="text-sm text-blue-900"><strong>الاسم:</strong> {order.customerName}</p>}
+              {order.customerPhone && <p className="text-sm text-blue-900"><strong>الهاتف:</strong> {order.customerPhone}</p>}
+              {order.deliveryAddress && <p className="text-sm text-blue-900"><strong>العنوان:</strong> {order.deliveryAddress}</p>}
+            </div>
+          )}
 
           {order.notes && (
             <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 mb-4">
@@ -377,9 +403,18 @@ export function OrdersClient({ initialOrders, soundEnabled }: Props) {
                               {cfg.label}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-500 mt-0.5">
-                            Table <strong className="text-gray-700">{order.table.tableNumber}</strong>
-                            <span className="mx-1.5 text-gray-300">·</span>
+                          <p className="text-sm text-gray-500 mt-0.5 flex items-center gap-1.5 flex-wrap">
+                            {order.table
+                              ? <><strong className="text-gray-700">Table {order.table.tableNumber}</strong></>
+                              : order.customerName
+                              ? <strong className="text-gray-700">{order.customerName}</strong>
+                              : null}
+                            {order.orderType && ORDER_TYPE_CONFIG[order.orderType] && (
+                              <span className={`text-xs px-1.5 py-0.5 rounded-full border font-medium ${ORDER_TYPE_CONFIG[order.orderType].badge}`}>
+                                {ORDER_TYPE_CONFIG[order.orderType].icon} {ORDER_TYPE_CONFIG[order.orderType].label}
+                              </span>
+                            )}
+                            <span className="text-gray-300">·</span>
                             {timeAgo(order.createdAt)}
                           </p>
                         </div>
