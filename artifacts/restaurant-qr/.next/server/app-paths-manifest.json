@@ -1,7 +1,9 @@
 {
+  "/api/health/route": "app/api/health/route.js",
+  "/api/admin/stats/route": "app/api/admin/stats/route.js",
+  "/(dashboard)/tables/page": "app/(dashboard)/tables/page.js",
   "/(marketing)/page": "app/(marketing)/page.js",
-  "/(marketing)/restaurants/page": "app/(marketing)/restaurants/page.js",
-  "/(auth)/merchant/login/page": "app/(auth)/merchant/login/page.js",
-  "/(auth)/admin/login/page": "app/(auth)/admin/login/page.js",
-  "/(marketing)/restaurants/[slug]/page": "app/(marketing)/restaurants/[slug]/page.js"
+  "/(admin)/admin/dashboard/page": "app/(admin)/admin/dashboard/page.js",
+  "/(marketing)/restaurants/[slug]/page": "app/(marketing)/restaurants/[slug]/page.js",
+  "/(auth)/merchant/login/page": "app/(auth)/merchant/login/page.js"
 }

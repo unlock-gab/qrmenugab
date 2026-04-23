@@ -1,0 +1,639 @@
+Refactor the existing restaurant QR ordering SaaS project into a **clear 3-space architecture** with:
+
+1. **Public Homepage / Visitor Space**
+2. **Merchant Space (restaurants and cafés management)**
+3. **Platform Admin Space**
+
+Important: this project started in Replit, but it is intentionally being built so it can later be migrated to a **VPS using Dokploy and Docker**.
+Keep everything **portable, production-minded, and Docker-friendly**.
+Do not introduce Replit-only architecture.
+Do not break the existing foundations already built for:
+
+* QR ordering
+* menu management
+* merchant dashboard logic
+* admin logic
+* subscriptions
+* branch support
+* French-first language structure
+* Arabic secondary language support
+* DA currency formatting
+
+This refactor is mainly about **reorganizing the product experience and route structure** so the platform feels like a real SaaS + public marketplace product instead of opening directly on a merchant login page.
+
+---
+
+## Mandatory language and currency rules
+
+These rules are required across the whole project:
+
+* **French is the default language everywhere**
+* **Arabic is the secondary switchable language**
+* default locale must be **French**
+* if Arabic content is missing, fallback to **French**
+* the whole UI must be stable in both French and Arabic
+* all visible prices must use **DA**
+* currency display examples:
+
+  * `250 DA`
+  * `1 200 DA`
+  * `3 500 DA`
+
+This applies to:
+
+* public homepage
+* restaurant public pages
+* customer ordering flow
+* merchant dashboard
+* admin space
+* subscription pages
+* reports and billing
+
+---
+
+## Main objective of this refactor
+
+The app must no longer feel like it starts with a login page.
+
+Instead, the platform should now have:
+
+### A. Public visitor/customer-facing space
+
+This is the default entry point for anyone visiting the website.
+
+Users should be able to:
+
+* discover registered restaurants and cafés
+* browse featured establishments
+* view trending items or trending restaurants
+* search and filter by city/category
+* open public restaurant pages
+* access public ordering flows
+* understand the platform product
+* discover pricing / features if relevant
+
+### B. Merchant space
+
+This is for restaurant/café owners and staff to manage their business.
+
+They should access:
+
+* merchant login
+* merchant onboarding
+* merchant dashboard
+* menu management
+* tables
+* orders
+* staff
+* settings
+* subscription
+
+### C. Platform admin space
+
+This is the internal control center for the platform owner.
+
+Admin should access:
+
+* admin login
+* admin dashboard
+* restaurants management
+* subscriptions
+* plans
+* users
+* leads / demo requests
+* platform-wide analytics and control
+
+---
+
+## Refactor goal
+
+Keep all existing business logic and core modules where possible, but **restructure routes, layout hierarchy, navigation, entry flow, and UI organization** so the product feels like a real public-facing SaaS platform with separate merchant and admin workspaces.
+
+Do not rebuild from scratch.
+Preserve existing working modules unless refactoring is necessary to support the new structure cleanly.
+
+---
+
+## Required high-level route structure
+
+### 1. Public space
+
+Create a dedicated public-facing route structure such as:
+
+* `/` → public homepage
+* `/restaurants` → all restaurants / cafés listing
+* `/restaurants/[slug]` → public restaurant page
+* `/restaurants/[slug]/menu` → public menu page if useful
+* `/pricing` → SaaS pricing page
+* `/features` → product features page
+* `/contact` → contact / demo request page
+* `/login` → smart entry page or redirect choice if useful
+* `/start` or `/essai` → merchant start / free trial entry
+
+The homepage `/` must become the default entry point.
+
+### 2. Merchant space
+
+Create a clearly separated merchant area, for example:
+
+* `/merchant/login`
+* `/merchant/register` or `/merchant/start`
+* `/merchant/dashboard`
+* `/merchant/orders`
+* `/merchant/tables`
+* `/merchant/menu`
+* `/merchant/categories`
+* `/merchant/staff`
+* `/merchant/settings`
+* `/merchant/subscription`
+* `/merchant/branches`
+* `/merchant/reports`
+
+### 3. Admin space
+
+Create a clearly separated admin area, for example:
+
+* `/admin/login`
+* `/admin/dashboard`
+* `/admin/restaurants`
+* `/admin/subscriptions`
+* `/admin/plans`
+* `/admin/users`
+* `/admin/leads`
+* `/admin/settings`
+
+Keep route separation clean and maintainable.
+
+---
+
+## Public homepage requirements
+
+Build the **real public homepage** of the platform.
+
+This page is for visitors, customers, and future restaurant clients.
+
+### Homepage purpose
+
+It must:
+
+* showcase restaurants and cafés registered on the platform
+* make the platform feel alive and useful
+* help visitors discover establishments
+* help restaurants understand the SaaS value
+* create a clear split between customer discovery and merchant management
+
+### Homepage sections
+
+Implement a modern premium French-first homepage with sections such as:
+
+#### Hero section
+
+Examples of direction:
+
+* `Découvrez les meilleurs cafés et restaurants`
+* `Commandez plus facilement, gérez plus intelligemment`
+* CTA buttons:
+
+  * `Explorer les établissements`
+  * `Gérer mon restaurant`
+  * `Essai gratuit`
+
+#### Featured restaurants / cafés
+
+Show featured or recent establishments with clean cards.
+
+#### Trending section
+
+Show trending dishes or trending restaurants.
+
+#### Categories section
+
+Examples:
+
+* `Cafétérias`
+* `Restaurants`
+* `Fast-food`
+* `Pâtisseries`
+* `Salons de thé`
+
+#### Search / filter section
+
+Allow filter by:
+
+* city
+* category
+* dine-in / takeaway / delivery if relevant
+* popularity or recency if useful
+
+#### Platform benefit section
+
+Explain platform value for merchants:
+
+* QR menu
+* direct ordering
+* dashboard
+* live management
+* staff and table operations
+
+#### CTA section
+
+Encourage restaurants to start using the platform.
+
+#### Footer
+
+Professional French-first footer.
+
+Do not make the homepage look like a generic template.
+Make it feel like a premium marketplace + SaaS landing hybrid.
+
+---
+
+## Restaurants listing page
+
+Create a proper public listing page for all restaurants/cafés.
+
+### Requirements
+
+* display all active and publicly visible restaurants
+* allow search/filter
+* show card-based listing
+* support city/category filters
+* support featured badges if useful
+* only show restaurants allowed for public display
+* use French default UI
+* Arabic switch must remain available
+
+Each card can show:
+
+* cover or logo
+* name
+* city
+* type/category
+* short description
+* opening status if available
+* button like `Voir le restaurant` or `Voir le menu`
+
+This page should feel like a real discovery page.
+
+---
+
+## Public restaurant page
+
+Create a clean public profile page for each restaurant.
+
+### Purpose
+
+This is the public page visitors and customers see before ordering.
+
+### Show:
+
+* restaurant cover image
+* logo
+* name
+* city / address
+* phone
+* categories
+* description
+* branch selection if needed later
+* menu highlights
+* trending dishes
+* opening / service info if available
+* CTA:
+
+  * `Voir le menu`
+  * `Commander`
+  * `Commander sur place`
+  * `À emporter`
+  * `Livraison`
+
+This page should connect naturally with the existing public menu and ordering flows.
+
+Do not duplicate logic if a public menu page already exists.
+Reuse existing public ordering structure where possible.
+
+---
+
+## Merchant space requirements
+
+The merchant dashboard should no longer be the public default entry point.
+
+### Merchant login page
+
+Move the current merchant login into a dedicated route like `/merchant/login`.
+
+Refine it so it feels like part of a larger SaaS system.
+
+Add useful links like:
+
+* `Créer mon espace`
+* `Essai gratuit`
+* `Retour à l'accueil`
+* `Découvrir la plateforme`
+
+Keep it French-first and premium.
+
+### Merchant app shell
+
+Ensure the merchant space has:
+
+* separate layout
+* protected auth
+* clean navigation
+* restaurant-scoped access
+* branch-aware support if already built
+* French default labels
+* Arabic secondary support
+* DA currency formatting where relevant
+
+Do not break current merchant modules.
+Just reorganize and polish them under the merchant namespace.
+
+---
+
+## Admin space requirements
+
+The admin must also be clearly separated from both public and merchant spaces.
+
+### Admin login page
+
+Create a dedicated admin login route like `/admin/login`.
+
+Do not expose admin access through the public homepage in a clumsy way.
+
+### Admin app shell
+
+Ensure admin space has:
+
+* dedicated layout
+* role-protected routes
+* platform-wide control views
+* restaurant management
+* subscription management
+* plans
+* users
+* leads
+* global analytics
+
+Preserve current admin functionality but move it into a clearer admin structure if needed.
+
+---
+
+## Navigation structure
+
+Refactor navigation so the product has the correct public hierarchy.
+
+### Public navigation
+
+Examples:
+
+* `Accueil`
+* `Établissements`
+* `Fonctionnalités`
+* `Tarifs`
+* `Contact`
+* `Connexion`
+* `Gérer mon restaurant`
+
+### Merchant navigation
+
+Examples:
+
+* `Tableau de bord`
+* `Commandes`
+* `Tables`
+* `Menu`
+* `Catégories`
+* `Personnel`
+* `Succursales`
+* `Rapports`
+* `Abonnement`
+* `Paramètres`
+
+### Admin navigation
+
+Examples:
+
+* `Tableau de bord`
+* `Restaurants`
+* `Abonnements`
+* `Plans`
+* `Utilisateurs`
+* `Demandes`
+* `Paramètres`
+
+Keep navigation scoped and role-appropriate.
+
+---
+
+## Authentication and entry flow refactor
+
+Refactor entry logic so the platform behaves like this:
+
+### Public visitor
+
+* lands on homepage `/`
+* can browse restaurants
+* can access public menu/order flows
+* can discover the platform
+
+### Merchant
+
+* can go to `/merchant/login`
+* can start onboarding or free trial
+* can enter merchant dashboard
+
+### Admin
+
+* can go to `/admin/login`
+* can enter admin control center
+
+If there is a shared `/login`, make it a clean smart entry page that routes users to the appropriate space, or redirect appropriately based on role.
+
+Do not leave the platform feeling confused at entry.
+
+---
+
+## Layout architecture requirements
+
+Refactor the app into clearly separated layout systems:
+
+### Public layout
+
+For:
+
+* homepage
+* restaurant listing
+* restaurant public pages
+* pricing
+* features
+* contact
+
+### Merchant layout
+
+For:
+
+* merchant dashboard and operational pages
+
+### Admin layout
+
+For:
+
+* platform admin pages
+
+Each layout should have:
+
+* its own navigation
+* its own visual hierarchy
+* its own auth logic
+* its own page shell
+
+Do not mix public and private layout concerns.
+
+---
+
+## Data visibility rules
+
+Respect visibility and publication logic:
+
+### Public space
+
+Only show restaurants that are:
+
+* active
+* publicly visible
+* not suspended
+* not blocked
+
+### Merchant space
+
+Only allow access to the authenticated merchant’s restaurant/branch data.
+
+### Admin space
+
+Allow platform-wide visibility only to platform admins.
+
+This must remain server-safe and tenant-safe.
+
+---
+
+## Database and schema considerations
+
+If needed, make minimal schema additions to support public presentation better.
+
+Possible additions only if useful:
+
+* `isPublic`
+* `isFeatured`
+* `publicDescription`
+* `coverImageUrl`
+* `publicSortOrder`
+* `city`
+* `restaurantType`
+
+Do not add bloated fields unless they directly help the public homepage/listing/public restaurant pages.
+
+Preserve existing restaurant/order/menu/subscription structures.
+
+---
+
+## UI/UX direction
+
+### Public side
+
+Should feel like:
+
+* premium
+* modern
+* clean
+* marketplace-like
+* French-first
+* mobile-first
+* discovery-focused
+* conversion-friendly for merchants
+
+### Merchant side
+
+Should feel like:
+
+* operational
+* clear
+* app-like
+* efficient
+* SaaS dashboard quality
+
+### Admin side
+
+Should feel like:
+
+* powerful
+* clean
+* structured
+* internal control center
+
+### Language UX
+
+* French default everywhere
+* Arabic optional switch
+* proper RTL support in Arabic
+* no broken layouts
+* fallback to French if translation is missing
+
+### Currency UX
+
+* all pricing shown in DA
+* use centralized formatting helpers
+* remain consistent across public and private spaces
+
+---
+
+## Performance and architecture expectations
+
+* keep code modular
+* preserve working business logic
+* avoid unnecessary duplication
+* do not rebuild modules that already work
+* centralize shared components where useful
+* keep public and private data fetching clean
+* preserve Docker portability
+* keep environment handling standard
+* avoid Replit-specific assumptions
+* keep route organization clean and production-minded
+
+---
+
+## Deliverables for this refactor
+
+Implement the refactor with:
+
+1. public homepage at `/`
+2. public restaurants listing page
+3. public restaurant detail page
+4. merchant login moved to `/merchant/login`
+5. merchant space clearly separated
+6. admin login moved to `/admin/login`
+7. admin space clearly separated
+8. clean public / merchant / admin route architecture
+9. separated layout systems
+10. clear navigation per space
+11. French-first UI everywhere
+12. Arabic as secondary switchable language
+13. DA currency formatting preserved everywhere
+14. existing business logic preserved and reorganized cleanly
+15. public homepage showing registered restaurants/cafés instead of starting on login
+
+---
+
+## Important implementation rules
+
+* do not break previous phases
+* do not remove existing merchant logic
+* do not remove existing admin logic
+* do not make login the default homepage anymore
+* do not make Arabic the default language
+* do not use a non-DA visible currency
+* do not create messy mixed layouts
+* do not expose admin routes publicly
+* do not leak private merchant data in public pages
+* build like this is a real SaaS marketplace platform for restaurants and cafés
+
+Now refactor the project accordingly so the platform has a strong **Public Homepage + Merchant Space + Admin Space** architecture, with French-first UX, Arabic as secondary language, and DA currency support, while preserving all existing functionality.

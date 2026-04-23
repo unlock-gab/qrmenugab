@@ -211,7 +211,7 @@ export default async function RestaurantDetailPage({
                             <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{item.description}</p>
                           )}
                           <p className="text-orange-600 font-bold text-sm mt-1">
-                            {item.price.toFixed(0)} Da
+                            {item.price.toFixed(0)} DA
                           </p>
                         </div>
                       </div>

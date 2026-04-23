@@ -13,17 +13,17 @@ export function Footer() {
               <span className="font-black text-white text-lg tracking-tight">QRMenu</span>
             </div>
             <p className="text-sm text-gray-500 leading-relaxed">
-              Smart QR ordering for modern restaurants and cafés. Give your customers a faster, better experience.
+              Commande QR pour restaurants et cafés modernes en Algérie. Offrez à vos clients une expérience plus rapide et plus agréable.
             </p>
           </div>
 
           <div>
-            <p className="font-semibold text-white text-sm mb-4">Product</p>
+            <p className="font-semibold text-white text-sm mb-4">Découvrir</p>
             <div className="space-y-3">
               {[
-                { href: "/features", label: "Features" },
-                { href: "/pricing", label: "Pricing" },
-                { href: "/how-it-works", label: "How It Works" },
+                { href: "/restaurants", label: "Établissements" },
+                { href: "/features", label: "Fonctionnalités" },
+                { href: "/pricing", label: "Tarifs" },
                 { href: "/faq", label: "FAQ" },
               ].map((l) => (
                 <Link key={l.href} href={l.href} className="block text-sm text-gray-500 hover:text-white transition-colors">
@@ -34,12 +34,13 @@ export function Footer() {
           </div>
 
           <div>
-            <p className="font-semibold text-white text-sm mb-4">Platform</p>
+            <p className="font-semibold text-white text-sm mb-4">Plateforme</p>
             <div className="space-y-3">
               {[
-                { href: "/signup", label: "Start Free Trial" },
-                { href: "/merchant/login", label: "Connexion" },
-                { href: "/contact", label: "Request Demo" },
+                { href: "/signup", label: "Essai gratuit" },
+                { href: "/merchant/login", label: "Espace marchand" },
+                { href: "/admin/login", label: "Administration" },
+                { href: "/contact", label: "Demander une démo" },
               ].map((l) => (
                 <Link key={l.href} href={l.href} className="block text-sm text-gray-500 hover:text-white transition-colors">
                   {l.label}
@@ -49,11 +50,11 @@ export function Footer() {
           </div>
 
           <div>
-            <p className="font-semibold text-white text-sm mb-4">Company</p>
+            <p className="font-semibold text-white text-sm mb-4">Contact</p>
             <div className="space-y-3">
               {[
-                { href: "/contact", label: "Contact Us" },
-                { href: "/contact", label: "Sales" },
+                { href: "/contact", label: "Nous contacter" },
+                { href: "/contact", label: "Vente & partenariat" },
               ].map((l) => (
                 <Link key={l.label} href={l.href} className="block text-sm text-gray-500 hover:text-white transition-colors">
                   {l.label}
@@ -64,8 +65,8 @@ export function Footer() {
         </div>
 
         <div className="border-t border-gray-800 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-gray-600">© {new Date().getFullYear()} QRMenu. All rights reserved.</p>
-          <p className="text-xs text-gray-600">Built for restaurants that care about their customers.</p>
+          <p className="text-xs text-gray-600">© {new Date().getFullYear()} QRMenu. Tous droits réservés.</p>
+          <p className="text-xs text-gray-600">Conçu pour les restaurants qui tiennent à leurs clients.</p>
         </div>
       </div>
     </footer>

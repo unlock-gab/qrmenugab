@@ -9,7 +9,7 @@ export function formatPrice(
   price: number | string | { toNumber: () => number }
 ): string {
   const num = typeof price === "object" ? price.toNumber() : Number(price);
-  return `${num.toLocaleString("fr-DZ")} Da`;
+  return `${num.toLocaleString("fr-DZ")} DA`;
 }
 
 export function generateOrderNumber(): string {

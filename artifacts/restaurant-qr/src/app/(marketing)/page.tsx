@@ -5,10 +5,10 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import {
   QrCode, ChefHat, Zap, BarChart3, Smartphone, Users,
-  Star, Check, ArrowRight, Wifi, Bell, Settings
+  Star, Check, ArrowRight, Bell, Settings, MapPin, Utensils
 } from "lucide-react";
 
-export const metadata = { title: "QRMenu — Commande QR pour Restaurants en Algérie" };
+export const metadata = { title: "QRMenu — Commande QR pour Restaurants & Cafés en Algérie" };
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
@@ -36,6 +36,7 @@ export default async function HomePage() {
       {featuredRestaurants.length > 0 && (
         <FeaturedRestaurantsSection restaurants={featuredRestaurants} />
       )}
+      <CategoriesSection />
       <FeaturesSection />
       <HowItWorksSection />
       <BenefitsSection />
@@ -58,6 +59,132 @@ const TYPE_LABELS: Record<string, string> = {
   cafe: "Café", grills: "Grillades", seafood: "Fruits de mer", other: "Autre",
 };
 
+function HeroSection() {
+  return (
+    <section className="relative min-h-[90vh] flex items-center bg-gradient-to-br from-gray-50 via-white to-orange-50/30 pt-8">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 right-[-100px] w-[500px] h-[500px] bg-orange-100/40 rounded-full blur-3xl" />
+        <div className="absolute bottom-[-50px] left-[-50px] w-[300px] h-[300px] bg-amber-100/30 rounded-full blur-2xl" />
+      </div>
+
+      <div className="relative max-w-6xl mx-auto px-5 py-20 grid lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-200 text-orange-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
+            <Zap className="w-3 h-3" />
+            Aucun matériel requis — fonctionne sur tous les appareils
+          </div>
+
+          <h1 className="text-5xl lg:text-6xl font-black text-gray-900 leading-tight mb-6">
+            Découvrez les meilleurs
+            <span className="block text-orange-500">cafés & restaurants</span>
+          </h1>
+
+          <p className="text-xl text-gray-600 leading-relaxed mb-8 max-w-lg">
+            Commandez facilement depuis votre table, gérez votre restaurant intelligemment. 
+            La plateforme QR pour tous les établissements d&apos;Algérie.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Link href="/restaurants" className="inline-flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-4 rounded-2xl text-lg transition-all shadow-xl shadow-orange-200 hover:shadow-orange-300 hover:-translate-y-0.5">
+              Explorer les établissements
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link href="/signup" className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 font-semibold px-8 py-4 rounded-2xl text-lg border border-gray-200 transition-all hover:-translate-y-0.5">
+              Gérer mon restaurant
+            </Link>
+          </div>
+
+          <div className="mt-10 flex flex-wrap items-center gap-6">
+            {["Sans carte bancaire", "Essai 14 jours gratuit", "Résiliable à tout moment"].map((t) => (
+              <div key={t} className="flex items-center gap-2 text-sm text-gray-500">
+                <Check className="w-4 h-4 text-green-500 shrink-0" />
+                {t}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative hidden lg:block">
+          <div className="relative bg-white rounded-3xl shadow-2xl shadow-gray-200/60 p-6 border border-gray-100">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="w-3 h-3 rounded-full bg-red-400" />
+              <div className="w-3 h-3 rounded-full bg-yellow-400" />
+              <div className="w-3 h-3 rounded-full bg-green-400" />
+              <span className="ml-3 text-xs text-gray-400 font-medium">Tableau de bord Marchand</span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              {[
+                { label: "Nouvelles commandes", val: "12", color: "bg-orange-50 text-orange-600 border-orange-100" },
+                { label: "Chiffre du jour", val: "8 500 DA", color: "bg-green-50 text-green-600 border-green-100" },
+                { label: "Tables actives", val: "8/15", color: "bg-blue-50 text-blue-600 border-blue-100" },
+                { label: "Temps moy. commande", val: "6 min", color: "bg-purple-50 text-purple-600 border-purple-100" },
+              ].map((card) => (
+                <div key={card.label} className={`rounded-2xl border p-4 ${card.color}`}>
+                  <p className="text-xs font-medium opacity-70">{card.label}</p>
+                  <p className="text-2xl font-black mt-1">{card.val}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-gray-50 rounded-2xl p-4">
+              <p className="text-xs font-semibold text-gray-500 mb-3">Commandes récentes</p>
+              {[
+                { table: "Table 3", item: "Café, Croissant", status: "NOUVEAU", statusColor: "bg-orange-100 text-orange-700" },
+                { table: "Table 7", item: "Burger, Frites, Jus", status: "PRÊT", statusColor: "bg-green-100 text-green-700" },
+                { table: "Table 1", item: "Pizza, Salade", status: "EN COURS", statusColor: "bg-blue-100 text-blue-700" },
+              ].map((o, i) => (
+                <div key={i} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                  <div>
+                    <p className="text-xs font-semibold text-gray-800">{o.table}</p>
+                    <p className="text-xs text-gray-400">{o.item}</p>
+                  </div>
+                  <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${o.statusColor}`}>{o.status}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="absolute -bottom-6 -left-8 bg-white rounded-2xl shadow-xl border border-gray-100 p-4 w-52">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
+                <Bell className="w-5 h-5 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-800">Nouvelle commande !</p>
+                <p className="text-xs text-gray-400">Table 5 vient de commander</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TrustBar() {
+  const stats = [
+    { value: "500+", label: "Restaurants" },
+    { value: "2M+", label: "Commandes traitées" },
+    { value: "98%", label: "Disponibilité" },
+    { value: "4.9★", label: "Note moyenne" },
+  ];
+  return (
+    <div className="bg-gray-950 py-10">
+      <div className="max-w-5xl mx-auto px-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          {stats.map((s) => (
+            <div key={s.label}>
+              <p className="text-3xl font-black text-white">{s.value}</p>
+              <p className="text-sm text-gray-500 mt-1">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function FeaturedRestaurantsSection({ restaurants }: { restaurants: PublicRestaurant[] }) {
   return (
     <section className="py-20 bg-white">
@@ -65,12 +192,12 @@ function FeaturedRestaurantsSection({ restaurants }: { restaurants: PublicRestau
         <div className="flex items-end justify-between mb-10">
           <div>
             <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-200 text-orange-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-3">
-              🍽️ Restaurants partenaires
+              🍽️ Restaurants & cafés partenaires
             </div>
             <h2 className="text-3xl font-black text-gray-900">
               Commandez maintenant
             </h2>
-            <p className="text-gray-500 mt-1">Découvrez nos restaurants disponibles en ligne</p>
+            <p className="text-gray-500 mt-1">Découvrez nos établissements disponibles en ligne</p>
           </div>
           <Link
             href="/restaurants"
@@ -102,7 +229,7 @@ function FeaturedRestaurantsSection({ restaurants }: { restaurants: PublicRestau
               <div className="p-4">
                 <h3 className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors">{r.name}</h3>
                 <div className="flex flex-wrap items-center gap-2 mt-1">
-                  {r.city && <span className="text-xs text-gray-500">📍 {r.city}</span>}
+                  {r.city && <span className="text-xs text-gray-500 flex items-center gap-1"><MapPin className="w-3 h-3" />{r.city}</span>}
                   {r.restaurantType && TYPE_LABELS[r.restaurantType] && (
                     <span className="text-xs bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full font-medium">
                       {TYPE_LABELS[r.restaurantType]}
@@ -112,17 +239,15 @@ function FeaturedRestaurantsSection({ restaurants }: { restaurants: PublicRestau
                 {r.publicDescription && (
                   <p className="text-xs text-gray-500 mt-2 line-clamp-2">{r.publicDescription}</p>
                 )}
+                <p className="text-xs text-orange-600 font-semibold mt-2 group-hover:underline">Voir le menu →</p>
               </div>
             </Link>
           ))}
         </div>
 
         <div className="text-center mt-8 md:hidden">
-          <Link
-            href="/restaurants"
-            className="inline-flex items-center gap-2 text-orange-600 font-semibold text-sm"
-          >
-            Voir tous les restaurants <ArrowRight className="w-4 h-4" />
+          <Link href="/restaurants" className="inline-flex items-center gap-2 text-orange-600 font-semibold text-sm">
+            Voir tous les établissements <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>
@@ -130,139 +255,50 @@ function FeaturedRestaurantsSection({ restaurants }: { restaurants: PublicRestau
   );
 }
 
-function HeroSection() {
+function CategoriesSection() {
+  const categories = [
+    { emoji: "☕", label: "Cafétérias", type: "cafe" },
+    { emoji: "🍽️", label: "Restaurants", type: "algerian" },
+    { emoji: "🍔", label: "Fast-food", type: "fast_food" },
+    { emoji: "🍕", label: "Pizzerias", type: "pizzeria" },
+    { emoji: "🔥", label: "Grillades", type: "grills" },
+    { emoji: "🐟", label: "Fruits de mer", type: "seafood" },
+  ];
+
   return (
-    <section className="relative min-h-[90vh] flex items-center bg-gradient-to-br from-gray-50 via-white to-orange-50/30 pt-8">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 right-[-100px] w-[500px] h-[500px] bg-orange-100/40 rounded-full blur-3xl" />
-        <div className="absolute bottom-[-50px] left-[-50px] w-[300px] h-[300px] bg-amber-100/30 rounded-full blur-2xl" />
-      </div>
-
-      <div className="relative max-w-6xl mx-auto px-5 py-20 grid lg:grid-cols-2 gap-16 items-center">
-        <div>
-          <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-200 text-orange-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
-            <Zap className="w-3 h-3" />
-            No hardware needed — works on any device
-          </div>
-
-          <h1 className="text-5xl lg:text-6xl font-black text-gray-900 leading-tight mb-6">
-            Smart QR Ordering
-            <span className="block text-orange-500">for Modern Restaurants</span>
-          </h1>
-
-          <p className="text-xl text-gray-600 leading-relaxed mb-8 max-w-lg">
-            Replace slow manual ordering with instant QR-powered table ordering. Your customers scan, order, and enjoy — while you manage everything live from your dashboard.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link href="/signup" className="inline-flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold px-8 py-4 rounded-2xl text-lg transition-all shadow-xl shadow-orange-200 hover:shadow-orange-300 hover:-translate-y-0.5">
-              Start Free Trial
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-            <Link href="/how-it-works" className="inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 font-semibold px-8 py-4 rounded-2xl text-lg border border-gray-200 transition-all hover:-translate-y-0.5">
-              See How It Works
-            </Link>
-          </div>
-
-          <div className="mt-10 flex items-center gap-6">
-            {["No credit card required", "14-day free trial", "Cancel anytime"].map((t) => (
-              <div key={t} className="flex items-center gap-2 text-sm text-gray-500">
-                <Check className="w-4 h-4 text-green-500 shrink-0" />
-                {t}
-              </div>
-            ))}
-          </div>
+    <section className="py-16 bg-gray-50">
+      <div className="max-w-6xl mx-auto px-5">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl font-black text-gray-900">Parcourir par catégorie</h2>
+          <p className="text-gray-500 mt-1 text-sm">Trouvez le type d&apos;établissement qui vous convient</p>
         </div>
-
-        <div className="relative hidden lg:block">
-          <div className="relative bg-white rounded-3xl shadow-2xl shadow-gray-200/60 p-6 border border-gray-100">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-3 h-3 rounded-full bg-red-400" />
-              <div className="w-3 h-3 rounded-full bg-yellow-400" />
-              <div className="w-3 h-3 rounded-full bg-green-400" />
-              <span className="ml-3 text-xs text-gray-400 font-medium">Merchant Dashboard</span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              {[
-                { label: "New Orders", val: "12", color: "bg-orange-50 text-orange-600 border-orange-100" },
-                { label: "Revenue Today", val: "$847", color: "bg-green-50 text-green-600 border-green-100" },
-                { label: "Active Tables", val: "8/15", color: "bg-blue-50 text-blue-600 border-blue-100" },
-                { label: "Avg. Order Time", val: "6 min", color: "bg-purple-50 text-purple-600 border-purple-100" },
-              ].map((card) => (
-                <div key={card.label} className={`rounded-2xl border p-4 ${card.color}`}>
-                  <p className="text-xs font-medium opacity-70">{card.label}</p>
-                  <p className="text-2xl font-black mt-1">{card.val}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="bg-gray-50 rounded-2xl p-4">
-              <p className="text-xs font-semibold text-gray-500 mb-3">Recent Orders</p>
-              {[
-                { table: "Table 3", item: "Cappuccino, Croissant", status: "NEW", statusColor: "bg-orange-100 text-orange-700" },
-                { table: "Table 7", item: "Burger, Fries, Lemonade", status: "READY", statusColor: "bg-green-100 text-green-700" },
-                { table: "Table 1", item: "Pasta, Tiramisu", status: "PREPARING", statusColor: "bg-blue-100 text-blue-700" },
-              ].map((o, i) => (
-                <div key={i} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
-                  <div>
-                    <p className="text-xs font-semibold text-gray-800">{o.table}</p>
-                    <p className="text-xs text-gray-400">{o.item}</p>
-                  </div>
-                  <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${o.statusColor}`}>{o.status}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="absolute -bottom-6 -left-8 bg-white rounded-2xl shadow-xl border border-gray-100 p-4 w-52">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-                <Bell className="w-5 h-5 text-orange-600" />
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
+          {categories.map((cat) => (
+            <Link
+              key={cat.type}
+              href={`/restaurants?type=${cat.type}`}
+              className="group flex flex-col items-center gap-3 p-4 bg-white rounded-2xl border border-gray-100 hover:border-orange-200 hover:shadow-md transition-all"
+            >
+              <div className="w-12 h-12 bg-orange-50 group-hover:bg-orange-100 rounded-xl flex items-center justify-center text-2xl transition-colors">
+                {cat.emoji}
               </div>
-              <div>
-                <p className="text-xs font-semibold text-gray-800">New Order!</p>
-                <p className="text-xs text-gray-400">Table 5 just ordered</p>
-              </div>
-            </div>
-          </div>
+              <span className="text-xs font-semibold text-gray-700 text-center leading-tight">{cat.label}</span>
+            </Link>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-function TrustBar() {
-  const stats = [
-    { value: "500+", label: "Restaurants" },
-    { value: "2M+", label: "Orders Processed" },
-    { value: "98%", label: "Uptime SLA" },
-    { value: "4.9★", label: "Average Rating" },
-  ];
-  return (
-    <div className="bg-gray-950 py-10">
-      <div className="max-w-5xl mx-auto px-5">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          {stats.map((s) => (
-            <div key={s.label}>
-              <p className="text-3xl font-black text-white">{s.value}</p>
-              <p className="text-sm text-gray-500 mt-1">{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function FeaturesSection() {
   const features = [
-    { icon: QrCode, title: "QR Table Ordering", desc: "Customers scan a QR code at their table and order directly from their phone. No app download needed.", color: "bg-orange-50 text-orange-600" },
-    { icon: BarChart3, title: "Live Order Dashboard", desc: "See every order in real-time. Accept, prepare, and mark orders ready from one clean interface.", color: "bg-blue-50 text-blue-600" },
-    { icon: ChefHat, title: "Menu Management", desc: "Create and organize your digital menu with categories, photos, prices, and availability toggles.", color: "bg-green-50 text-green-600" },
-    { icon: Bell, title: "Instant Notifications", desc: "Hear a sound and see new orders instantly. Never miss a table again with live audio alerts.", color: "bg-purple-50 text-purple-600" },
-    { icon: Smartphone, title: "Mobile-First Customer UX", desc: "Your customers get a beautiful, fast menu experience optimized for every phone and screen size.", color: "bg-amber-50 text-amber-600" },
-    { icon: Settings, title: "Restaurant Branding", desc: "Add your logo, colors, and identity. Your QR menu looks and feels like your brand.", color: "bg-rose-50 text-rose-600" },
+    { icon: QrCode, title: "Commande QR à table", desc: "Vos clients scannent le QR code et commandent directement depuis leur téléphone. Aucune application à télécharger.", color: "bg-orange-50 text-orange-600" },
+    { icon: BarChart3, title: "Tableau de bord en temps réel", desc: "Voyez chaque commande en direct. Acceptez, préparez et marquez les commandes prêtes depuis une interface claire.", color: "bg-blue-50 text-blue-600" },
+    { icon: ChefHat, title: "Gestion du menu", desc: "Créez et organisez votre menu digital avec catégories, photos, prix et disponibilités.", color: "bg-green-50 text-green-600" },
+    { icon: Bell, title: "Alertes instantanées", desc: "Recevez un signal sonore dès l'arrivée d'une nouvelle commande. Ne ratez plus jamais une table.", color: "bg-purple-50 text-purple-600" },
+    { icon: Smartphone, title: "Expérience mobile client", desc: "Vos clients bénéficient d'une belle expérience de menu, optimisée pour tous les téléphones.", color: "bg-amber-50 text-amber-600" },
+    { icon: Users, title: "Gestion du personnel", desc: "Gérez vos serveurs, cuisiniers et caissiers. Accès par rôle, adapté à chaque poste.", color: "bg-rose-50 text-rose-600" },
   ];
 
   return (
@@ -270,10 +306,10 @@ function FeaturesSection() {
       <div className="max-w-6xl mx-auto px-5">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
-            <Zap className="w-3 h-3" /> Everything you need
+            <Zap className="w-3 h-3" /> Tout ce dont vous avez besoin
           </div>
-          <h2 className="text-4xl font-black text-gray-900 mb-4">Built for real restaurants</h2>
-          <p className="text-xl text-gray-500 max-w-xl mx-auto">From small cafés to busy multi-table restaurants — every feature is designed to save time and increase orders.</p>
+          <h2 className="text-4xl font-black text-gray-900 mb-4">Conçu pour les vrais restaurants</h2>
+          <p className="text-xl text-gray-500 max-w-xl mx-auto">Des cafés aux grands restaurants — chaque fonctionnalité est pensée pour gagner du temps et augmenter les commandes.</p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((f) => (
@@ -288,7 +324,7 @@ function FeaturesSection() {
         </div>
         <div className="text-center mt-12">
           <Link href="/features" className="inline-flex items-center gap-2 text-orange-600 font-semibold hover:text-orange-700 transition-colors">
-            View all features <ArrowRight className="w-4 h-4" />
+            Voir toutes les fonctionnalités <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>
@@ -298,10 +334,10 @@ function FeaturesSection() {
 
 function HowItWorksSection() {
   const steps = [
-    { num: "01", title: "Sign up in minutes", desc: "Create your account, set up your restaurant profile, and upload your menu. No technical skills needed." },
-    { num: "02", title: "Print your QR codes", desc: "Generate unique QR codes for each table. Print or display them — your customers are ready to scan." },
-    { num: "03", title: "Customers scan & order", desc: "Guests scan the QR, browse your menu, and place their order directly from their phone. No waiting for staff." },
-    { num: "04", title: "You manage everything live", desc: "See orders appear instantly in your dashboard. Update status, manage tables, and track revenue in real time." },
+    { num: "01", title: "Inscription en quelques minutes", desc: "Créez votre compte, configurez votre restaurant et uploadez votre menu. Aucune compétence technique requise." },
+    { num: "02", title: "Imprimez vos QR codes", desc: "Générez des QR codes uniques pour chaque table. Imprimez ou affichez-les — vos clients sont prêts à scanner." },
+    { num: "03", title: "Les clients scannent et commandent", desc: "Vos clients scannent le QR, parcourent le menu et passent commande depuis leur téléphone. Sans attente." },
+    { num: "04", title: "Gérez tout en direct", desc: "Les commandes apparaissent instantanément dans votre tableau de bord. Mettez à jour les statuts et suivez vos revenus." },
   ];
 
   return (
@@ -309,10 +345,10 @@ function HowItWorksSection() {
       <div className="max-w-5xl mx-auto px-5">
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
-            <Check className="w-3 h-3" /> Setup takes 15 minutes
+            <Check className="w-3 h-3" /> Mise en place en 15 minutes
           </div>
-          <h2 className="text-4xl font-black text-gray-900 mb-4">Up and running in 4 steps</h2>
-          <p className="text-xl text-gray-500">No IT department needed. No long contracts. Just a smarter restaurant.</p>
+          <h2 className="text-4xl font-black text-gray-900 mb-4">Opérationnel en 4 étapes</h2>
+          <p className="text-xl text-gray-500">Pas besoin d&apos;informaticien. Pas de long contrat. Juste un restaurant plus intelligent.</p>
         </div>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {steps.map((s, i) => (
@@ -330,7 +366,7 @@ function HowItWorksSection() {
         </div>
         <div className="text-center mt-12">
           <Link href="/how-it-works" className="inline-flex items-center gap-2 text-orange-600 font-semibold hover:text-orange-700 transition-colors">
-            Learn more <ArrowRight className="w-4 h-4" />
+            En savoir plus <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>
@@ -345,17 +381,17 @@ function BenefitsSection() {
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div>
             <div className="inline-flex items-center gap-2 bg-orange-50 text-orange-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
-              <ChefHat className="w-3 h-3" /> For restaurant owners
+              <ChefHat className="w-3 h-3" /> Pour les restaurateurs
             </div>
-            <h2 className="text-4xl font-black text-gray-900 mb-6">Run a faster, smarter operation</h2>
+            <h2 className="text-4xl font-black text-gray-900 mb-6">Gérez plus vite, plus intelligemment</h2>
             <div className="space-y-5">
               {[
-                "Reduce order errors from miscommunication",
-                "Free up staff to focus on service quality",
-                "See real-time revenue and order analytics",
-                "Manage your menu instantly from any device",
-                "Grow without hiring more waiting staff",
-                "Professional customer experience from day one",
+                "Réduisez les erreurs de commande dues à la communication",
+                "Libérez votre personnel pour la qualité de service",
+                "Suivez vos revenus et analyses en temps réel",
+                "Gérez votre menu instantanément depuis n'importe quel appareil",
+                "Développez sans embaucher plus de serveurs",
+                "Expérience client professionnelle dès le premier jour",
               ].map((b) => (
                 <div key={b} className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
@@ -368,17 +404,17 @@ function BenefitsSection() {
           </div>
           <div>
             <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
-              <Smartphone className="w-3 h-3" /> For your customers
+              <Smartphone className="w-3 h-3" /> Pour vos clients
             </div>
-            <h2 className="text-4xl font-black text-gray-900 mb-6">A dining experience they&apos;ll remember</h2>
+            <h2 className="text-4xl font-black text-gray-900 mb-6">Une expérience mémorable</h2>
             <div className="space-y-5">
               {[
-                "Order instantly — no waiting for staff attention",
-                "Browse the full menu with photos and descriptions",
-                "Easily add items and track their order status",
-                "No app download required — just scan and order",
-                "Clear, beautiful menu on any smartphone",
-                "Faster service means a better overall experience",
+                "Commander instantanément — sans attendre le serveur",
+                "Parcourir le menu complet avec photos et descriptions",
+                "Ajouter des articles et suivre l'état de la commande",
+                "Aucune application à télécharger — scanner et commander",
+                "Menu clair et beau sur tous les smartphones",
+                "Un service plus rapide pour une meilleure expérience globale",
               ].map((b) => (
                 <div key={b} className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center shrink-0 mt-0.5">
@@ -397,9 +433,9 @@ function BenefitsSection() {
 
 function PricingTeaser() {
   const plans = [
-    { name: "Starter", price: "$29", period: "/month", tables: "10 tables", items: "50 menu items", staff: "2 staff users", featured: false },
-    { name: "Growth", price: "$69", period: "/month", tables: "30 tables", items: "150 menu items", staff: "5 staff users", featured: true },
-    { name: "Professional", price: "$149", period: "/month", tables: "100 tables", items: "500 menu items", staff: "20 staff users", featured: false },
+    { name: "Starter", price: "2 900 DA", period: "/mois", tables: "10 tables", items: "50 articles menu", staff: "2 comptes personnel", featured: false },
+    { name: "Croissance", price: "6 900 DA", period: "/mois", tables: "30 tables", items: "150 articles menu", staff: "5 comptes personnel", featured: true },
+    { name: "Pro", price: "14 900 DA", period: "/mois", tables: "100 tables", items: "500 articles menu", staff: "20 comptes personnel", featured: false },
   ];
 
   return (
@@ -407,18 +443,18 @@ function PricingTeaser() {
       <div className="max-w-5xl mx-auto px-5">
         <div className="text-center mb-14">
           <div className="inline-flex items-center gap-2 bg-orange-500/20 text-orange-400 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
-            Simple pricing
+            Tarification simple
           </div>
-          <h2 className="text-4xl font-black text-white mb-4">Pay for what you use</h2>
-          <p className="text-gray-400 text-xl">Start with a 14-day free trial. No credit card required.</p>
+          <h2 className="text-4xl font-black text-white mb-4">Payez selon votre usage</h2>
+          <p className="text-gray-400 text-xl">Commencez avec 14 jours d&apos;essai gratuit. Sans carte bancaire.</p>
         </div>
         <div className="grid md:grid-cols-3 gap-6 mb-10">
           {plans.map((p) => (
             <div key={p.name} className={`rounded-2xl p-7 relative ${p.featured ? "bg-orange-500 shadow-2xl shadow-orange-500/30 scale-105" : "bg-white/5 border border-white/10"}`}>
-              {p.featured && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-400 text-amber-900 text-xs font-black px-3 py-1 rounded-full">Most Popular</div>}
+              {p.featured && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-400 text-amber-900 text-xs font-black px-3 py-1 rounded-full">Le plus populaire</div>}
               <p className={`text-sm font-semibold mb-2 ${p.featured ? "text-orange-100" : "text-gray-400"}`}>{p.name}</p>
               <div className="flex items-end gap-1 mb-6">
-                <span className={`text-4xl font-black ${p.featured ? "text-white" : "text-white"}`}>{p.price}</span>
+                <span className="text-3xl font-black text-white">{p.price}</span>
                 <span className={`text-sm mb-1 ${p.featured ? "text-orange-200" : "text-gray-500"}`}>{p.period}</span>
               </div>
               <div className={`space-y-2.5 mb-7 text-sm ${p.featured ? "text-orange-100" : "text-gray-400"}`}>
@@ -430,14 +466,14 @@ function PricingTeaser() {
                 ))}
               </div>
               <Link href="/signup" className={`block text-center py-3 rounded-xl font-bold text-sm transition-all ${p.featured ? "bg-white text-orange-600 hover:bg-orange-50" : "bg-white/10 text-white hover:bg-white/20"}`}>
-                Start Free Trial
+                Commencer l&apos;essai gratuit
               </Link>
             </div>
           ))}
         </div>
         <div className="text-center">
           <Link href="/pricing" className="inline-flex items-center gap-2 text-orange-400 hover:text-orange-300 font-semibold transition-colors">
-            See full pricing details <ArrowRight className="w-4 h-4" />
+            Voir les tarifs complets <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>
@@ -447,9 +483,9 @@ function PricingTeaser() {
 
 function TestimonialsSection() {
   const testimonials = [
-    { name: "Sarah K.", role: "Owner, The Corner Café", text: "We cut our order errors by 80% and tables turn over 30% faster. Our customers love scanning the QR.", stars: 5 },
-    { name: "Mohammed A.", role: "Manager, Spice Garden Restaurant", text: "Setup was incredibly easy. Within one afternoon, all our tables had QR codes and we were live.", stars: 5 },
-    { name: "Lena V.", role: "Owner, Bistro Verde", text: "The live dashboard keeps everything under control during rush hours. It's like having an extra staff member.", stars: 5 },
+    { name: "Karim B.", role: "Propriétaire, Café Atlas, Alger", text: "Nous avons réduit nos erreurs de commande de 80% et nos tables tournent 30% plus vite. Nos clients adorent scanner le QR.", stars: 5 },
+    { name: "Fatima Z.", role: "Gérante, Restaurant Baya, Oran", text: "La mise en place a été incroyablement facile. En une après-midi, toutes nos tables avaient des QR codes et nous étions en ligne.", stars: 5 },
+    { name: "Mohamed A.", role: "Propriétaire, Pizzeria Le Gourmet, Constantine", text: "Le tableau de bord en direct garde tout sous contrôle pendant les heures de pointe. C'est comme avoir un membre du personnel en plus.", stars: 5 },
   ];
 
   return (
@@ -457,9 +493,9 @@ function TestimonialsSection() {
       <div className="max-w-5xl mx-auto px-5">
         <div className="text-center mb-14">
           <div className="inline-flex items-center gap-2 bg-amber-50 text-amber-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
-            <Star className="w-3 h-3 fill-amber-500" /> Loved by restaurant owners
+            <Star className="w-3 h-3 fill-amber-500" /> Approuvé par les restaurateurs
           </div>
-          <h2 className="text-4xl font-black text-gray-900 mb-4">Real results, real restaurants</h2>
+          <h2 className="text-4xl font-black text-gray-900 mb-4">De vrais résultats, de vrais restaurants</h2>
         </div>
         <div className="grid md:grid-cols-3 gap-6">
           {testimonials.map((t) => (
@@ -469,7 +505,7 @@ function TestimonialsSection() {
                   <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
                 ))}
               </div>
-              <p className="text-gray-700 leading-relaxed mb-6 text-sm">"{t.text}"</p>
+              <p className="text-gray-700 leading-relaxed mb-6 text-sm">&ldquo;{t.text}&rdquo;</p>
               <div>
                 <p className="font-bold text-gray-900 text-sm">{t.name}</p>
                 <p className="text-xs text-gray-500">{t.role}</p>
@@ -484,16 +520,16 @@ function TestimonialsSection() {
 
 function FaqTeaser() {
   const faqs = [
-    { q: "Do my customers need to download an app?", a: "No. Customers scan the QR code and the menu opens directly in their browser. Zero friction, zero downloads." },
-    { q: "How long does setup take?", a: "Most restaurants are fully live within 15-30 minutes. You can add your menu, set up tables, and print QR codes the same day." },
-    { q: "Can I try it before paying?", a: "Yes. Every plan starts with a 14-day free trial. No credit card required to get started." },
+    { q: "Mes clients doivent-ils télécharger une application ?", a: "Non. Les clients scannent le QR code et le menu s'ouvre directement dans leur navigateur. Zéro friction, zéro téléchargement." },
+    { q: "Combien de temps prend la mise en place ?", a: "La plupart des restaurants sont opérationnels en 15 à 30 minutes. Menu, tables et QR codes configurés le même jour." },
+    { q: "Puis-je essayer avant de payer ?", a: "Oui. Chaque plan commence avec 14 jours d'essai gratuit. Aucune carte bancaire requise pour démarrer." },
   ];
 
   return (
     <section className="py-24 bg-gray-50">
       <div className="max-w-3xl mx-auto px-5">
         <div className="text-center mb-14">
-          <h2 className="text-4xl font-black text-gray-900 mb-4">Common questions</h2>
+          <h2 className="text-4xl font-black text-gray-900 mb-4">Questions fréquentes</h2>
         </div>
         <div className="space-y-4">
           {faqs.map((f) => (
@@ -505,7 +541,7 @@ function FaqTeaser() {
         </div>
         <div className="text-center mt-10">
           <Link href="/faq" className="inline-flex items-center gap-2 text-orange-600 font-semibold hover:text-orange-700 transition-colors">
-            View all FAQs <ArrowRight className="w-4 h-4" />
+            Voir toutes les questions <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>
@@ -521,21 +557,21 @@ function CtaBanner() {
           <QrCode className="w-8 h-8 text-white" />
         </div>
         <h2 className="text-4xl lg:text-5xl font-black text-white mb-5">
-          Ready to modernize your restaurant?
+          Prêt à moderniser votre restaurant ?
         </h2>
         <p className="text-xl text-orange-100 mb-10 max-w-xl mx-auto leading-relaxed">
-          Join hundreds of restaurants already using QRMenu to serve faster, earn more, and delight their customers.
+          Rejoignez des centaines de restaurants qui utilisent déjà QRMenu pour servir plus vite, gagner plus et fidéliser leurs clients.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link href="/signup" className="inline-flex items-center justify-center gap-2 bg-white text-orange-600 font-bold px-10 py-4 rounded-2xl text-lg hover:bg-orange-50 transition-all shadow-xl">
-            Start Free Trial — 14 Days
+            Démarrer l&apos;essai gratuit — 14 jours
             <ArrowRight className="w-5 h-5" />
           </Link>
           <Link href="/contact" className="inline-flex items-center justify-center gap-2 bg-white/20 backdrop-blur-sm text-white font-semibold px-8 py-4 rounded-2xl text-lg hover:bg-white/30 transition-all border border-white/30">
-            Request a Demo
+            Demander une démo
           </Link>
         </div>
-        <p className="text-orange-200 text-sm mt-6">No credit card required · Cancel anytime · Setup in minutes</p>
+        <p className="text-orange-200 text-sm mt-6">Sans carte bancaire · Résiliable à tout moment · Mise en place en quelques minutes</p>
       </div>
     </section>
   );

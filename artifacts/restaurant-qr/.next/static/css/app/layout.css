@@ -3461,6 +3461,13 @@
       }
     }
   }
+  .group-hover\:bg-orange-100 {
+    &:is(:where(.group):hover *) {
+      @media (hover: hover) {
+        background-color: var(--color-orange-100);
+      }
+    }
+  }
   .group-hover\:text-orange-600 {
     &:is(:where(.group):hover *) {
       @media (hover: hover) {
@@ -4973,6 +4980,11 @@
   .sm\:grid-cols-3 {
     @media (width >= 40rem) {
       grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  .sm\:grid-cols-6 {
+    @media (width >= 40rem) {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
     }
   }
   .sm\:flex-col {
