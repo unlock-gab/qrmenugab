@@ -1,0 +1,449 @@
+Continue the same project and implement **Phase 3** for the multi-restaurant QR ordering web app.
+
+Important: this app started in Replit, but it is intentionally being built so it can later be migrated to a **VPS using Dokploy and Docker**.
+Keep all implementation **portable, production-minded, and Docker-friendly**.
+Do not introduce Replit-locked architecture.
+Do not break the existing Phase 1 and Phase 2 foundations.
+
+This phase is about turning the product from a strong MVP into a real **multi-tenant SaaS platform** with merchant onboarding, subscription-ready architecture, platform admin management, and white-label-ready structure.
+
+---
+
+## Phase 3 objective
+
+Upgrade the system into a real SaaS foundation by adding:
+
+* platform admin panel
+* multi-merchant management
+* subscription-ready architecture
+* merchant onboarding flow
+* merchant account creation flow
+* restaurant activation and status control
+* white-label-ready branding structure
+* stronger role system foundation
+* SaaS management features without overbuilding
+
+Do not turn it into a huge enterprise system yet.
+Build the correct SaaS foundation cleanly and safely.
+
+---
+
+## Protect existing architecture
+
+Preserve and protect:
+
+* public QR ordering flow
+* merchant dashboard
+* restaurant ownership model
+* table management
+* category management
+* menu item management
+* cart and order creation
+* merchant order operations
+* restaurant settings
+* QR generation logic
+* multi-tenant data isolation
+
+Do not rebuild from scratch.
+Refactor only when needed to support SaaS structure properly.
+
+---
+
+## Main Phase 3 modules
+
+### 1. Platform admin panel
+
+Create a true platform-level admin area separated from the merchant dashboard.
+
+Admin panel must allow the platform owner to:
+
+* view all restaurants
+* create restaurant accounts
+* edit restaurant basic information
+* activate/deactivate restaurants
+* suspend restaurants if needed
+* view subscription status
+* view merchant account info
+* access platform metrics overview
+
+Important:
+
+* keep platform admin clearly separated from merchant space
+* do not allow merchants to access admin routes
+* admin routes must be protected by role
+* admin UI should feel premium, clean, and operational
+
+Suggested admin sections:
+
+* dashboard
+* restaurants
+* merchants/users
+* subscriptions
+* plans
+* platform settings
+
+---
+
+### 2. Better role system foundation
+
+Upgrade the auth and role structure to support:
+
+* PLATFORM_ADMIN
+* MERCHANT_OWNER
+* MERCHANT_STAFF
+
+You do not need to implement a fully complex permission matrix yet.
+But structure the app cleanly so route protection and future role expansion are easy.
+
+Requirements:
+
+* platform admin can manage all restaurants
+* merchant owner manages only their own restaurant
+* merchant staff is scoped to one restaurant and has limited operational access
+* route guards and server-side checks must be properly scoped
+
+Do not scatter permission logic randomly in components.
+
+---
+
+### 3. Merchant onboarding flow
+
+Add a clean merchant onboarding flow for new restaurant accounts.
+
+Goal:
+a new restaurant/business can be created with the essential setup needed to start using the system.
+
+Suggested onboarding steps:
+
+* restaurant basic info
+* create owner account
+* create first tables
+* create first categories
+* create first menu items
+* ready state for launch
+
+This onboarding does not need to be extremely long or fancy.
+But it should feel guided, clear, and useful.
+
+Possible implementations:
+
+* platform admin creates merchant and restaurant, then merchant completes onboarding
+  or
+* merchant self-signup exists in a controlled form and awaits activation
+
+Choose the cleaner structure that fits the existing project best.
+
+---
+
+### 4. Restaurant lifecycle and status management
+
+Expand restaurant status logic so the platform admin can control account state.
+
+Suggested statuses:
+
+* ACTIVE
+* INACTIVE
+* SUSPENDED
+* PENDING_SETUP
+
+Requirements:
+
+* admin can change restaurant status
+* inactive or suspended restaurants should not operate normally
+* public QR ordering route must respect restaurant status
+* merchant dashboard access must respect restaurant status
+* handle blocked states gracefully with proper UI messaging
+
+Do not create confusing behavior.
+Make status handling consistent across the platform.
+
+---
+
+### 5. Subscription-ready architecture
+
+Do not necessarily build a full payment billing system yet.
+But create the correct SaaS subscription foundation.
+
+Add subscription-ready models and admin tools for:
+
+* plan definitions
+* restaurant subscription assignment
+* subscription status
+* start date
+* end date
+* trial option if useful
+
+Suggested plan capabilities:
+
+* number of tables
+* number of menu items
+* number of staff accounts
+* advanced features flag structure for future use
+
+The system should be designed so future payment integration can be added later without a painful rebuild.
+
+Admin should be able to:
+
+* create plans
+* edit plans
+* assign plans to restaurants
+* manually activate or expire subscriptions
+
+Merchant side can have a simple read-only plan overview page if useful.
+
+---
+
+### 6. Merchant self-management basics
+
+Within merchant space, improve account management foundation.
+
+Merchant owner should be able to:
+
+* view restaurant plan/status
+* manage basic restaurant profile
+* manage staff accounts in a simple way
+
+For this phase, implement a practical first version of staff management:
+
+* create staff user
+* list staff
+* deactivate staff if needed
+* assign basic role like MERCHANT_STAFF
+
+Do not overbuild staff permissions yet.
+Just create a clean base.
+
+---
+
+### 7. White-label-ready branding structure
+
+Prepare the system for future white-label or per-restaurant branding.
+
+At minimum, structure the restaurant model and public customer UI to support:
+
+* restaurant logo
+* primary accent color
+* optional secondary color
+* brand-friendly public menu appearance
+
+You do not need to build a huge theme engine.
+But build the data structure and component approach so each restaurant can later have more custom branding.
+
+Customer menu pages should already be able to reflect restaurant branding in a clean and safe way.
+
+---
+
+### 8. Platform metrics overview
+
+Build a useful but lightweight admin dashboard homepage.
+
+Possible summary cards:
+
+* total restaurants
+* active restaurants
+* pending setup restaurants
+* suspended restaurants
+* total orders today
+* total menu items across platform
+* total active tables
+* total merchant users
+
+If useful, include:
+
+* recent restaurant signups
+* recent orders across platform
+* recent subscription changes
+
+Keep it practical.
+Do not build heavy analytics in this phase.
+
+---
+
+### 9. Public route SaaS hardening
+
+Now that the app is a multi-tenant SaaS, review and harden public routing and scoping.
+
+Requirements:
+
+* QR routes must resolve cleanly and safely
+* restaurant lookup must be reliable
+* invalid or inactive restaurant states must be handled cleanly
+* invalid table tokens must show proper UI
+* no cross-restaurant data leakage
+* all public menu/order operations must remain scoped correctly
+
+This is critical.
+
+---
+
+### 10. Merchant dashboard SaaS hardening
+
+Review merchant dashboard architecture and ensure:
+
+* queries are always restaurant-scoped
+* staff can only access their assigned restaurant
+* merchant owner workflows remain smooth
+* onboarding incomplete states are handled cleanly
+* future feature flags can be added later
+
+Clean up anything weak from earlier phases if needed, but preserve working logic.
+
+---
+
+## Database and schema evolution
+
+Extend the Prisma schema carefully for SaaS support.
+
+Likely additions:
+
+### User
+
+* role enum expansion
+* isActive or account status if needed
+
+### Restaurant
+
+* status enum
+* onboardingCompleted
+* branding fields such as primaryColor, secondaryColor
+* owner relation cleanup if needed
+
+### SubscriptionPlan
+
+* id
+* name
+* description
+* price display fields if useful
+* maxTables
+* maxMenuItems
+* maxStaffUsers
+* feature flags or booleans for future capability control
+* createdAt
+* updatedAt
+
+### RestaurantSubscription
+
+* id
+* restaurantId
+* planId
+* status
+* startDate
+* endDate
+* trialEndsAt if useful
+* createdAt
+* updatedAt
+
+Add only what directly supports this phase.
+Avoid bloated schema design.
+Keep relations clean and extensible.
+
+Use enums where appropriate for:
+
+* user roles
+* restaurant status
+* subscription status
+
+---
+
+## SaaS limits foundation
+
+Implement a basic usage-limits architecture tied to subscription plans.
+
+For this phase, enforce only simple limits where practical:
+
+* max tables
+* max menu items
+* max staff accounts
+
+When a merchant hits a limit:
+
+* show a clean message
+* do not crash or fail silently
+* make it obvious that plan limits are involved
+
+Keep the enforcement logic clean and centralized where possible.
+
+---
+
+## UI/UX direction
+
+### Platform admin UI
+
+Should feel like:
+
+* modern SaaS control center
+* clean sidebar navigation
+* premium cards
+* practical data tables
+* strong visual hierarchy
+* fast management flows
+
+### Merchant onboarding UI
+
+Should feel:
+
+* guided
+* lightweight
+* easy to complete
+* not intimidating
+
+### Merchant account/plan UI
+
+Should feel:
+
+* simple
+* trustworthy
+* professional
+
+### White-label public UI
+
+Should allow restaurant branding to be reflected elegantly without damaging usability.
+
+Do not make the interface messy or generic.
+Keep it premium and scalable.
+
+---
+
+## Validation, safety, and maintainability
+
+* keep all core business logic maintainable
+* use TypeScript properly
+* validate admin inputs and merchant onboarding inputs
+* keep access control server-safe
+* do not rely only on client-side route hiding
+* avoid permission leaks
+* preserve Docker portability
+* keep environment variable handling standard
+* avoid unnecessary package bloat
+
+---
+
+## Deliverables for this phase
+
+Implement Phase 3 with:
+
+1. platform admin panel
+2. role-based route protection foundation
+3. merchant onboarding flow
+4. restaurant status lifecycle management
+5. subscription-ready models and admin tools
+6. basic staff management for merchants
+7. white-label-ready branding structure
+8. platform metrics dashboard
+9. SaaS-safe hardening of public and merchant routes
+10. usage limit foundation based on plans
+11. maintainable schema updates and code organization
+
+---
+
+## Important implementation rules
+
+* do not break previous phases
+* do not add payment gateway integration yet unless the current architecture needs placeholders only
+* do not build a huge enterprise RBAC system yet
+* do not overbuild reporting
+* do not add multi-branch architecture yet unless structuring lightly for future support
+* prioritize a clean SaaS core
+* build like this product will be sold to real restaurants and expanded later
+
+Now implement Phase 3 accordingly, evolving the app into a serious SaaS-ready multi-tenant platform while preserving everything already built.

@@ -1,0 +1,387 @@
+Continue the same project and implement **Phase 2** for the multi-restaurant QR ordering web app.
+
+Important: this project was started in Replit, but it is intentionally being built so it can later be migrated to a **VPS with Dokploy and Docker**.
+So keep all implementation **portable, production-minded, and Docker-friendly**.
+Do not introduce Replit-locked architecture.
+Do not break existing Phase 1 structure, routes, auth, database relationships, or public QR ordering flow.
+
+## Phase 2 objective
+
+Upgrade the MVP into a much stronger merchant operations system by adding:
+
+* live order experience
+* merchant-side sound notification for new orders
+* better order workflow/status management
+* improved merchant dashboard
+* better order organization
+* basic restaurant settings
+* QR generation output for tables
+* stronger UX on both customer and merchant sides
+
+This phase should improve the product significantly without turning it into an overly complex enterprise system yet.
+
+---
+
+## Keep and protect what already exists
+
+Do not rebuild the app from scratch.
+Do not change core architecture unless truly necessary.
+Preserve:
+
+* authentication
+* restaurant ownership model
+* table-to-QR routing logic
+* categories
+* menu items
+* cart flow
+* order creation logic
+* merchant order page base
+* Prisma relations
+
+Refactor only if necessary to make the system cleaner and more extensible.
+
+---
+
+## Main Phase 2 modules
+
+### 1. Live orders experience
+
+Upgrade the merchant order handling flow so new orders appear much more dynamically.
+
+Preferred direction:
+
+* implement a clean architecture that supports **live updates**
+* if appropriate, use a lightweight real-time approach compatible with the existing stack
+* if full sockets are too invasive, implement a structured polling approach that feels live and is easy to replace later with WebSockets or Socket.IO
+* do not create a messy hacky solution
+
+Merchant should not need to refresh manually to see new incoming orders.
+
+New orders should visibly appear in the orders interface.
+
+---
+
+### 2. Sound notification for new orders
+
+When a new order arrives for a restaurant:
+
+* merchant dashboard should trigger a clear sound notification
+* notification should happen only for genuinely new orders
+* avoid replaying the sound repeatedly for already seen orders
+* structure it in a clean way so future notification preferences can be added later
+
+Also add a simple merchant setting for:
+
+* sound notifications enabled/disabled
+
+Do not make it overcomplicated, but make it feel real and useful.
+
+---
+
+### 3. Better order workflow
+
+Improve the merchant orders management experience.
+
+Add a clear workflow with statuses:
+
+* NEW
+* PREPARING
+* READY
+* SERVED
+* PAID
+* CANCELLED
+
+Requirements:
+
+* status changes must be fast and easy from the dashboard
+* order cards or rows must clearly show status
+* use visual distinctions between statuses
+* merchant should be able to filter orders by status
+* merchant should be able to quickly move an order forward in the workflow
+* merchant should be able to open full order details
+
+Make the order management feel operational and practical for a real café or restaurant.
+
+---
+
+### 4. Merchant orders UI redesign
+
+Redesign the orders page to look like a serious restaurant operations dashboard.
+
+Requirements:
+
+* clean modern layout
+* desktop-friendly and tablet-friendly
+* clear separation between new / active / completed orders
+* easy-to-scan order cards or list
+* visible order number
+* visible table number
+* visible items summary
+* visible order time
+* visible total
+* visible notes if present
+* fast status actions
+
+Optional but useful:
+
+* tabs, filters, or grouped sections
+* unread/new highlight
+* subtle animation when a new order appears
+
+Do not make it cluttered.
+Do not make it generic.
+Make it feel premium and efficient.
+
+---
+
+### 5. Merchant dashboard homepage improvement
+
+Build a better merchant dashboard home page.
+
+Add useful summary cards such as:
+
+* new orders count
+* preparing orders count
+* ready orders count
+* served or paid orders today
+* today’s revenue
+* total tables
+* total menu items
+
+If charts are added, keep them simple and useful.
+Do not overbuild analytics in this phase.
+
+Also add a recent orders section if it improves UX.
+
+---
+
+### 6. Restaurant settings page
+
+Add a merchant settings area where the restaurant can manage core information.
+
+Fields:
+
+* restaurant name
+* logo URL or image field structure
+* phone
+* address
+* slug if safe to edit
+* currency
+* notification sound enabled/disabled
+
+Optional if easy:
+
+* short description
+* opening hours text
+
+This page should be clean and usable.
+Validate properly.
+Do not break existing restaurant references.
+
+---
+
+### 7. QR generation output for tables
+
+In Phase 1, tables had tokens and QR-ready structure.
+Now implement actual QR generation output for each table.
+
+Requirements:
+
+* each table should have a scannable QR code representation
+* merchant should be able to view the QR code in dashboard
+* merchant should be able to download or print the QR code
+* the QR should point to the correct public customer menu route for that restaurant and table
+
+Design a practical table management page where each table card or row includes:
+
+* table number
+* active/inactive status
+* QR preview
+* print/download action
+
+Do this in a portable way.
+Do not tie QR generation to a Replit-only feature.
+
+---
+
+### 8. Customer ordering UX improvement
+
+Improve the public customer menu and ordering experience without changing the core concept.
+
+Enhance:
+
+* category navigation
+* cart interaction
+* quantity controls
+* item cards
+* checkout clarity
+* order confirmation screen
+
+Possible improvements:
+
+* sticky cart bar
+* better mobile spacing
+* clearer unavailable item state
+* better product image layout
+* clearer note handling
+* better empty cart state
+* better success screen after order submission
+
+Keep it very mobile-first and frictionless.
+
+---
+
+### 9. Better order detail model and UX
+
+Improve order detail handling for merchant side.
+
+Merchant should be able to open an order and clearly see:
+
+* order number
+* table number
+* created time
+* status
+* full line items
+* quantity per item
+* unit price
+* line total
+* notes
+* subtotal / total
+
+If the current Phase 1 data model needs a small extension for cleaner details, do it carefully without breaking existing logic.
+
+Keep database changes minimal and justified.
+
+---
+
+### 10. Seen/unseen order behavior
+
+Implement a lightweight but useful “new order awareness” logic.
+
+Examples of acceptable direction:
+
+* orders can be marked as seen when merchant opens or acknowledges them
+* or local merchant-side tracking for notification handling if appropriate
+* or a DB-backed flag if clean and useful
+
+Goal:
+
+* visually distinguish truly new orders
+* avoid repeated sound spam
+* support a better merchant workflow
+
+Do not overengineer.
+But do make it practical and clean.
+
+---
+
+## Database and schema updates
+
+Review the existing Prisma schema and extend it only where necessary.
+
+Possible additions if useful:
+
+* Restaurant.currency
+* Restaurant.notificationSoundEnabled
+* Order.seenAt or isSeen
+* extra timestamps if needed
+* fields needed for QR handling if missing
+
+Be disciplined:
+
+* only add fields that directly support Phase 2
+* do not create bloated schema
+* preserve multi-tenant safety
+
+Run any necessary migrations cleanly.
+
+---
+
+## Multi-tenant safety
+
+This remains critical.
+
+Ensure:
+
+* merchants only receive notifications and orders for their own restaurant
+* settings affect only their own restaurant
+* QR codes route only to their own restaurant tables
+* filters and dashboard metrics are scoped to the authenticated merchant’s restaurant
+
+Do not introduce cross-tenant leaks.
+
+---
+
+## UI/UX direction
+
+Make this phase feel much more premium.
+
+### Merchant side
+
+Think:
+
+* modern restaurant control panel
+* clean hierarchy
+* fast scanning of incoming orders
+* practical actions
+* readable statuses
+* lightweight but polished design
+* subtle premium animation only where useful
+
+### Customer side
+
+Think:
+
+* fast mobile menu
+* modern food ordering feel
+* simple and confident checkout
+* clear pricing and order summary
+
+Use Tailwind and shadcn/ui cleanly.
+Keep components reusable.
+Improve visual polish without turning the app into a slow, bloated interface.
+
+---
+
+## Performance and implementation expectations
+
+* keep the solution clean and maintainable
+* use TypeScript properly
+* avoid fragile client-only hacks for important business logic
+* keep server/data logic well organized
+* preserve Docker portability
+* keep environment variable handling clean
+* avoid unnecessary package bloat
+* do not introduce messy state management unless clearly needed
+
+---
+
+## Deliverables for this phase
+
+Implement the Phase 2 upgrade with:
+
+1. improved merchant dashboard homepage
+2. redesigned merchant orders page
+3. live or near-live order refresh behavior
+4. sound notification for new orders
+5. restaurant settings page
+6. QR generation and print/download flow for tables
+7. better customer ordering UX
+8. better order detail UI
+9. seen/unseen or acknowledge-new-order logic
+10. clean schema updates if needed
+11. maintainable code that fits the existing architecture
+
+---
+
+## Important build rules
+
+* do not break Phase 1 foundations
+* do not add payment yet
+* do not add full analytics suite yet
+* do not add super admin expansion yet
+* do not add kitchen display system yet unless already naturally supported
+* do not overengineer real-time infrastructure if a simpler clean solution is better for now
+* build something practical, premium, and directly useful for real restaurant owners
+
+Now implement Phase 2 accordingly, preserving the existing project while upgrading it into a stronger real-world merchant operations product.

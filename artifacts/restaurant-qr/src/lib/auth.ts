@@ -7,7 +7,7 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET || process.env.SESSION_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || process.env.SESSION_SECRET || "dev-local-secret-set-nextauth-secret-in-production",
   pages: {
     signIn: "/login",
     error: "/login",
