@@ -52,44 +52,49 @@ model User {
 }
 
 model Restaurant {
-  id                   String                @id @default(cuid())
-  name                 String
-  slug                 String                @unique
-  description          String?
-  phone                String?
-  address              String?
-  logoUrl              String?
-  currency             String                @default("USD")
-  soundEnabled         Boolean               @default(true)
-  status               RestaurantStatus      @default(PENDING_SETUP)
-  onboardingCompleted  Boolean               @default(false)
-  primaryColor         String?
-  secondaryColor       String?
-  users                User[]
-  tables               Table[]
-  categories           Category[]
-  menuItems            MenuItem[]
-  orders               Order[]
-  subscription         RestaurantSubscription?
-  createdAt            DateTime              @default(now())
-  updatedAt            DateTime              @updatedAt
+  id                  String                  @id @default(cuid())
+  name                String
+  slug                String                  @unique
+  description         String?
+  phone               String?
+  address             String?
+  logoUrl             String?
+  currency            String                  @default("USD")
+  soundEnabled        Boolean                 @default(true)
+  status              RestaurantStatus        @default(PENDING_SETUP)
+  onboardingCompleted Boolean                 @default(false)
+  primaryColor        String?
+  secondaryColor      String?
+  users               User[]
+  tables              Table[]
+  categories          Category[]
+  menuItems           MenuItem[]
+  orders              Order[]
+  subscription        RestaurantSubscription?
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
 
   @@map("restaurants")
 }
 
 model SubscriptionPlan {
-  id              String                  @id @default(cuid())
+  id              String                   @id @default(cuid())
   name            String
   description     String?
-  price           Decimal?                @db.Decimal(10, 2)
-  maxTables       Int                     @default(10)
-  maxMenuItems    Int                     @default(50)
-  maxStaffUsers   Int                     @default(3)
+  price           Decimal?                 @db.Decimal(10, 2)
+  displayPrice    String?
+  billingInterval String                   @default("month")
+  maxTables       Int                      @default(10)
+  maxMenuItems    Int                      @default(50)
+  maxStaffUsers   Int                      @default(3)
   featuresJson    String?
-  isActive        Boolean                 @default(true)
+  isActive        Boolean                  @default(true)
+  isPublic        Boolean                  @default(true)
+  isFeatured      Boolean                  @default(false)
+  sortOrder       Int                      @default(0)
   subscriptions   RestaurantSubscription[]
-  createdAt       DateTime                @default(now())
-  updatedAt       DateTime                @updatedAt
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
 
   @@map("subscription_plans")
 }
@@ -108,6 +113,21 @@ model RestaurantSubscription {
   updatedAt    DateTime           @updatedAt
 
   @@map("restaurant_subscriptions")
+}
+
+model Lead {
+  id             String   @id @default(cuid())
+  name           String
+  restaurantName String?
+  email          String
+  phone          String?
+  city           String?
+  message        String?
+  source         String   @default("contact_form")
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  @@map("leads")
 }
 
 model Table {

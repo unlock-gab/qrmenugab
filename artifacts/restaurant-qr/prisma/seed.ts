@@ -11,46 +11,61 @@ async function main() {
 
   const starterPlan = await prisma.subscriptionPlan.upsert({
     where: { id: "plan_starter" },
-    update: {},
+    update: { isPublic: true, isFeatured: false, sortOrder: 1, displayPrice: "$29", billingInterval: "month" },
     create: {
       id: "plan_starter",
       name: "Starter",
-      description: "Perfect for small restaurants",
+      description: "Perfect for small restaurants and cafés",
       price: 29,
+      displayPrice: "$29",
+      billingInterval: "month",
       maxTables: 10,
       maxMenuItems: 50,
       maxStaffUsers: 2,
       isActive: true,
+      isPublic: true,
+      isFeatured: false,
+      sortOrder: 1,
     },
   });
 
   await prisma.subscriptionPlan.upsert({
     where: { id: "plan_growth" },
-    update: {},
+    update: { isPublic: true, isFeatured: true, sortOrder: 2, displayPrice: "$69", billingInterval: "month" },
     create: {
       id: "plan_growth",
       name: "Growth",
       description: "For growing restaurants with more needs",
       price: 69,
+      displayPrice: "$69",
+      billingInterval: "month",
       maxTables: 30,
       maxMenuItems: 150,
       maxStaffUsers: 5,
       isActive: true,
+      isPublic: true,
+      isFeatured: true,
+      sortOrder: 2,
     },
   });
 
   await prisma.subscriptionPlan.upsert({
     where: { id: "plan_pro" },
-    update: {},
+    update: { isPublic: true, isFeatured: false, sortOrder: 3, displayPrice: "$149", billingInterval: "month" },
     create: {
       id: "plan_pro",
       name: "Professional",
       description: "Full features for established restaurants",
       price: 149,
+      displayPrice: "$149",
+      billingInterval: "month",
       maxTables: 100,
       maxMenuItems: 500,
       maxStaffUsers: 20,
       isActive: true,
+      isPublic: true,
+      isFeatured: false,
+      sortOrder: 3,
     },
   });
 

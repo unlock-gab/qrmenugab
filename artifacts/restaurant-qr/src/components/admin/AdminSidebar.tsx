@@ -6,10 +6,12 @@ import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/admin/dashboard", label: "Dashboard", icon: "◉" },
-  { href: "/admin/restaurants", label: "Restaurants", icon: "🏪" },
-  { href: "/admin/users", label: "Users", icon: "👥" },
-  { href: "/admin/plans", label: "Plans", icon: "📦" },
+  { href: "/admin/dashboard", label: "Dashboard", icon: "◉", group: "Overview" },
+  { href: "/admin/restaurants", label: "Restaurants", icon: "🏪", group: "Overview" },
+  { href: "/admin/subscriptions", label: "Subscriptions", icon: "💳", group: "Commerce" },
+  { href: "/admin/leads", label: "Leads", icon: "📩", group: "Commerce" },
+  { href: "/admin/users", label: "Users", icon: "👥", group: "Commerce" },
+  { href: "/admin/plans", label: "Plans", icon: "📦", group: "Commerce" },
 ];
 
 type User = {
@@ -34,32 +36,56 @@ export function AdminSidebar({ user }: { user: User }) {
         </div>
       </div>
 
-      <div className="px-4 py-3 border-b border-slate-800/30">
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Management</p>
-      </div>
-
-      <nav className="flex-1 p-3 space-y-0.5">
-        {navItems.map((item) => {
-          const isActive =
-            item.href === "/admin/dashboard"
-              ? pathname === "/admin/dashboard"
-              : pathname.startsWith(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
-                isActive
-                  ? "bg-indigo-500/15 text-indigo-400 font-semibold border border-indigo-500/20"
-                  : "text-slate-500 hover:text-slate-200 hover:bg-slate-800/60"
-              )}
-            >
-              <span className="text-base w-5 text-center shrink-0">{item.icon}</span>
-              {item.label}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 p-3 overflow-y-auto">
+        <div className="px-3 py-2 mb-1">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Overview</p>
+        </div>
+        <div className="space-y-0.5 mb-4">
+          {navItems.filter((i) => i.group === "Overview").map((item) => {
+            const isActive =
+              item.href === "/admin/dashboard"
+                ? pathname === "/admin/dashboard"
+                : pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                  isActive
+                    ? "bg-indigo-500/15 text-indigo-400 font-semibold border border-indigo-500/20"
+                    : "text-slate-500 hover:text-slate-200 hover:bg-slate-800/60"
+                )}
+              >
+                <span className="text-base w-5 text-center shrink-0">{item.icon}</span>
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
+        <div className="px-3 py-2 mb-1">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">Commerce</p>
+        </div>
+        <div className="space-y-0.5">
+          {navItems.filter((i) => i.group === "Commerce").map((item) => {
+            const isActive = pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all",
+                  isActive
+                    ? "bg-indigo-500/15 text-indigo-400 font-semibold border border-indigo-500/20"
+                    : "text-slate-500 hover:text-slate-200 hover:bg-slate-800/60"
+                )}
+              >
+                <span className="text-base w-5 text-center shrink-0">{item.icon}</span>
+                {item.label}
+              </Link>
+            );
+          })}
+        </div>
       </nav>
 
       <div className="p-3 border-t border-slate-800/50">
