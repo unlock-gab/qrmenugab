@@ -2,25 +2,40 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { prisma } from "@/lib/prisma";
 import {
   QrCode, ChefHat, Zap, BarChart3, Smartphone, Users,
   Star, Check, ArrowRight, Wifi, Bell, Settings
 } from "lucide-react";
 
-export const metadata = { title: "QRMenu — Smart QR Ordering for Restaurants" };
+export const metadata = { title: "QRMenu — Commande QR pour Restaurants en Algérie" };
 
 export default async function HomePage() {
   const session = await getServerSession(authOptions);
   if (session) {
     const role = (session.user as any).role;
     if (role === "PLATFORM_ADMIN") redirect("/admin/dashboard");
-    else redirect("/dashboard");
+    else redirect("/merchant/dashboard");
   }
+
+  const featuredRestaurants = await prisma.restaurant.findMany({
+    where: { status: "ACTIVE", isPublic: true },
+    select: {
+      id: true, name: true, slug: true, logoUrl: true,
+      coverImageUrl: true, publicDescription: true,
+      city: true, restaurantType: true, isFeatured: true,
+    },
+    orderBy: [{ isFeatured: "desc" }, { name: "asc" }],
+    take: 6,
+  });
 
   return (
     <div className="overflow-hidden">
       <HeroSection />
       <TrustBar />
+      {featuredRestaurants.length > 0 && (
+        <FeaturedRestaurantsSection restaurants={featuredRestaurants} />
+      )}
       <FeaturesSection />
       <HowItWorksSection />
       <BenefitsSection />
@@ -29,6 +44,89 @@ export default async function HomePage() {
       <FaqTeaser />
       <CtaBanner />
     </div>
+  );
+}
+
+type PublicRestaurant = {
+  id: string; name: string; slug: string; logoUrl: string | null;
+  coverImageUrl: string | null; publicDescription: string | null;
+  city: string | null; restaurantType: string | null; isFeatured: boolean;
+};
+
+const TYPE_LABELS: Record<string, string> = {
+  algerian: "Cuisine algérienne", fast_food: "Fast-food", pizzeria: "Pizzeria",
+  cafe: "Café", grills: "Grillades", seafood: "Fruits de mer", other: "Autre",
+};
+
+function FeaturedRestaurantsSection({ restaurants }: { restaurants: PublicRestaurant[] }) {
+  return (
+    <section className="py-20 bg-white">
+      <div className="max-w-6xl mx-auto px-5">
+        <div className="flex items-end justify-between mb-10">
+          <div>
+            <div className="inline-flex items-center gap-2 bg-orange-50 border border-orange-200 text-orange-700 text-xs font-semibold px-3 py-1.5 rounded-full mb-3">
+              🍽️ Restaurants partenaires
+            </div>
+            <h2 className="text-3xl font-black text-gray-900">
+              Commandez maintenant
+            </h2>
+            <p className="text-gray-500 mt-1">Découvrez nos restaurants disponibles en ligne</p>
+          </div>
+          <Link
+            href="/restaurants"
+            className="hidden md:flex items-center gap-2 text-orange-600 hover:text-orange-700 text-sm font-semibold"
+          >
+            Voir tout <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {restaurants.map((r) => (
+            <Link
+              key={r.id}
+              href={`/restaurants/${r.slug}`}
+              className="group bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg hover:border-orange-200 transition-all"
+            >
+              <div className="relative h-40 bg-gradient-to-br from-orange-100 to-amber-50 overflow-hidden">
+                {r.coverImageUrl ? (
+                  <img src={r.coverImageUrl} alt={r.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="text-5xl opacity-25">🍽️</span>
+                  </div>
+                )}
+                {r.isFeatured && (
+                  <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">⭐ À la une</div>
+                )}
+              </div>
+              <div className="p-4">
+                <h3 className="font-bold text-gray-900 group-hover:text-orange-600 transition-colors">{r.name}</h3>
+                <div className="flex flex-wrap items-center gap-2 mt-1">
+                  {r.city && <span className="text-xs text-gray-500">📍 {r.city}</span>}
+                  {r.restaurantType && TYPE_LABELS[r.restaurantType] && (
+                    <span className="text-xs bg-orange-50 text-orange-600 px-2 py-0.5 rounded-full font-medium">
+                      {TYPE_LABELS[r.restaurantType]}
+                    </span>
+                  )}
+                </div>
+                {r.publicDescription && (
+                  <p className="text-xs text-gray-500 mt-2 line-clamp-2">{r.publicDescription}</p>
+                )}
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        <div className="text-center mt-8 md:hidden">
+          <Link
+            href="/restaurants"
+            className="inline-flex items-center gap-2 text-orange-600 font-semibold text-sm"
+          >
+            Voir tous les restaurants <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+    </section>
   );
 }
 

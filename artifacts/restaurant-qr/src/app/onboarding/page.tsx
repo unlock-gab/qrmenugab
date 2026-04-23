@@ -6,19 +6,19 @@ import { OnboardingClient } from "@/components/onboarding/OnboardingClient";
 
 export default async function OnboardingPage() {
   const session = await getServerSession(authOptions);
-  if (!session) redirect("/login");
-  if (session.user.role !== "MERCHANT_OWNER") redirect("/dashboard");
+  if (!session) redirect("/merchant/login");
+  if (session.user.role !== "MERCHANT_OWNER") redirect("/merchant/dashboard");
 
   const restaurantId = session.user.restaurantId;
-  if (!restaurantId) redirect("/login");
+  if (!restaurantId) redirect("/merchant/login");
 
   const restaurant = await prisma.restaurant.findUnique({
     where: { id: restaurantId },
     include: { _count: { select: { tables: true, categories: true, menuItems: true } } },
   });
 
-  if (!restaurant) redirect("/login");
-  if (restaurant.onboardingCompleted) redirect("/dashboard");
+  if (!restaurant) redirect("/merchant/login");
+  if (restaurant.onboardingCompleted) redirect("/merchant/dashboard");
 
   const categories = await prisma.category.findMany({
     where: { restaurantId },

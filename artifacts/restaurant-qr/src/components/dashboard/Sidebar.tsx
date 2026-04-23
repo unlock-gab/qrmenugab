@@ -9,44 +9,44 @@ import { BranchSwitcher } from "@/components/dashboard/BranchSwitcher";
 type NavItem = { href: string; label: string; icon: string; exact?: boolean };
 
 const OWNER_NAV: NavItem[] = [
-  { href: "/dashboard", label: "Tableau de bord", icon: "◉", exact: true },
-  { href: "/orders", label: "Commandes", icon: "📋" },
-  { href: "/branches", label: "Succursales", icon: "🏪" },
-  { href: "/tables", label: "Tables", icon: "⊞" },
-  { href: "/categories", label: "Catégories", icon: "≡" },
-  { href: "/menu-items", label: "Menu", icon: "✦" },
-  { href: "/promos", label: "Codes promo", icon: "🏷️" },
-  { href: "/reservations", label: "Réservations", icon: "📅" },
-  { href: "/reports", label: "Rapports", icon: "📊" },
-  { href: "/staff", label: "Personnel", icon: "👥" },
-  { href: "/notifications", label: "Notifications", icon: "🔔" },
-  { href: "/settings", label: "Paramètres", icon: "⚙" },
+  { href: "/merchant/dashboard", label: "Tableau de bord", icon: "◉", exact: true },
+  { href: "/merchant/orders", label: "Commandes", icon: "📋" },
+  { href: "/merchant/branches", label: "Succursales", icon: "🏪" },
+  { href: "/merchant/tables", label: "Tables", icon: "⊞" },
+  { href: "/merchant/categories", label: "Catégories", icon: "≡" },
+  { href: "/merchant/menu-items", label: "Menu", icon: "✦" },
+  { href: "/merchant/promos", label: "Codes promo", icon: "🏷️" },
+  { href: "/merchant/reservations", label: "Réservations", icon: "📅" },
+  { href: "/merchant/reports", label: "Rapports", icon: "📊" },
+  { href: "/merchant/staff", label: "Personnel", icon: "👥" },
+  { href: "/merchant/notifications", label: "Notifications", icon: "🔔" },
+  { href: "/merchant/settings", label: "Paramètres", icon: "⚙" },
 ];
 
 const OWNER_OPS_NAV: NavItem[] = [
-  { href: "/kitchen", label: "Cuisine", icon: "🍳" },
-  { href: "/waiter", label: "Serveur", icon: "🍽️" },
-  { href: "/cashier", label: "Caisse", icon: "💰" },
+  { href: "/merchant/kitchen", label: "Cuisine", icon: "🍳" },
+  { href: "/merchant/waiter", label: "Serveur", icon: "🍽️" },
+  { href: "/merchant/cashier", label: "Caisse", icon: "💰" },
 ];
 
 const STAFF_NAV: NavItem[] = [
-  { href: "/dashboard", label: "Tableau de bord", icon: "◉", exact: true },
-  { href: "/orders", label: "Commandes", icon: "📋" },
-  { href: "/tables", label: "Tables", icon: "⊞" },
-  { href: "/menu-items", label: "Menu", icon: "✦" },
+  { href: "/merchant/dashboard", label: "Tableau de bord", icon: "◉", exact: true },
+  { href: "/merchant/orders", label: "Commandes", icon: "📋" },
+  { href: "/merchant/tables", label: "Tables", icon: "⊞" },
+  { href: "/merchant/menu-items", label: "Menu", icon: "✦" },
 ];
 
 const KITCHEN_NAV: NavItem[] = [
-  { href: "/kitchen", label: "Cuisine", icon: "🍳", exact: true },
+  { href: "/merchant/kitchen", label: "Cuisine", icon: "🍳", exact: true },
 ];
 
 const WAITER_NAV: NavItem[] = [
-  { href: "/waiter", label: "Mes tables", icon: "🍽️", exact: true },
-  { href: "/waiter/new-order", label: "Nouvelle commande", icon: "✏️" },
+  { href: "/merchant/waiter", label: "Mes tables", icon: "🍽️", exact: true },
+  { href: "/merchant/waiter/new-order", label: "Nouvelle commande", icon: "✏️" },
 ];
 
 const CASHIER_NAV: NavItem[] = [
-  { href: "/cashier", label: "Caisse", icon: "💰", exact: true },
+  { href: "/merchant/cashier", label: "Caisse", icon: "💰", exact: true },
 ];
 
 const ROLE_LABELS: Record<string, string> = {
@@ -166,7 +166,7 @@ export function Sidebar({ user }: { user: User }) {
         {(role === "MERCHANT_OWNER" || role === "MERCHANT_STAFF") && (
           <div className="pt-2 mt-2 border-t border-gray-800/50">
             <p className="px-3 py-1 text-xs text-gray-600 font-semibold uppercase tracking-widest">Compte</p>
-            <NavLink item={{ href: "/subscription", label: "Abonnement", icon: "📦" }} />
+            <NavLink item={{ href: "/merchant/subscription", label: "Abonnement", icon: "📦" }} />
           </div>
         )}
       </nav>
@@ -184,7 +184,7 @@ export function Sidebar({ user }: { user: User }) {
           </div>
         </div>
         <button
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={() => signOut({ callbackUrl: "/merchant/login" })}
           className="w-full text-left px-3 py-2 text-xs text-gray-500 hover:text-white hover:bg-gray-800 rounded-xl transition-all"
         >
           Déconnexion

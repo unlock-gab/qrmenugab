@@ -9,8 +9,8 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET || process.env.SESSION_SECRET || "dev-local-secret-set-nextauth-secret-in-production",
   pages: {
-    signIn: "/login",
-    error: "/login",
+    signIn: "/merchant/login",
+    error: "/merchant/login",
   },
   providers: [
     CredentialsProvider({

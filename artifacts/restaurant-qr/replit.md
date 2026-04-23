@@ -17,34 +17,56 @@ A production-ready multi-restaurant QR ordering SaaS platform built with Next.js
 - **Styling**: Tailwind CSS + Sonner toasts
 - **Port**: $PORT env var (dev: 21363)
 
-### Key Routes
-- `/` — Landing page
-- `/login`, `/signup` — Auth pages
-- `/onboarding` — New restaurant setup wizard
-- `/dashboard` — Merchant overview
-- `/menu-items` — Menu management (stock, translations, options)
-- `/menu-items/[id]/options` — Item options/modifiers editor
-- `/categories` — Category management
-- `/tables` — QR table management
-- `/orders` — Order management (kitchen view)
-- `/waiter` — Waiter dashboard + pending waiter requests panel
-- `/cashier` — Cashier payment processing (shows finalTotal with discounts)
-- `/promos` — Promo code management
-- `/reservations` — Reservation management
-- `/reports` — Sales & operational reports
-- `/staff` — Staff management
-- `/settings` — Restaurant settings
-- `/subscription` — Subscription plan management
-- `/print/[orderId]` — Print receipt (shows discount, options, finalTotal)
-- `/menu/[slug]/[token]` — Public customer menu (EN/AR, call waiter, promo, options)
+### 3-Space Architecture
+
+**Public Space** (no auth required):
+- `/` — Marketplace homepage (shows featured restaurants from DB)
+- `/restaurants` — Restaurant listing with search/filter by city + type
+- `/restaurants/[slug]` — Restaurant detail + public menu
+- `/menu/[slug]/[token]` — QR customer menu (order flow)
 - `/reserve/[slug]` — Public reservation form
 
+**Merchant Space** (`/merchant/*`, requires merchant auth):
+- `/merchant/login` — Merchant login (French, "Espace Marchand")
+- `/merchant/dashboard` — Merchant overview
+- `/merchant/orders` — Order management
+- `/merchant/menu-items` — Menu management
+- `/merchant/menu-items/[id]/options` — Options/modifiers editor
+- `/merchant/categories` — Category management
+- `/merchant/tables` — QR table management
+- `/merchant/branches` — Branch management
+- `/merchant/kitchen` — Kitchen display
+- `/merchant/waiter` — Waiter dashboard
+- `/merchant/cashier` — Cashier payment processing
+- `/merchant/promos` — Promo code management
+- `/merchant/reservations` — Reservation management
+- `/merchant/reports` — Sales & operational reports
+- `/merchant/staff` — Staff management
+- `/merchant/settings` — Restaurant settings
+- `/merchant/subscription` — Subscription plan management
+- `/merchant/notifications` — Notification log
+
+**Admin Space** (`/admin/*`, requires PLATFORM_ADMIN):
+- `/admin/login` — Platform admin login (dark theme)
+- `/admin/dashboard` — Admin overview
+- `/admin/restaurants` — Restaurant management
+- `/admin/users` — User management
+- `/admin/subscriptions` — Subscription management
+- `/admin/plans` — Plan management
+- `/admin/leads` — Lead management
+
+**Other**:
+- `/signup` — New merchant registration
+- `/onboarding` — Restaurant setup wizard
+- `/print/[orderId]` — Print receipt
+
 ### User Roles
-- `SUPER_ADMIN` — Platform admin
-- `OWNER` — Restaurant owner (full access)
-- `MANAGER` — Restaurant manager
-- `STAFF` — Kitchen/waiter staff
-- `CASHIER` — Payment processing
+- `PLATFORM_ADMIN` — Platform admin (→ /admin/dashboard)
+- `MERCHANT_OWNER` — Restaurant owner (→ /merchant/dashboard)
+- `MERCHANT_STAFF` — General staff (→ /merchant/dashboard)
+- `STAFF_KITCHEN` — Kitchen only (→ /merchant/kitchen)
+- `STAFF_WAITER` — Waiter only (→ /merchant/waiter)
+- `STAFF_CASHIER` — Cashier only (→ /merchant/cashier)
 
 ## Phase 6 Features (Complete)
 

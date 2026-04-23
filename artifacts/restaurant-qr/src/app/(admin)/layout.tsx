@@ -9,8 +9,8 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const session = await getServerSession(authOptions);
-  if (!session) redirect("/login");
-  if (session.user.role !== "PLATFORM_ADMIN") redirect("/dashboard");
+  if (!session) redirect("/admin/login");
+  if (session.user.role !== "PLATFORM_ADMIN") redirect("/merchant/dashboard");
 
   return (
     <div className="flex h-screen bg-slate-900 overflow-hidden">

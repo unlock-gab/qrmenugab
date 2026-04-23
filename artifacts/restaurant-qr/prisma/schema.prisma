@@ -159,6 +159,13 @@ model Restaurant {
   notifyChannels       String?               // JSON array of NotificationChannel values
   // Points config (loyalty)
   pointsPerUnit        Int                   @default(1)
+  // Public discovery fields
+  isPublic             Boolean               @default(false)
+  isFeatured           Boolean               @default(false)
+  city                 String?
+  restaurantType       String?
+  publicDescription    String?
+  coverImageUrl        String?
   users               User[]
   branches            Branch[]
   tables              Table[]

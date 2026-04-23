@@ -80,7 +80,7 @@ export function OnboardingClient({ restaurant, categories: initialCategories }: 
 
   const handleComplete = async () => {
     const ok = await post("complete", {});
-    if (ok) router.push("/dashboard");
+    if (ok) router.push("/merchant/dashboard");
   };
 
   const pct = (step / (STEPS.length - 1)) * 100;

@@ -124,13 +124,13 @@ export function DashboardOverviewClient() {
 
       {/* Main KPI grid */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard value={stats.newOrders} label="Nouvelles commandes" href="/orders?filter=NEW"
+        <StatCard value={stats.newOrders} label="Nouvelles commandes" href="/merchant/orders?filter=NEW"
           color="text-blue-600" icon="🔔"
           sub={stats.newOrders === 0 ? "Aucune en attente" : undefined}
           urgent={stats.newOrders > 0} />
-        <StatCard value={stats.preparingOrders} label="En préparation" href="/orders?filter=PREPARING"
+        <StatCard value={stats.preparingOrders} label="En préparation" href="/merchant/orders?filter=PREPARING"
           color="text-amber-600" icon="👨‍🍳" sub="En cuisine" />
-        <StatCard value={stats.readyOrders} label="Prêtes à servir" href="/orders?filter=READY"
+        <StatCard value={stats.readyOrders} label="Prêtes à servir" href="/merchant/orders?filter=READY"
           color="text-emerald-600" icon="✅" sub="À récupérer" />
         <StatCard value={formatDA(stats.todayRevenue)} label="Chiffre d'affaires" icon="💰"
           color="text-gray-900" sub={`${stats.servedPaidToday} commandes payées`} />
@@ -146,7 +146,7 @@ export function DashboardOverviewClient() {
           <p className="text-2xl font-bold text-gray-900">{stats.tableCount}</p>
           <p className="text-sm text-gray-500 mt-0.5">Tables actives</p>
         </div>
-        <Link href="/cashier" className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-red-200 hover:shadow-md transition-all block">
+        <Link href="/merchant/cashier" className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-red-200 hover:shadow-md transition-all block">
           <p className={`text-2xl font-bold ${stats.unpaidOrders > 0 ? "text-red-600" : "text-gray-900"}`}>
             {stats.unpaidOrders}
           </p>
@@ -157,21 +157,21 @@ export function DashboardOverviewClient() {
 
       {/* Operational shortcuts */}
       <div className="grid grid-cols-3 gap-3 mb-6">
-        <Link href="/kitchen" className="flex items-center gap-3 bg-gray-900 hover:bg-gray-800 rounded-2xl p-4 transition-all">
+        <Link href="/merchant/kitchen" className="flex items-center gap-3 bg-gray-900 hover:bg-gray-800 rounded-2xl p-4 transition-all">
           <span className="text-2xl">🍳</span>
           <div>
             <p className="text-white font-semibold text-sm">Cuisine</p>
             <p className="text-gray-400 text-xs">{stats.newOrders + stats.preparingOrders} actives</p>
           </div>
         </Link>
-        <Link href="/waiter" className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 rounded-2xl p-4 transition-all">
+        <Link href="/merchant/waiter" className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 rounded-2xl p-4 transition-all">
           <span className="text-2xl">🍽️</span>
           <div>
             <p className="text-white font-semibold text-sm">Serveur</p>
             <p className="text-blue-200 text-xs">{stats.readyOrders} prêtes</p>
           </div>
         </Link>
-        <Link href="/cashier" className="flex items-center gap-3 bg-violet-600 hover:bg-violet-700 rounded-2xl p-4 transition-all">
+        <Link href="/merchant/cashier" className="flex items-center gap-3 bg-violet-600 hover:bg-violet-700 rounded-2xl p-4 transition-all">
           <span className="text-2xl">💰</span>
           <div>
             <p className="text-white font-semibold text-sm">Caisse</p>
@@ -188,7 +188,7 @@ export function DashboardOverviewClient() {
               <h2 className="text-base font-bold text-gray-900">Commandes actives</h2>
               <p className="text-xs text-gray-400 mt-0.5">{activeCount} commande{activeCount > 1 ? "s" : ""} à traiter</p>
             </div>
-            <Link href="/orders" className="text-sm text-orange-500 hover:text-orange-600 font-semibold">
+            <Link href="/merchant/orders" className="text-sm text-orange-500 hover:text-orange-600 font-semibold">
               Voir tout →
             </Link>
           </div>

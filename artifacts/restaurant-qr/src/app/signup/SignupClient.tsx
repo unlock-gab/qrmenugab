@@ -74,7 +74,7 @@ export function SignupClient({ plans, selectedPlanId }: Props) {
       if (result?.ok) {
         router.push("/onboarding");
       } else {
-        router.push("/login");
+        router.push("/merchant/login");
       }
     } catch (err: any) {
       toast.error(err.message || "Signup failed. Please try again.");

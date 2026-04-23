@@ -101,7 +101,7 @@ export function AdminSidebar({ user }: { user: User }) {
           </div>
         </div>
         <button
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={() => signOut({ callbackUrl: "/merchant/login" })}
           className="w-full text-left px-3 py-2 text-xs text-slate-500 hover:text-white hover:bg-slate-800 rounded-xl transition-all"
         >
           Sign out

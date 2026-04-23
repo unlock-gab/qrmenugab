@@ -38,7 +38,7 @@ export function Footer() {
             <div className="space-y-3">
               {[
                 { href: "/signup", label: "Start Free Trial" },
-                { href: "/login", label: "Sign In" },
+                { href: "/merchant/login", label: "Connexion" },
                 { href: "/contact", label: "Request Demo" },
               ].map((l) => (
                 <Link key={l.href} href={l.href} className="block text-sm text-gray-500 hover:text-white transition-colors">

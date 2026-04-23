@@ -8,7 +8,7 @@ import PrintClient from "./PrintClient";
 export default async function PrintPage({ params }: { params: Promise<{ orderId: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session?.user || !MERCHANT_ROLES.includes(session.user.role as any)) {
-    redirect("/login");
+    redirect("/merchant/login");
   }
 
   const { orderId } = await params;
@@ -24,7 +24,7 @@ export default async function PrintPage({ params }: { params: Promise<{ orderId:
     },
   });
 
-  if (!order) redirect("/dashboard");
+  if (!order) redirect("/merchant/dashboard");
 
   const serialized = {
     ...order,

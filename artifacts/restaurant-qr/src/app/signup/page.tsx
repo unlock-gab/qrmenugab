@@ -36,7 +36,7 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
   if (session) {
     const role = (session.user as any).role;
     if (role === "PLATFORM_ADMIN") redirect("/admin/dashboard");
-    else redirect("/dashboard");
+    else redirect("/merchant/dashboard");
   }
 
   const plans = await getPublicPlans();
@@ -61,7 +61,7 @@ export default async function SignupPage({ searchParams }: { searchParams: Promi
 
         <p className="text-center text-sm text-gray-500 mt-6">
           Already have an account?{" "}
-          <Link href="/login" className="text-orange-600 font-semibold hover:underline">Sign in</Link>
+          <Link href="/merchant/login" className="text-orange-600 font-semibold hover:underline">Sign in</Link>
         </p>
       </div>
     </div>

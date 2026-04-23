@@ -6,9 +6,9 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { href: "/features", label: "Features" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/how-it-works", label: "How It Works" },
+  { href: "/restaurants", label: "Établissements" },
+  { href: "/features", label: "Fonctionnalités" },
+  { href: "/pricing", label: "Tarifs" },
   { href: "/faq", label: "FAQ" },
 ];
 
@@ -33,7 +33,7 @@ export function Navbar() {
               href={l.href}
               className={cn(
                 "px-4 py-2 rounded-lg text-sm font-medium transition-all",
-                pathname === l.href
+                pathname === l.href || pathname.startsWith(l.href + "/")
                   ? "text-orange-600 bg-orange-50"
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
               )}
@@ -44,15 +44,25 @@ export function Navbar() {
         </nav>
 
         <div className="hidden md:flex items-center gap-3">
-          <Link href="/login" className="text-sm font-medium text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100 transition-all">
-            Sign In
+          <Link
+            href="/merchant/login"
+            className="text-sm font-medium text-gray-600 hover:text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-100 transition-all"
+          >
+            Connexion
           </Link>
-          <Link href="/signup" className="text-sm font-semibold bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl transition-all shadow-md shadow-orange-200 hover:shadow-orange-300">
-            Start Free Trial
+          <Link
+            href="/signup"
+            className="text-sm font-semibold bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl transition-all shadow-md shadow-orange-200 hover:shadow-orange-300"
+          >
+            Essai gratuit
           </Link>
         </div>
 
-        <button className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-all" onClick={() => setOpen(!open)}>
+        <button
+          className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-all"
+          onClick={() => setOpen(!open)}
+          aria-label="Menu"
+        >
           <div className={cn("w-5 h-0.5 bg-gray-600 mb-1 transition-all", open && "rotate-45 translate-y-1.5")} />
           <div className={cn("w-5 h-0.5 bg-gray-600 mb-1 transition-all", open && "opacity-0")} />
           <div className={cn("w-5 h-0.5 bg-gray-600 transition-all", open && "-rotate-45 -translate-y-1.5")} />
@@ -62,17 +72,29 @@ export function Navbar() {
       {open && (
         <div className="md:hidden border-t border-gray-100 bg-white px-5 py-4 space-y-1">
           {navLinks.map((l) => (
-            <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
-              className="block px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-all">
+            <Link
+              key={l.href}
+              href={l.href}
+              onClick={() => setOpen(false)}
+              className="block px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-100 transition-all"
+            >
               {l.label}
             </Link>
           ))}
           <div className="pt-3 space-y-2 border-t border-gray-100 mt-2">
-            <Link href="/login" onClick={() => setOpen(false)} className="block px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 text-center">
-              Sign In
+            <Link
+              href="/merchant/login"
+              onClick={() => setOpen(false)}
+              className="block px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-100 text-center"
+            >
+              Connexion
             </Link>
-            <Link href="/signup" onClick={() => setOpen(false)} className="block px-4 py-2.5 rounded-xl text-sm font-semibold bg-orange-500 text-white text-center hover:bg-orange-600 transition-all">
-              Start Free Trial
+            <Link
+              href="/signup"
+              onClick={() => setOpen(false)}
+              className="block px-4 py-2.5 rounded-xl text-sm font-semibold bg-orange-500 text-white text-center hover:bg-orange-600 transition-all"
+            >
+              Essai gratuit
             </Link>
           </div>
         </div>

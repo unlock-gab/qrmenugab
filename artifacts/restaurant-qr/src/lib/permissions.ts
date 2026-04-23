@@ -98,6 +98,6 @@ export function getDefaultRouteForRole(role?: string | null): string {
     case "STAFF_KITCHEN": return "/kitchen";
     case "STAFF_WAITER": return "/waiter";
     case "STAFF_CASHIER": return "/cashier";
-    default: return "/dashboard";
+    default: return "/merchant/dashboard";
   }
 }
