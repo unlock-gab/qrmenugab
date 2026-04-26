@@ -1823,6 +1823,9 @@
       border-color: color-mix(in oklab, var(--color-violet-500) 20%, transparent);
     }
   }
+  .border-violet-600 {
+    border-color: var(--color-violet-600);
+  }
   .border-white {
     border-color: var(--color-white);
   }
@@ -3950,6 +3953,13 @@
     &:hover {
       @media (hover: hover) {
         border-color: var(--color-violet-200);
+      }
+    }
+  }
+  .hover\:border-violet-300 {
+    &:hover {
+      @media (hover: hover) {
+        border-color: var(--color-violet-300);
       }
     }
   }

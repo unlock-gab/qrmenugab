@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Metadata } from "next";
 import { cache } from "react";
+import { RestaurantMenuClient } from "@/components/marketing/RestaurantMenuClient";
 
 export const revalidate = 60;
 
@@ -37,6 +38,7 @@ const getRestaurant = cache(async (slug: string) =>
         select: {
           id: true,
           name: true,
+          imageUrl: true,
           menuItems: {
             where: { isAvailable: true },
             select: {
@@ -86,8 +88,6 @@ export default async function RestaurantDetailPage({
   const { slug } = await params;
   const restaurant = await getRestaurant(slug);
   if (!restaurant) notFound();
-
-  const hasMenu = restaurant.categories.some((c) => c.menuItems.length > 0);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-16">
@@ -181,61 +181,16 @@ export default async function RestaurantDetailPage({
           </div>
         )}
 
-        {hasMenu ? (
-          <div className="space-y-8">
-            <h2 className="text-xl font-black text-gray-900">Notre Menu</h2>
-            {restaurant.categories
-              .filter((cat) => cat.menuItems.length > 0)
-              .map((cat) => (
-                <div key={cat.id}>
-                  <h3 className="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-100">
-                    {cat.name}
-                  </h3>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    {cat.menuItems.map((item) => (
-                      <div
-                        key={item.id}
-                        className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex gap-3 hover:border-orange-200 transition-all"
-                      >
-                        {item.imageUrl ? (
-                          <div className="relative w-20 h-20 rounded-lg overflow-hidden shrink-0">
-                            <Image
-                              src={item.imageUrl}
-                              alt={item.name}
-                              fill
-                              sizes="80px"
-                              className="object-cover"
-                              loading="lazy"
-                            />
-                          </div>
-                        ) : (
-                          <div className="w-20 h-20 bg-orange-50 rounded-lg flex items-center justify-center shrink-0">
-                            <span className="text-2xl">🍽️</span>
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-gray-900 text-sm">{item.name}</p>
-                          {item.description && (
-                            <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">
-                              {item.description}
-                            </p>
-                          )}
-                          <p className="text-orange-600 font-bold text-sm mt-1">
-                            {Number(item.price).toFixed(0)} DA
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-          </div>
-        ) : (
-          <div className="text-center py-16 text-gray-400">
-            <div className="text-5xl mb-3">📋</div>
-            <p className="font-semibold text-gray-500">Menu bientôt disponible</p>
-          </div>
-        )}
+        <RestaurantMenuClient
+          categories={restaurant.categories.map((cat) => ({
+            ...cat,
+            imageUrl: cat.imageUrl ?? null,
+            menuItems: cat.menuItems.map((item) => ({
+              ...item,
+              price: Number(item.price),
+            })),
+          }))}
+        />
 
         <div className="mt-10 text-center">
           <Link href="/restaurants" className="text-sm text-orange-600 hover:text-orange-700 font-semibold">
