@@ -65,6 +65,11 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(marketing)/restaurants/[slug]/page.js"
+    ],
+    "/menu/[slug]/[token]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/menu/[slug]/[token]/page.js"
     ]
   }
 }
