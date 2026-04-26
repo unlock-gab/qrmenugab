@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
       where: {
         restaurantId,
         status: { in: ["NEW", "PREPARING", "READY"] },
-        ...(branchId ? { branchId } : {}),
+        ...(branchId ? { OR: [{ branchId }, { branchId: null }] } : {}),
       },
       include: {
         table: { select: { tableNumber: true } },

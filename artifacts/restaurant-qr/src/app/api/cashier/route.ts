@@ -15,7 +15,8 @@ export async function GET(req: NextRequest) {
         restaurantId,
         paymentStatus: "UNPAID",
         status: { notIn: ["CANCELLED"] },
-        ...(branchId ? { branchId } : {}),
+        // When branchId is given, show orders for that branch OR orders with no branch set
+        ...(branchId ? { OR: [{ branchId }, { branchId: null }] } : {}),
       },
       include: {
         table: { select: { tableNumber: true } },
