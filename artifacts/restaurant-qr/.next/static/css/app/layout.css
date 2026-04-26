@@ -4695,6 +4695,11 @@
       opacity: 60%;
     }
   }
+  .disabled\:opacity-70 {
+    &:disabled {
+      opacity: 70%;
+    }
+  }
   .in-data-\[side\=left\]\:cursor-w-resize {
     :where(*[data-side="left"]) & {
       cursor: w-resize;

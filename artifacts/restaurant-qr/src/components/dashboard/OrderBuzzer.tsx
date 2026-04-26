@@ -16,89 +16,131 @@ interface Toast {
   orders: NewOrder[];
 }
 
-// ─── Singleton AudioContext ──────────────────────────────────────────────────
-// Browsers block audio until a direct user gesture (click/tap).
-// We create one context, keep it, and resume() it after a user click.
-let _ctx: AudioContext | null = null;
+// ─── Audio engine ─────────────────────────────────────────────────────────────
+// We pre-render a ringtone using OfflineAudioContext (no user gesture needed),
+// convert to a Blob URL, then play via HTMLAudioElement.
+// HTMLAudioElement.play() is reliable on Safari iOS once unlocked by a tap.
 
-function getAudioContext(): AudioContext {
-  if (!_ctx) {
-    const Ctor =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext })
-        .webkitAudioContext;
-    _ctx = new Ctor();
+let audioBlobUrl: string | null = null;
+let audioEl: HTMLAudioElement | null = null;
+let audioReady = false;   // true after user tap unlocks the element
+
+/** Render the iPhone-style ringtone into an AudioBuffer, convert to WAV Blob. */
+async function buildAudioBlob(): Promise<string> {
+  if (audioBlobUrl) return audioBlobUrl;
+
+  const sampleRate = 44100;
+  const totalDur   = 4.2; // 3 rings × 1.4s each
+  const offline    = new OfflineAudioContext(1, Math.ceil(sampleRate * totalDur), sampleRate);
+
+  const melody = [659, 830, 988, 1319]; // E5 → G#5 → B5 → E6
+
+  for (let ring = 0; ring < 3; ring++) {
+    const ringOffset = ring * 1.4;
+
+    // Ascending melody
+    melody.forEach((freq, i) => {
+      const t0 = ringOffset + i * 0.12;
+      [freq, freq * 1.005].forEach((f) => {
+        const osc  = offline.createOscillator();
+        const gain = offline.createGain();
+        osc.connect(gain);
+        gain.connect(offline.destination);
+        osc.type = "sine";
+        osc.frequency.value = f;
+        gain.gain.setValueAtTime(0, t0);
+        gain.gain.linearRampToValueAtTime(0.5, t0 + 0.015);
+        gain.gain.setValueAtTime(0.5, t0 + 0.09);
+        gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.20);
+        osc.start(t0);
+        osc.stop(t0 + 0.25);
+      });
+    });
+
+    // Double-pulse tail
+    [ringOffset + 0.65, ringOffset + 0.85].forEach((ps) => {
+      [880, 1100].forEach((f) => {
+        const osc  = offline.createOscillator();
+        const gain = offline.createGain();
+        osc.connect(gain);
+        gain.connect(offline.destination);
+        osc.type = "sine";
+        osc.frequency.value = f;
+        gain.gain.setValueAtTime(0, ps);
+        gain.gain.linearRampToValueAtTime(0.4, ps + 0.012);
+        gain.gain.setValueAtTime(0.4, ps + 0.10);
+        gain.gain.exponentialRampToValueAtTime(0.001, ps + 0.18);
+        osc.start(ps);
+        osc.stop(ps + 0.22);
+      });
+    });
   }
-  return _ctx;
+
+  const buffer = await offline.startRendering();
+  const wav    = audioBufferToWav(buffer);
+  audioBlobUrl = URL.createObjectURL(new Blob([wav], { type: "audio/wav" }));
+  return audioBlobUrl;
 }
 
-function isAudioUnlocked(): boolean {
-  return !!_ctx && _ctx.state === "running";
+/** Encode AudioBuffer → WAV ArrayBuffer */
+function audioBufferToWav(buffer: AudioBuffer): ArrayBuffer {
+  const numCh   = 1;
+  const sr      = buffer.sampleRate;
+  const samples = buffer.getChannelData(0);
+  const bitsPS  = 16;
+  const bytePS  = bitsPS / 8;
+  const dataLen = samples.length * bytePS;
+  const ab      = new ArrayBuffer(44 + dataLen);
+  const view    = new DataView(ab);
+  const s       = (o: number, v: string) =>
+    [...v].forEach((c, i) => view.setUint8(o + i, c.charCodeAt(0)));
+
+  s(0, "RIFF");
+  view.setUint32(4,  36 + dataLen, true);
+  s(8, "WAVE");
+  s(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);            // PCM
+  view.setUint16(22, numCh, true);
+  view.setUint32(24, sr, true);
+  view.setUint32(28, sr * numCh * bytePS, true);
+  view.setUint16(32, numCh * bytePS, true);
+  view.setUint16(34, bitsPS, true);
+  s(36, "data");
+  view.setUint32(40, dataLen, true);
+
+  let offset = 44;
+  for (let i = 0; i < samples.length; i++) {
+    const s16 = Math.max(-1, Math.min(1, samples[i]));
+    view.setInt16(offset, s16 < 0 ? s16 * 0x8000 : s16 * 0x7fff, true);
+    offset += 2;
+  }
+  return ab;
 }
 
-async function unlockAudio(): Promise<boolean> {
+/** Call once inside a direct user-gesture handler to unlock the audio element. */
+async function unlockAudioElement(): Promise<boolean> {
   try {
-    const ctx = getAudioContext();
-    if (ctx.state === "suspended") await ctx.resume();
-    return ctx.state === "running";
+    const url = await buildAudioBlob();
+    if (!audioEl) {
+      audioEl = new Audio(url);
+      audioEl.volume = 1.0;
+    }
+    // Play then immediately pause — this "unlocks" the element on Safari iOS
+    await audioEl.play();
+    audioEl.pause();
+    audioEl.currentTime = 0;
+    audioReady = true;
+    return true;
   } catch {
     return false;
   }
 }
 
-// ─── Ring synthesizer ────────────────────────────────────────────────────────
-function playPhoneRing() {
-  try {
-    const ctx = getAudioContext();
-    if (ctx.state !== "running") return; // not unlocked yet — silent
-
-    // iPhone-style: ascending E major chord (E5→G#5→B5→E6) × 3 rings
-    const melody = [659, 830, 988, 1319];
-
-    for (let ring = 0; ring < 3; ring++) {
-      const ringStart = ring * 1.4;
-
-      // Ascending melody notes
-      melody.forEach((freq, noteIdx) => {
-        const t0  = ctx.currentTime + ringStart + noteIdx * 0.12;
-        const dur = 0.10;
-
-        [freq, freq * 1.005].forEach((f) => {
-          const osc  = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.type = "sine";
-          osc.frequency.value = f;
-          gain.gain.setValueAtTime(0, t0);
-          gain.gain.linearRampToValueAtTime(0.55, t0 + 0.015);
-          gain.gain.setValueAtTime(0.55, t0 + dur - 0.02);
-          gain.gain.exponentialRampToValueAtTime(0.001, t0 + dur + 0.08);
-          osc.start(t0);
-          osc.stop(t0 + dur + 0.12);
-        });
-      });
-
-      // Double-pulse tail (ring … ring …)
-      [ringStart + 0.65, ringStart + 0.85].forEach((ps) => {
-        [880, 1100].forEach((f) => {
-          const osc  = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-          osc.type = "sine";
-          osc.frequency.value = f;
-          const t0 = ctx.currentTime + ps;
-          gain.gain.setValueAtTime(0, t0);
-          gain.gain.linearRampToValueAtTime(0.45, t0 + 0.012);
-          gain.gain.setValueAtTime(0.45, t0 + 0.10);
-          gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.18);
-          osc.start(t0);
-          osc.stop(t0 + 0.22);
-        });
-      });
-    }
-  } catch {}
+function playRing() {
+  if (!audioEl || !audioReady) return;
+  audioEl.currentTime = 0;
+  audioEl.play().catch(() => {});
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -107,16 +149,24 @@ const POLL_INTERVAL = 10_000;
 const STORAGE_KEY   = "qrmenu_last_order_check";
 
 export function OrderBuzzer() {
-  const [soundOn, setSoundOn]   = useState(false); // true once user unlocks audio
-  const [toasts, setToasts]     = useState<Toast[]>([]);
-  const [ringing, setRinging]   = useState(false);
+  const [soundOn,  setSoundOn]  = useState(false);
+  const [building, setBuilding] = useState(false);
+  const [toasts,   setToasts]   = useState<Toast[]>([]);
+  const [ringing,  setRinging]  = useState(false);
   const seenIdsRef = useRef<Set<string>>(new Set());
   const initRef    = useRef(false);
 
-  // ── Unlock audio via user click ──────────────────────────────────────────
+  // ── Pre-render audio on mount (no gesture needed for OfflineAudioContext) ──
+  useEffect(() => {
+    buildAudioBlob().catch(() => {});
+  }, []);
+
+  // ── Unlock on user click ─────────────────────────────────────────────────
   const handleEnableSound = useCallback(async () => {
-    const ok = await unlockAudio();
+    setBuilding(true);
+    const ok = await unlockAudioElement();
     setSoundOn(ok);
+    setBuilding(false);
   }, []);
 
   // ── Dismiss toast ────────────────────────────────────────────────────────
@@ -125,7 +175,7 @@ export function OrderBuzzer() {
     setRinging(false);
   }, []);
 
-  // ── Poll for new NEW orders ──────────────────────────────────────────────
+  // ── Poll for new orders ─────────────────────────────────────────────────
   const poll = useCallback(async () => {
     try {
       const since = localStorage.getItem(STORAGE_KEY)
@@ -146,7 +196,7 @@ export function OrderBuzzer() {
       if (!initRef.current) { initRef.current = true; return; }
 
       if (newOrders.length > 0) {
-        playPhoneRing();       // silent if not unlocked
+        playRing();
         setRinging(true);
         setTimeout(() => setRinging(false), 4_500);
 
@@ -161,27 +211,26 @@ export function OrderBuzzer() {
     if (!localStorage.getItem(STORAGE_KEY)) {
       localStorage.setItem(STORAGE_KEY, new Date(Date.now() - 60_000).toISOString());
     }
-    // Sync initial sound state in case context was created earlier
-    setSoundOn(isAudioUnlocked());
     poll();
-    const interval = setInterval(poll, POLL_INTERVAL);
-    return () => clearInterval(interval);
+    const iv = setInterval(poll, POLL_INTERVAL);
+    return () => clearInterval(iv);
   }, [poll]);
 
   return (
     <>
-      {/* ── Sound enable button (fixed, always visible) ────────────────── */}
+      {/* ── Persistent sound-enable button ──────────────────────────────── */}
       {!soundOn && (
         <button
           onClick={handleEnableSound}
-          title="Cliquez pour activer les alertes sonores des commandes"
-          className="fixed top-[52px] right-3 z-[9998] flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 text-white text-xs font-bold px-3 py-1.5 rounded-b-xl shadow-lg transition-all animate-pulse"
+          disabled={building}
+          title="Cliquez pour recevoir les alertes sonores des nouvelles commandes"
+          className="fixed top-[52px] right-3 z-[9998] flex items-center gap-1.5 bg-amber-500 hover:bg-amber-400 disabled:opacity-70 text-white text-xs font-bold px-3 py-1.5 rounded-b-xl shadow-lg transition-all animate-pulse"
         >
-          🔇 Activer le son
+          {building ? "⏳ Chargement…" : "🔇 Activer le son"}
         </button>
       )}
 
-      {/* ── Toast notifications ─────────────────────────────────────────── */}
+      {/* ── Toasts ──────────────────────────────────────────────────────── */}
       {toasts.length > 0 && (
         <div className="fixed bottom-5 right-5 z-[9999] flex flex-col gap-3 pointer-events-none">
           {toasts.map((toast, idx) => (
@@ -212,15 +261,13 @@ export function OrderBuzzer() {
                     {order.orderItems.length > 2 ? ` +${order.orderItems.length - 2}` : ""}
                   </p>
                 ))}
-                <div className="flex items-center gap-3 mt-2">
-                  <Link
-                    href="/merchant/orders"
-                    className="text-xs font-semibold text-violet-400 hover:text-violet-300 transition"
-                    onClick={() => dismissToast(toast.id)}
-                  >
-                    Voir les commandes →
-                  </Link>
-                </div>
+                <Link
+                  href="/merchant/orders"
+                  className="inline-block mt-2 text-xs font-semibold text-violet-400 hover:text-violet-300 transition"
+                  onClick={() => dismissToast(toast.id)}
+                >
+                  Voir les commandes →
+                </Link>
               </div>
 
               <button
@@ -235,21 +282,21 @@ export function OrderBuzzer() {
 
           <style>{`
             @keyframes buzzerSlideUp {
-              from { opacity: 0; transform: translateY(20px) scale(0.96); }
-              to   { opacity: 1; transform: translateY(0) scale(1); }
+              from { opacity:0; transform:translateY(20px) scale(.96); }
+              to   { opacity:1; transform:translateY(0) scale(1); }
             }
             @keyframes buzzerRingShake {
-              0%,100% { transform: rotate(0deg);  }
-              15%     { transform: rotate(-20deg); }
-              30%     { transform: rotate(20deg);  }
-              45%     { transform: rotate(-15deg); }
-              60%     { transform: rotate(15deg);  }
-              75%     { transform: rotate(-8deg);  }
-              90%     { transform: rotate(8deg);   }
+              0%,100%{transform:rotate(0deg);}
+              15%{transform:rotate(-20deg);}
+              30%{transform:rotate(20deg);}
+              45%{transform:rotate(-15deg);}
+              60%{transform:rotate(15deg);}
+              75%{transform:rotate(-8deg);}
+              90%{transform:rotate(8deg);}
             }
-            .buzzer-ring-icon {
-              animation: buzzerRingShake 0.6s ease-in-out infinite;
-              display: inline-block;
+            .buzzer-ring-icon{
+              animation:buzzerRingShake .6s ease-in-out infinite;
+              display:inline-block;
             }
           `}</style>
         </div>
