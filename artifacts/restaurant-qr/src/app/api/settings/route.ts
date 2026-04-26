@@ -4,12 +4,15 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
 
+const urlOrEmpty = z.string().url().or(z.literal("")).or(z.string().startsWith("/uploads/")).nullable().optional();
+
 const updateSettingsSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   description: z.string().max(500).optional().nullable(),
   phone: z.string().max(30).optional().nullable(),
   address: z.string().max(300).optional().nullable(),
-  logoUrl: z.string().url().optional().nullable().or(z.literal("")),
+  logoUrl: urlOrEmpty,
+  coverImageUrl: urlOrEmpty,
   currency: z.string().length(3).optional(),
   soundEnabled: z.boolean().optional(),
 });
@@ -30,6 +33,7 @@ export async function GET() {
       phone: true,
       address: true,
       logoUrl: true,
+      coverImageUrl: true,
       currency: true,
       soundEnabled: true,
     },
@@ -62,6 +66,7 @@ export async function PATCH(req: NextRequest) {
   if (data.phone !== undefined) updateData.phone = data.phone || null;
   if (data.address !== undefined) updateData.address = data.address || null;
   if (data.logoUrl !== undefined) updateData.logoUrl = data.logoUrl || null;
+  if (data.coverImageUrl !== undefined) updateData.coverImageUrl = data.coverImageUrl || null;
   if (data.currency !== undefined) updateData.currency = data.currency;
   if (data.soundEnabled !== undefined) updateData.soundEnabled = data.soundEnabled;
 
@@ -76,6 +81,7 @@ export async function PATCH(req: NextRequest) {
       phone: true,
       address: true,
       logoUrl: true,
+      coverImageUrl: true,
       currency: true,
       soundEnabled: true,
     },

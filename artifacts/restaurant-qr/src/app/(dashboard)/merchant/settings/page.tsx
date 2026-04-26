@@ -18,6 +18,7 @@ export default async function SettingsPage() {
       phone: true,
       address: true,
       logoUrl: true,
+      coverImageUrl: true,
       currency: true,
       soundEnabled: true,
     },

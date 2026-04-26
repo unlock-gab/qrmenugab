@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { toast } from "sonner";
 
 type Restaurant = {
@@ -11,11 +11,107 @@ type Restaurant = {
   phone: string | null;
   address: string | null;
   logoUrl: string | null;
+  coverImageUrl: string | null;
   currency: string;
   soundEnabled: boolean;
 };
 
-const CURRENCIES = ["USD", "EUR", "GBP", "SAR", "AED", "EGP", "MAD", "TND", "QAR", "KWD", "BHD"];
+const CURRENCIES = ["DZD", "USD", "EUR", "GBP", "SAR", "AED", "EGP", "MAD", "TND", "QAR", "KWD", "BHD"];
+
+function ImageUploadField({
+  label,
+  value,
+  onChange,
+  aspect,
+  hint,
+}: {
+  label: string;
+  value: string;
+  onChange: (url: string) => void;
+  aspect: "square" | "banner";
+  hint?: string;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erreur upload");
+      onChange(data.url);
+      toast.success("Photo téléchargée ✓");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Échec du téléchargement");
+    } finally {
+      setUploading(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }, [onChange]);
+
+  const isBanner = aspect === "banner";
+
+  return (
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={handleFile}
+      />
+      {value ? (
+        <div className="relative group">
+          <img
+            src={value}
+            alt={label}
+            className={`w-full object-cover rounded-xl border border-gray-200 ${isBanner ? "h-36" : "h-28 w-28"}`}
+          />
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition rounded-xl flex items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              disabled={uploading}
+              className="px-3 py-1.5 bg-white text-gray-800 text-xs font-semibold rounded-lg hover:bg-gray-100 transition"
+            >
+              {uploading ? "..." : "Changer"}
+            </button>
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              className="px-3 py-1.5 bg-red-500 text-white text-xs font-semibold rounded-lg hover:bg-red-600 transition"
+            >
+              Supprimer
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => inputRef.current?.click()}
+          disabled={uploading}
+          className={`w-full border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 hover:bg-gray-100 hover:border-orange-300 transition flex flex-col items-center justify-center gap-2 text-gray-400 disabled:opacity-50 ${isBanner ? "h-36" : "h-28"}`}
+        >
+          {uploading ? (
+            <span className="w-6 h-6 border-2 border-orange-400 border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <>
+              <span className="text-2xl">{isBanner ? "🖼️" : "🏷️"}</span>
+              <span className="text-sm font-medium">Cliquer pour ajouter</span>
+              {hint && <span className="text-xs">{hint}</span>}
+            </>
+          )}
+        </button>
+      )}
+    </div>
+  );
+}
 
 export function SettingsClient({ restaurant }: { restaurant: Restaurant }) {
   const [form, setForm] = useState({
@@ -24,6 +120,7 @@ export function SettingsClient({ restaurant }: { restaurant: Restaurant }) {
     phone: restaurant.phone || "",
     address: restaurant.address || "",
     logoUrl: restaurant.logoUrl || "",
+    coverImageUrl: restaurant.coverImageUrl || "",
     currency: restaurant.currency,
     soundEnabled: restaurant.soundEnabled,
   });
@@ -37,7 +134,7 @@ export function SettingsClient({ restaurant }: { restaurant: Restaurant }) {
 
   const handleSave = async () => {
     if (!form.name.trim()) {
-      toast.error("Restaurant name is required");
+      toast.error("Le nom du restaurant est requis");
       return;
     }
     setSaving(true);
@@ -49,7 +146,8 @@ export function SettingsClient({ restaurant }: { restaurant: Restaurant }) {
         description: form.description.trim() || null,
         phone: form.phone.trim() || null,
         address: form.address.trim() || null,
-        logoUrl: form.logoUrl.trim() || null,
+        logoUrl: form.logoUrl || null,
+        coverImageUrl: form.coverImageUrl || null,
         currency: form.currency,
         soundEnabled: form.soundEnabled,
       }),
@@ -57,20 +155,62 @@ export function SettingsClient({ restaurant }: { restaurant: Restaurant }) {
     setSaving(false);
     if (res.ok) {
       setSaved(true);
-      toast.success("Settings saved successfully");
+      toast.success("Paramètres enregistrés");
     } else {
       const data = await res.json();
-      toast.error(data.error || "Failed to save settings");
+      toast.error(data.error || "Échec de l'enregistrement");
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Restaurant Info</h2>
+        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Photos du restaurant</h2>
+        <div className="space-y-5">
+          <ImageUploadField
+            label="Photo de couverture"
+            value={form.coverImageUrl}
+            onChange={(url) => handleChange("coverImageUrl", url)}
+            aspect="banner"
+            hint="JPG, PNG ou WebP — recommandé 1200×400"
+          />
+          <div className="flex items-start gap-4">
+            <div className="flex-1">
+              <ImageUploadField
+                label="Logo / Icône"
+                value={form.logoUrl}
+                onChange={(url) => handleChange("logoUrl", url)}
+                aspect="square"
+                hint="Carré recommandé"
+              />
+            </div>
+            {(form.logoUrl || form.coverImageUrl) && (
+              <div className="flex-1 bg-gray-50 rounded-xl p-3 border border-gray-100">
+                <p className="text-xs text-gray-500 mb-2 font-medium">Aperçu carte</p>
+                <div className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm">
+                  {form.coverImageUrl
+                    ? <img src={form.coverImageUrl} alt="cover" className="w-full h-14 object-cover" />
+                    : <div className="w-full h-14 bg-gradient-to-br from-orange-100 to-orange-200" />
+                  }
+                  <div className="px-2 pb-2 -mt-5 flex items-end gap-2">
+                    {form.logoUrl
+                      ? <img src={form.logoUrl} alt="logo" className="w-10 h-10 rounded-lg object-cover border-2 border-white shadow shrink-0" />
+                      : <div className="w-10 h-10 rounded-lg bg-orange-500 border-2 border-white shrink-0" />
+                    }
+                    <span className="text-xs font-bold text-gray-800 truncate pb-0.5">{form.name || "Votre restaurant"}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Informations du restaurant</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Restaurant Name *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Nom du restaurant *</label>
             <input
               type="text"
               value={form.name}
@@ -85,7 +225,7 @@ export function SettingsClient({ restaurant }: { restaurant: Restaurant }) {
             <textarea
               value={form.description}
               onChange={(e) => handleChange("description", e.target.value)}
-              placeholder="A brief description of your restaurant..."
+              placeholder="Une courte description de votre restaurant..."
               rows={2}
               className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
             />
@@ -93,17 +233,17 @@ export function SettingsClient({ restaurant }: { restaurant: Restaurant }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Phone</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Téléphone</label>
               <input
                 type="tel"
                 value={form.phone}
                 onChange={(e) => handleChange("phone", e.target.value)}
-                placeholder="+1 (555) 000-0000"
+                placeholder="+213 555 000 000"
                 className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Currency</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Devise</label>
               <select
                 value={form.currency}
                 onChange={(e) => handleChange("currency", e.target.value)}
@@ -117,31 +257,14 @@ export function SettingsClient({ restaurant }: { restaurant: Restaurant }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Address</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">Adresse</label>
             <input
               type="text"
               value={form.address}
               onChange={(e) => handleChange("address", e.target.value)}
-              placeholder="123 Main Street, City"
+              placeholder="123 Rue Principale, Alger"
               className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Logo URL</label>
-            <input
-              type="url"
-              value={form.logoUrl}
-              onChange={(e) => handleChange("logoUrl", e.target.value)}
-              placeholder="https://example.com/logo.png"
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-            />
-            {form.logoUrl && (
-              <div className="mt-2 flex items-center gap-3">
-                <img src={form.logoUrl} alt="Logo preview" className="w-12 h-12 rounded-xl object-cover border border-gray-200" />
-                <p className="text-xs text-gray-400">Logo preview</p>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -150,8 +273,8 @@ export function SettingsClient({ restaurant }: { restaurant: Restaurant }) {
         <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Notifications</h2>
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-gray-900">Sound notifications</p>
-            <p className="text-xs text-gray-500 mt-0.5">Play a sound when new orders arrive</p>
+            <p className="text-sm font-medium text-gray-900">Notifications sonores</p>
+            <p className="text-xs text-gray-500 mt-0.5">Jouer un son à chaque nouvelle commande</p>
           </div>
           <button
             onClick={() => handleChange("soundEnabled", !form.soundEnabled)}
@@ -163,9 +286,9 @@ export function SettingsClient({ restaurant }: { restaurant: Restaurant }) {
       </div>
 
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">System Info</h2>
+        <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">Informations système</h2>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Restaurant Slug</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Slug du restaurant</label>
           <div className="flex items-center gap-2">
             <input
               type="text"
@@ -176,21 +299,21 @@ export function SettingsClient({ restaurant }: { restaurant: Restaurant }) {
             <button
               onClick={() => {
                 navigator.clipboard.writeText(restaurant.slug);
-                toast.success("Slug copied!");
+                toast.success("Slug copié !");
               }}
               className="px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-600 text-sm font-medium rounded-xl transition"
             >
-              Copy
+              Copier
             </button>
           </div>
-          <p className="text-xs text-gray-400 mt-1">The slug cannot be changed to preserve existing QR codes.</p>
+          <p className="text-xs text-gray-400 mt-1">Le slug ne peut pas être modifié pour préserver les QR codes existants.</p>
         </div>
       </div>
 
       <div className="flex items-center justify-between">
         {saved && (
           <span className="text-sm text-green-600 font-medium flex items-center gap-1.5">
-            <span>✓</span> Saved successfully
+            <span>✓</span> Enregistré avec succès
           </span>
         )}
         <div className="ml-auto">
@@ -199,7 +322,7 @@ export function SettingsClient({ restaurant }: { restaurant: Restaurant }) {
             disabled={saving}
             className="px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white text-sm font-bold rounded-xl transition disabled:opacity-50 shadow-sm"
           >
-            {saving ? "Saving..." : "Save Settings"}
+            {saving ? "Enregistrement..." : "Enregistrer"}
           </button>
         </div>
       </div>
