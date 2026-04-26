@@ -26,35 +26,25 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(marketing)/page.js"
     ],
-    "/api/dashboard/stats/route": [
+    "/api/auth/[...nextauth]/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/dashboard/stats/route.js"
+      "static/chunks/app/api/auth/[...nextauth]/route.js"
     ],
-    "/api/health/route": [
+    "/(auth)/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/health/route.js"
+      "static/chunks/app/(auth)/layout.js"
     ],
-    "/api/notifications/unread/route": [
+    "/(auth)/loading": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/api/notifications/unread/route.js"
+      "static/chunks/app/(auth)/loading.js"
     ],
-    "/(marketing)/restaurants/loading": [
+    "/(auth)/merchant/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(marketing)/restaurants/loading.js"
-    ],
-    "/(marketing)/restaurants/[slug]/loading": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(marketing)/restaurants/[slug]/loading.js"
-    ],
-    "/(marketing)/restaurants/[slug]/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(marketing)/restaurants/[slug]/page.js"
+      "static/chunks/app/(auth)/merchant/login/page.js"
     ]
   }
 }

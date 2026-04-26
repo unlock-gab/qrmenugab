@@ -1,7 +1,5 @@
 {
-  "/api/dashboard/stats/route": "app/api/dashboard/stats/route.js",
-  "/api/health/route": "app/api/health/route.js",
-  "/api/notifications/unread/route": "app/api/notifications/unread/route.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
   "/(marketing)/page": "app/(marketing)/page.js",
-  "/(marketing)/restaurants/[slug]/page": "app/(marketing)/restaurants/[slug]/page.js"
+  "/(auth)/merchant/login/page": "app/(auth)/merchant/login/page.js"
 }

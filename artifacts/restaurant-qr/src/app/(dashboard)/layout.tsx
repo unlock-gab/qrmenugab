@@ -5,6 +5,7 @@ import { cache } from "react";
 import { Sidebar } from "@/components/dashboard/Sidebar";
 import { NotificationBell } from "@/components/dashboard/NotificationBell";
 import { NetworkBanner } from "@/components/NetworkBanner";
+import { OrderBuzzer } from "@/components/dashboard/OrderBuzzer";
 import { prisma } from "@/lib/prisma";
 
 // Cache restaurant status check per request — avoids duplicate DB hits during RSC rendering
@@ -80,6 +81,8 @@ export default async function DashboardLayout({
             {isMerchant && <NotificationBell />}
           </div>
         </div>
+        {/* Order sound + toast notifications for merchants */}
+        {isMerchant && <OrderBuzzer />}
         {/* Contenu principal avec scrolling isolé */}
         <main className="flex-1 overflow-y-auto">
           {children}

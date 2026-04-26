@@ -33,11 +33,13 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
+  const since = searchParams.get("since");
 
   const orders = await prisma.order.findMany({
     where: {
       restaurantId: session.user.restaurantId,
       ...(status ? { status: status as never } : {}),
+      ...(since ? { createdAt: { gte: new Date(since) } } : {}),
     },
     include: {
       table: { select: { tableNumber: true } },
