@@ -1,3 +1,7 @@
 {
-  "/(marketing)/page": "app/(marketing)/page.js"
+  "/api/health/route": "app/api/health/route.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
+  "/api/notifications/unread/route": "app/api/notifications/unread/route.js",
+  "/(marketing)/page": "app/(marketing)/page.js",
+  "/(auth)/merchant/login/page": "app/(auth)/merchant/login/page.js"
 }
