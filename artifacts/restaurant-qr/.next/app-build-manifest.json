@@ -16,6 +16,11 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(marketing)/layout.js"
     ],
+    "/(marketing)/loading": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(marketing)/loading.js"
+    ],
     "/(marketing)/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
@@ -25,6 +30,11 @@
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
       "static/chunks/app/(auth)/layout.js"
+    ],
+    "/(auth)/loading": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(auth)/loading.js"
     ],
     "/(auth)/merchant/login/page": [
       "static/chunks/webpack.js",
