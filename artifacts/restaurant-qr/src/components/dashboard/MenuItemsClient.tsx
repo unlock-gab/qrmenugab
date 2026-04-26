@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { toast } from "sonner";
 import { formatPrice } from "@/lib/utils";
 
@@ -73,6 +73,28 @@ export function MenuItemsClient({ initialItems, categories }: Props) {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [editingStock, setEditingStock] = useState<string | null>(null);
   const [stockInput, setStockInput] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingImage(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erreur upload");
+      setForm((f) => ({ ...f, imageUrl: data.url }));
+      toast.success("Photo téléchargée ✓");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Échec du téléchargement");
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }, []);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -235,9 +257,57 @@ export function MenuItemsClient({ initialItems, categories }: Props) {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">رابط الصورة</label>
-              <input type="url" value={form.imageUrl} onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
-                className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400" placeholder="https://..." />
+              <label className="block text-sm font-medium text-gray-700 mb-1">صورة المنتج</label>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={handleImageUpload}
+              />
+              <div className="flex items-center gap-3">
+                {form.imageUrl ? (
+                  <div className="relative w-20 h-20 shrink-0">
+                    <img
+                      src={form.imageUrl}
+                      alt="aperçu"
+                      className="w-20 h-20 rounded-xl object-cover border border-gray-200"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setForm((f) => ({ ...f, imageUrl: "" }))}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600 shadow"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ) : (
+                  <div className="w-20 h-20 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 flex items-center justify-center shrink-0">
+                    <span className="text-2xl text-gray-300">🖼️</span>
+                  </div>
+                )}
+                <div className="flex-1">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingImage}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-orange-400 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {uploadingImage ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-orange-400 border-t-transparent rounded-full animate-spin" />
+                        Téléchargement...
+                      </>
+                    ) : (
+                      <>
+                        <span>📷</span>
+                        {form.imageUrl ? "Changer la photo" : "Ajouter une photo"}
+                      </>
+                    )}
+                  </button>
+                  <p className="text-xs text-gray-400 mt-1.5 text-center">JPG, PNG ou WebP — max 5 Mo</p>
+                </div>
+              </div>
             </div>
 
             <button type="button" onClick={() => setShowAdvanced(!showAdvanced)}
