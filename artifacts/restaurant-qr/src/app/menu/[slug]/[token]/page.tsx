@@ -74,6 +74,7 @@ export default async function CustomerMenuPage({ params }: PageProps) {
   const serialized = categories.map((cat) => ({
     id: cat.id,
     name: cat.name,
+    imageUrl: cat.imageUrl,
     translationsJson: cat.translationsJson,
     menuItems: cat.menuItems.map((item) => ({
       id: item.id,

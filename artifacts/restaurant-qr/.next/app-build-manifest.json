@@ -26,25 +26,90 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(marketing)/page.js"
     ],
-    "/(marketing)/restaurants/loading": [
+    "/api/health/route": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(marketing)/restaurants/loading.js"
+      "static/chunks/app/api/health/route.js"
     ],
-    "/(marketing)/restaurants/[slug]/loading": [
+    "/(dashboard)/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(marketing)/restaurants/[slug]/loading.js"
+      "static/chunks/app/(dashboard)/layout.js"
     ],
-    "/(marketing)/restaurants/[slug]/page": [
+    "/(dashboard)/loading": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(marketing)/restaurants/[slug]/page.js"
+      "static/chunks/app/(dashboard)/loading.js"
     ],
-    "/(marketing)/restaurants/page": [
+    "/(dashboard)/merchant/loading": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(marketing)/restaurants/page.js"
+      "static/chunks/app/(dashboard)/merchant/loading.js"
+    ],
+    "/(dashboard)/merchant/kitchen/loading": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/merchant/kitchen/loading.js"
+    ],
+    "/(dashboard)/merchant/kitchen/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/merchant/kitchen/page.js"
+    ],
+    "/(dashboard)/merchant/waiter/loading": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/merchant/waiter/loading.js"
+    ],
+    "/(dashboard)/merchant/waiter/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/merchant/waiter/page.js"
+    ],
+    "/(dashboard)/merchant/cashier/loading": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/merchant/cashier/loading.js"
+    ],
+    "/(dashboard)/merchant/cashier/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/merchant/cashier/page.js"
+    ],
+    "/api/notifications/unread/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/notifications/unread/route.js"
+    ],
+    "/api/waiter/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/waiter/route.js"
+    ],
+    "/api/waiter-requests/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/waiter-requests/route.js"
+    ],
+    "/menu/[slug]/[token]/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/menu/[slug]/[token]/page.js"
+    ],
+    "/api/cashier/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/cashier/route.js"
+    ],
+    "/api/kitchen/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/kitchen/route.js"
+    ],
+    "/(dashboard)/merchant/settings/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(dashboard)/merchant/settings/page.js"
     ]
   }
 }

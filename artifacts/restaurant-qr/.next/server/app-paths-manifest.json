@@ -1,5 +1,14 @@
 {
+  "/api/health/route": "app/api/health/route.js",
+  "/api/notifications/unread/route": "app/api/notifications/unread/route.js",
+  "/api/waiter/route": "app/api/waiter/route.js",
+  "/api/waiter-requests/route": "app/api/waiter-requests/route.js",
+  "/api/cashier/route": "app/api/cashier/route.js",
+  "/api/kitchen/route": "app/api/kitchen/route.js",
+  "/menu/[slug]/[token]/page": "app/menu/[slug]/[token]/page.js",
   "/(marketing)/page": "app/(marketing)/page.js",
-  "/(marketing)/restaurants/[slug]/page": "app/(marketing)/restaurants/[slug]/page.js",
-  "/(marketing)/restaurants/page": "app/(marketing)/restaurants/page.js"
+  "/(dashboard)/merchant/kitchen/page": "app/(dashboard)/merchant/kitchen/page.js",
+  "/(dashboard)/merchant/waiter/page": "app/(dashboard)/merchant/waiter/page.js",
+  "/(dashboard)/merchant/cashier/page": "app/(dashboard)/merchant/cashier/page.js",
+  "/(dashboard)/merchant/settings/page": "app/(dashboard)/merchant/settings/page.js"
 }

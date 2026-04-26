@@ -1189,6 +1189,12 @@
     --tw-scale-z: 105%;
     scale: var(--tw-scale-x) var(--tw-scale-y);
   }
+  .scale-110 {
+    --tw-scale-x: 110%;
+    --tw-scale-y: 110%;
+    --tw-scale-z: 110%;
+    scale: var(--tw-scale-x) var(--tw-scale-y);
+  }
   .rotate-45 {
     rotate: 45deg;
   }
@@ -1807,6 +1813,9 @@
   }
   .border-transparent {
     border-color: transparent;
+  }
+  .border-violet-200 {
+    border-color: var(--color-violet-200);
   }
   .border-violet-500\/20 {
     border-color: color-mix(in srgb, oklch(60.6% 0.25 292.717) 20%, transparent);
@@ -4520,6 +4529,11 @@
   .focus\:ring-slate-400 {
     &:focus {
       --tw-ring-color: var(--color-slate-400);
+    }
+  }
+  .focus\:ring-violet-400 {
+    &:focus {
+      --tw-ring-color: var(--color-violet-400);
     }
   }
   .focus\:ring-offset-2 {

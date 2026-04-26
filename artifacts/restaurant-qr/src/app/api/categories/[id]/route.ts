@@ -6,6 +6,7 @@ import { z } from "zod";
 
 const updateCategorySchema = z.object({
   name: z.string().min(1).max(100).optional(),
+  imageUrl: z.string().nullable().optional(),
   sortOrder: z.number().int().min(0).optional(),
   isActive: z.boolean().optional(),
 });

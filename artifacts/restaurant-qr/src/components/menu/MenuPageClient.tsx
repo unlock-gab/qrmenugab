@@ -27,6 +27,7 @@ type MenuItem = {
 type Category = {
   id: string;
   name: string;
+  imageUrl: string | null;
   translationsJson: string | null;
   menuItems: MenuItem[];
 };
@@ -305,21 +306,47 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
         </div>
       </div>
 
-      {/* Category nav */}
+      {/* Category nav — circular images */}
       {categories.length > 1 && (
         <div className="bg-white border-b border-gray-100 sticky top-0 z-20 shadow-sm">
-          <div className="max-w-lg mx-auto px-4 flex gap-1 overflow-x-auto py-2.5 scrollbar-none">
-            {categories.map((cat) => (
-              <button
-                id={`nav-${cat.id}`}
-                key={cat.id}
-                onClick={() => scrollToCategory(cat.id)}
-                style={activeCategory === cat.id ? { background: brand, color: "white" } : {}}
-                className={`px-4 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition shrink-0 ${activeCategory === cat.id ? "" : "bg-gray-100 text-gray-600 hover:bg-orange-50"}`}
-              >
-                {getCatName(cat)}
-              </button>
-            ))}
+          <div className="max-w-lg mx-auto px-4 flex gap-4 overflow-x-auto py-3 scrollbar-none">
+            {categories.map((cat) => {
+              const isActive = activeCategory === cat.id;
+              return (
+                <button
+                  id={`nav-${cat.id}`}
+                  key={cat.id}
+                  onClick={() => scrollToCategory(cat.id)}
+                  className="flex flex-col items-center gap-1.5 shrink-0 group"
+                >
+                  <div
+                    className="w-14 h-14 rounded-full overflow-hidden border-2 transition-all"
+                    style={{ borderColor: isActive ? brand : "transparent", boxShadow: isActive ? `0 0 0 2px ${brand}22` : "none" }}
+                  >
+                    {cat.imageUrl ? (
+                      <img
+                        src={cat.imageUrl}
+                        alt={getCatName(cat)}
+                        className={`w-full h-full object-cover transition ${isActive ? "scale-110" : "group-hover:scale-105"}`}
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full flex items-center justify-center text-xl font-bold"
+                        style={{ background: isActive ? `${brand}18` : "#f3f4f6", color: isActive ? brand : "#9ca3af" }}
+                      >
+                        {getCatName(cat).charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
+                  <span
+                    className="text-xs font-semibold whitespace-nowrap leading-tight"
+                    style={{ color: isActive ? brand : "#6b7280" }}
+                  >
+                    {getCatName(cat)}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
