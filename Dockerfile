@@ -1,8 +1,11 @@
 # ============================================================
 # Stage 1: Install dependencies
 # ============================================================
-FROM node:20-alpine AS deps
-RUN apk add --no-cache libc6-compat openssl
+FROM node:20-slim AS deps
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssl ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -13,7 +16,7 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY tsconfig.base.json tsconfig.json ./
 
-# Copy all package.json files for workspace packages
+# Copy package.json for each workspace package
 COPY artifacts/restaurant-qr/package.json ./artifacts/restaurant-qr/
 COPY lib/ ./lib/
 
@@ -23,8 +26,11 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 # ============================================================
 # Stage 2: Build the Next.js app
 # ============================================================
-FROM node:20-alpine AS builder
-RUN apk add --no-cache libc6-compat openssl
+FROM node:20-slim AS builder
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssl ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -50,8 +56,11 @@ RUN pnpm --filter @workspace/restaurant-qr run build
 # ============================================================
 # Stage 3: Production runner (slim image)
 # ============================================================
-FROM node:20-alpine AS runner
-RUN apk add --no-cache openssl
+FROM node:20-slim AS runner
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssl ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -60,8 +69,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 
 # Create non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
+RUN groupadd --system --gid 1001 nodejs && \
+    useradd --system --uid 1001 --gid nodejs nextjs
 
 # Copy standalone Next.js build
 COPY --from=builder --chown=nextjs:nodejs \
