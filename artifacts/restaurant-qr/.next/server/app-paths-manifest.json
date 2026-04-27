@@ -1,14 +1,1 @@
-{
-  "/api/branches/route": "app/api/branches/route.js",
-  "/api/notifications/unread/route": "app/api/notifications/unread/route.js",
-  "/api/health/route": "app/api/health/route.js",
-  "/api/orders/route": "app/api/orders/route.js",
-  "/api/dashboard/stats/route": "app/api/dashboard/stats/route.js",
-  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js",
-  "/(marketing)/page": "app/(marketing)/page.js",
-  "/(dashboard)/merchant/menu-items/page": "app/(dashboard)/merchant/menu-items/page.js",
-  "/(dashboard)/menu-items/[id]/options/page": "app/(dashboard)/menu-items/[id]/options/page.js",
-  "/(dashboard)/menu-items/page": "app/(dashboard)/menu-items/page.js",
-  "/(dashboard)/merchant/categories/page": "app/(dashboard)/merchant/categories/page.js",
-  "/(dashboard)/merchant/dashboard/page": "app/(dashboard)/merchant/dashboard/page.js"
-}
+{}

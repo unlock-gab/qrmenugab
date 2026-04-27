@@ -1,0 +1,40 @@
+# Git
+.git
+.gitignore
+
+# Node modules (will be installed in Docker)
+**/node_modules
+
+# Next.js build cache
+**/.next
+!**/.next/standalone
+!**/.next/static
+
+# Development files
+attached_assets
+.local
+screenshots
+
+# Replit specific
+.replit
+.replitignore
+.cache
+replit.md
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files (use env vars in Dokploy)
+.env
+.env.local
+.env.*.local
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Test files
+**/__tests__
+**/*.test.ts
+**/*.spec.ts
+coverage
