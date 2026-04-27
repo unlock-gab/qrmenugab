@@ -47,3 +47,13 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Replit workspace assets (screenshots, not needed in git)
+attached_assets/
+.local/skills/
+screenshots/
+
+# Next.js build artifacts
+.next/
+.nuxt/
+.vercel/
