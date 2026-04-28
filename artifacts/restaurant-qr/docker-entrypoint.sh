@@ -2,14 +2,16 @@
 set -e
 
 echo "🚀 Starting QRMenu SaaS..."
+echo "📍 Working directory: $(pwd)"
+echo "🗄️  Database: ${DATABASE_URL:0:40}..."
 
-# Run Prisma migrations
+# Run Prisma migrations using global prisma CLI
 echo "📦 Running database migrations..."
-cd /app/artifacts/restaurant-qr
-npx prisma migrate deploy
+prisma migrate deploy \
+  --schema /app/artifacts/restaurant-qr/prisma/schema.prisma
 
-echo "✅ Migrations done. Starting server on port ${PORT:-3000}..."
+echo "✅ Migrations done."
+echo "🌐 Starting Next.js server on port ${PORT:-3000}..."
 
 # Start Next.js standalone server
-# The standalone output puts server.js in the artifact subfolder
 exec node /app/artifacts/restaurant-qr/server.js
