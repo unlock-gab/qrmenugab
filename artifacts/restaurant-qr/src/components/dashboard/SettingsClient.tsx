@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 
 type Restaurant = {
@@ -32,7 +32,15 @@ function ImageUploadField({
   hint?: string;
 }) {
   const [uploading, setUploading] = useState(false);
+  const [imgError, setImgError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleImgError = () => {
+    setImgError(true);
+    onChange(""); // clear broken URL from form
+  };
+
+  useEffect(() => { setImgError(false); }, [value]);
 
   const handleFile = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -66,11 +74,12 @@ function ImageUploadField({
         className="hidden"
         onChange={handleFile}
       />
-      {value ? (
+      {value && !imgError ? (
         <div className="relative group">
           <img
             src={value}
             alt={label}
+            onError={handleImgError}
             className={`w-full object-cover rounded-xl border border-gray-200 ${isBanner ? "h-36" : "h-28 w-28"}`}
           />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition rounded-xl flex items-center justify-center gap-2">
