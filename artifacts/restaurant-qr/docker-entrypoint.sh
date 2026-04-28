@@ -1,35 +1,53 @@
 #!/bin/sh
-set -e
+# Do NOT use set -e so one failing step doesn't kill the container
 
-echo "=== QRMenu SaaS Startup ==="
-echo "Working dir: $(pwd)"
+echo "=== QRMenu Startup ==="
 echo "Node: $(node --version)"
-echo "DATABASE_URL prefix: ${DATABASE_URL:0:40}..."
+echo "Working dir: $(pwd)"
+echo "DATABASE_URL prefix: ${DATABASE_URL:0:50}..."
 
-# Debug: show what's in /app to confirm server.js location
+# Debug: locate server.js
 echo ""
-echo "=== Files in /app ==="
-ls -la /app/
-echo ""
+echo "=== Locating server.js ==="
+ls /app/ 2>/dev/null || echo "Cannot list /app/"
 
-# In Next.js standalone (pnpm monorepo), server.js is at the WORKSPACE ROOT
-# i.e. /app/server.js — NOT inside artifacts/restaurant-qr/
-SERVER_JS="/app/server.js"
-if [ ! -f "$SERVER_JS" ]; then
-  echo "ERROR: $SERVER_JS not found! Searching..."
-  find /app -name "server.js" -maxdepth 4 2>/dev/null || true
-  exit 1
+# The Next.js standalone COPY puts server.js at /app/server.js (workspace root)
+# In pnpm monorepo, standalone root = workspace root after COPY
+if [ -f "/app/server.js" ]; then
+  SERVER_JS="/app/server.js"
+  echo "Found: /app/server.js"
+elif [ -f "/app/artifacts/restaurant-qr/server.js" ]; then
+  SERVER_JS="/app/artifacts/restaurant-qr/server.js"
+  echo "Found: /app/artifacts/restaurant-qr/server.js"
+else
+  echo "Searching for server.js..."
+  FOUND=$(find /app -name "server.js" -maxdepth 5 2>/dev/null | head -1)
+  if [ -z "$FOUND" ]; then
+    echo "FATAL: No server.js found anywhere in /app"
+    ls -R /app/ 2>/dev/null | head -50
+    exit 1
+  fi
+  SERVER_JS="$FOUND"
+  echo "Found at: $SERVER_JS"
 fi
 
-# Run Prisma migrations
-echo "=== Running DB migrations ==="
-prisma migrate deploy \
-  --schema /app/artifacts/restaurant-qr/prisma/schema.prisma
-echo "=== Migrations complete ==="
+# Run Prisma migrations (non-fatal — log error and continue)
+echo ""
+echo "=== DB Migrations ==="
+if command -v prisma >/dev/null 2>&1; then
+  prisma migrate deploy \
+    --schema /app/artifacts/restaurant-qr/prisma/schema.prisma \
+    && echo "Migrations OK" \
+    || echo "WARNING: Migration failed (app will still start)"
+else
+  echo "WARNING: prisma CLI not found, skipping migrations"
+fi
 
-# HOSTNAME=0.0.0.0 is required in Docker so Next.js listens on all interfaces
+echo ""
+echo "=== Starting Next.js ==="
 export HOSTNAME="0.0.0.0"
 export PORT="${PORT:-3000}"
+echo "Listening on ${HOSTNAME}:${PORT}"
+echo "Server: $SERVER_JS"
 
-echo "Starting Next.js on ${HOSTNAME}:${PORT}..."
 exec node "$SERVER_JS"
