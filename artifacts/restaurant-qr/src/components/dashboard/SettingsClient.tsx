@@ -49,8 +49,10 @@ function ImageUploadField({
       const fd = new FormData();
       fd.append("file", file);
       const res = await fetch("/api/upload", { method: "POST", body: fd });
-      const data = await res.json();
+      let data: { url?: string; error?: string } = {};
+      try { data = await res.json(); } catch { /* non-JSON response */ }
       if (!res.ok) throw new Error(data.error || "Erreur upload");
+      if (!data.url) throw new Error("URL manquante dans la réponse");
       onChange(data.url);
       toast.success("Photo téléchargée ✓");
     } catch (err) {
@@ -161,12 +163,21 @@ export function SettingsClient({ restaurant }: { restaurant: Restaurant }) {
       }),
     });
     setSaving(false);
-    if (res.ok) {
-      setSaved(true);
-      toast.success("Paramètres enregistrés");
-    } else {
+    try {
       const data = await res.json();
-      toast.error(data.error || "Échec de l'enregistrement");
+      if (res.ok) {
+        setSaved(true);
+        toast.success("Paramètres enregistrés");
+      } else {
+        toast.error(data?.error || "Échec de l'enregistrement");
+      }
+    } catch {
+      if (res.ok) {
+        setSaved(true);
+        toast.success("Paramètres enregistrés");
+      } else {
+        toast.error("Erreur serveur");
+      }
     }
   };
 
