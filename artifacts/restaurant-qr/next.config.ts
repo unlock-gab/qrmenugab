@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const isDev = process.env.NODE_ENV !== "production";
 
@@ -8,6 +9,9 @@ const productionOrigins = appDomain ? [appDomain, `www.${appDomain}`] : [];
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  // CRITICAL for pnpm monorepo: tell Next.js to trace from workspace root
+  // so it correctly finds Prisma engines in the pnpm virtual store
+  outputFileTracingRoot: path.join(__dirname, "../../"),
   compress: true,
   poweredByHeader: false,
   devIndicators: false,
