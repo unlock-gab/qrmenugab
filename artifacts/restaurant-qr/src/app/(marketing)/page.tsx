@@ -157,7 +157,7 @@ function HeroBanner() {
    with "Populaire ce mois" badges (TableBeep style)
 ───────────────────────────────────────────── */
 function PopularSection({ restaurants }: { restaurants: PublicRestaurant[] }) {
-  const hasRestaurants = restaurants.length > 0;
+  if (restaurants.length === 0) return null;
   return (
     <section className="py-12 bg-white">
       <div className="max-w-7xl mx-auto px-5">
@@ -166,73 +166,49 @@ function PopularSection({ restaurants }: { restaurants: PublicRestaurant[] }) {
           <p className="text-gray-500 text-sm mt-1">Destinations populaires pour les amateurs de café & restaurant</p>
         </div>
 
-        {hasRestaurants ? (
-          /* Horizontal scrolling row */
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
-            {restaurants.map((r) => (
-              <Link
-                key={r.id}
-                href={`/restaurants/${r.slug}`}
-                className="group shrink-0 w-64 snap-start"
-              >
-                <div className="relative h-52 rounded-2xl overflow-hidden bg-gray-100">
-                  {r.coverImageUrl ? (
-                    <Image
-                      src={r.coverImageUrl}
-                      alt={r.name}
-                      fill
-                      sizes="256px"
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-50 to-purple-100">
-                      <span className="text-5xl opacity-30">🍽️</span>
-                    </div>
-                  )}
-                  {/* "Populaire ce mois" badge — always shown like TableBeep */}
-                  <div className="absolute top-3 right-3 bg-violet-600/90 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full">
-                    Populaire ce mois
+        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory">
+          {restaurants.map((r) => (
+            <Link
+              key={r.id}
+              href={`/restaurants/${r.slug}`}
+              className="group shrink-0 w-64 snap-start"
+            >
+              <div className="relative h-52 rounded-2xl overflow-hidden bg-gray-100">
+                {r.coverImageUrl ? (
+                  <Image
+                    src={r.coverImageUrl}
+                    alt={r.name}
+                    fill
+                    sizes="256px"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-violet-50 to-purple-100">
+                    <span className="text-5xl opacity-30">🍽️</span>
                   </div>
-                </div>
-                <div className="mt-3 px-1">
-                  <h3 className="font-bold text-gray-900 text-sm group-hover:text-violet-600 transition-colors truncate">
-                    {r.name}
-                  </h3>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    {r.city && (
-                      <span className="text-xs text-gray-400 flex items-center gap-0.5">
-                        <MapPin className="w-3 h-3" />{r.city}
-                      </span>
-                    )}
-                    {r.restaurantType && TYPE_LABELS[r.restaurantType] && (
-                      <span className="text-xs text-gray-400">· {TYPE_LABELS[r.restaurantType]}</span>
-                    )}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        ) : (
-          /* Empty state — show placeholder cards */
-          <div className="flex gap-4 overflow-x-auto pb-4">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="shrink-0 w-64">
-                <div className="relative h-52 rounded-2xl overflow-hidden bg-gradient-to-br from-violet-50 to-purple-100">
-                  <div className="absolute top-3 right-3 bg-violet-600/90 text-white text-xs font-semibold px-3 py-1 rounded-full">
-                    Populaire ce mois
-                  </div>
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-5xl opacity-20">🍽️</span>
-                  </div>
-                </div>
-                <div className="mt-3 px-1">
-                  <div className="h-4 bg-gray-100 rounded w-3/4 mb-1" />
-                  <div className="h-3 bg-gray-100 rounded w-1/2" />
+                )}
+                <div className="absolute top-3 right-3 bg-violet-600/90 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full">
+                  Populaire ce mois
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+              <div className="mt-3 px-1">
+                <h3 className="font-bold text-gray-900 text-sm group-hover:text-violet-600 transition-colors truncate">
+                  {r.name}
+                </h3>
+                <div className="flex items-center gap-1 mt-0.5">
+                  {r.city && (
+                    <span className="text-xs text-gray-400 flex items-center gap-0.5">
+                      <MapPin className="w-3 h-3" />{r.city}
+                    </span>
+                  )}
+                  {r.restaurantType && TYPE_LABELS[r.restaurantType] && (
+                    <span className="text-xs text-gray-400">· {TYPE_LABELS[r.restaurantType]}</span>
+                  )}
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
 
         <div className="mt-6 text-center">
           <Link
