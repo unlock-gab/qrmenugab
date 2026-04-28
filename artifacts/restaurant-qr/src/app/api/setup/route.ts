@@ -2,14 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-export async function POST(req: NextRequest) {
-  const token = req.headers.get("x-setup-token") || req.nextUrl.searchParams.get("token");
-  const expected = process.env.SETUP_TOKEN || "qrmenu-setup-2026";
-
-  if (token !== expected) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
+async function runSetup() {
   const results: string[] = [];
 
   try {
@@ -46,9 +39,9 @@ export async function POST(req: NextRequest) {
         isActive: true, isPublic: true, isFeatured: false, sortOrder: 3,
       },
     });
-    results.push("✅ Subscription plans created/updated");
+    results.push("✅ Plans d'abonnement créés");
   } catch (e: any) {
-    results.push("❌ Plans error: " + e.message);
+    results.push("❌ Plans: " + e.message);
   }
 
   try {
@@ -64,9 +57,9 @@ export async function POST(req: NextRequest) {
         isActive: true,
       },
     });
-    results.push("✅ Admin user created (admin@platform.com / admin123)");
+    results.push("✅ Admin créé: admin@platform.com / admin123");
   } catch (e: any) {
-    results.push("❌ Admin user error: " + e.message);
+    results.push("❌ Admin: " + e.message);
   }
 
   try {
@@ -88,26 +81,47 @@ export async function POST(req: NextRequest) {
         isActive: true, restaurantId: demoRestaurant.id,
       },
     });
-    results.push("✅ Demo restaurant & merchant created (demo@restaurant.com / demo123)");
+    results.push("✅ Demo: demo@restaurant.com / demo123");
   } catch (e: any) {
-    results.push("❌ Demo data error: " + e.message);
+    results.push("❌ Demo: " + e.message);
   }
 
-  return NextResponse.json({ ok: true, results });
+  return results;
 }
 
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get("token");
   const expected = process.env.SETUP_TOKEN || "qrmenu-setup-2026";
+
   if (token !== expected) {
-    return NextResponse.json({ error: "Unauthorized. Add ?token=your-setup-token" }, { status: 401 });
+    return new Response(
+      `<html><body style="font-family:sans-serif;padding:2rem">
+        <h2>🔐 Setup QRMenu</h2>
+        <p>Ajoutez <code>?token=qrmenu-setup-2026</code> à l'URL pour lancer le setup.</p>
+      </body></html>`,
+      { status: 401, headers: { "Content-Type": "text/html" } }
+    );
   }
-  try {
-    await prisma.$queryRaw`SELECT 1`;
-    const plans = await prisma.subscriptionPlan.count();
-    const users = await prisma.user.count();
-    return NextResponse.json({ db: "connected", plans, users });
-  } catch (e: any) {
-    return NextResponse.json({ db: "error", error: e.message }, { status: 500 });
+
+  const results = await runSetup();
+
+  const html = `<html><body style="font-family:sans-serif;padding:2rem;max-width:600px">
+    <h2>✅ Setup QRMenu terminé</h2>
+    <ul>${results.map((r) => `<li style="margin:8px 0;font-size:1.1rem">${r}</li>`).join("")}</ul>
+    <hr>
+    <p><strong>Admin:</strong> <a href="/admin/login">ai.gab-digital.com/admin/login</a></p>
+    <p>Email: <code>admin@platform.com</code> — Mot de passe: <code>admin123</code></p>
+  </body></html>`;
+
+  return new Response(html, { status: 200, headers: { "Content-Type": "text/html" } });
+}
+
+export async function POST(req: NextRequest) {
+  const token = req.headers.get("x-setup-token") || req.nextUrl.searchParams.get("token");
+  const expected = process.env.SETUP_TOKEN || "qrmenu-setup-2026";
+  if (token !== expected) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const results = await runSetup();
+  return NextResponse.json({ ok: true, results });
 }
