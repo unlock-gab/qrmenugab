@@ -11,7 +11,9 @@ prisma migrate deploy \
   --schema /app/artifacts/restaurant-qr/prisma/schema.prisma
 
 echo "✅ Migrations done."
-echo "🌐 Starting Next.js server on port ${PORT:-3000}..."
+echo "🌐 Starting Next.js server on 0.0.0.0:${PORT:-3000}..."
 
-# Start Next.js standalone server
+# HOSTNAME=0.0.0.0 is required for Docker — otherwise Next.js only listens on 127.0.0.1
+export HOSTNAME="0.0.0.0"
+
 exec node /app/artifacts/restaurant-qr/server.js
