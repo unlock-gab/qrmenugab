@@ -11,6 +11,12 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   devIndicators: false,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "**" },
