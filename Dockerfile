@@ -32,24 +32,27 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
 COPY --from=deps /app/node_modules ./node_modules
+
+# Cache bust — change this number to force a full rebuild: 5
+ARG CACHEBUST=5
+RUN echo "=== Build cache bust: ${CACHEBUST} ==="
+
 COPY . .
 
 RUN pnpm install --frozen-lockfile --ignore-scripts
 
-# Generate Prisma client — downloads query engine binary
+# Generate Prisma client
 RUN cd artifacts/restaurant-qr && npx prisma generate
 
-# Download schema-engine (needed for prisma migrate deploy at runtime)
-# We trigger it by running prisma -v which downloads all engines
-RUN cd artifacts/restaurant-qr && npx prisma version --json || true
-
 # Build Next.js standalone output
-# outputFileTracingRoot in next.config.ts points to /app so engines are traced
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 RUN pnpm --filter @workspace/restaurant-qr run build
 
-# Collect ALL Prisma engine binaries (query + schema) to a known path
+# Debug: confirm server.js location in standalone
+RUN echo "=== Standalone root ===" && ls -la /app/artifacts/restaurant-qr/.next/standalone/ | head -20
+
+# Collect Prisma engine binaries
 RUN mkdir -p /prisma-engines && \
     find /root/.cache/prisma /app/node_modules -maxdepth 10 \( \
       -name "libquery_engine-debian*" \
@@ -58,12 +61,15 @@ RUN mkdir -p /prisma-engines && \
     \) 2>/dev/null | while read f; do \
       cp "$f" /prisma-engines/ 2>/dev/null && echo "Copied: $f" || true; \
     done && \
-    echo "=== Engines collected ===" && ls -la /prisma-engines/ || true
+    echo "=== Engines ===" && ls -la /prisma-engines/ || true
 
 # ============================================================
 # Stage 3: Production runner
 # ============================================================
 FROM node:20-slim AS runner
+
+ARG CACHEBUST=5
+LABEL build_version="2026-04-28-v5"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     openssl ca-certificates && \
@@ -79,15 +85,10 @@ ENV HOSTNAME=0.0.0.0
 RUN groupadd --system --gid 1001 nodejs && \
     useradd --system --uid 1001 --gid nodejs nextjs
 
-# Copy the standalone Next.js build
-# With outputFileTracingRoot=/app, standalone mirrors workspace root structure:
-#   /app/server.js                                    ← entry point
-#   /app/node_modules/                                ← traced deps
-#   /app/artifacts/restaurant-qr/.next/server/        ← server bundles
+# Copy standalone build (server.js at workspace root → /app/server.js)
 COPY --from=builder --chown=nextjs:nodejs \
     /app/artifacts/restaurant-qr/.next/standalone ./
 
-# Copy static assets and public files
 COPY --from=builder --chown=nextjs:nodejs \
     /app/artifacts/restaurant-qr/.next/static \
     ./artifacts/restaurant-qr/.next/static
@@ -96,24 +97,17 @@ COPY --from=builder --chown=nextjs:nodejs \
     /app/artifacts/restaurant-qr/public \
     ./artifacts/restaurant-qr/public
 
-# Copy Prisma schema + migrations
 COPY --from=builder --chown=nextjs:nodejs \
     /app/artifacts/restaurant-qr/prisma \
     ./artifacts/restaurant-qr/prisma
 
-# Copy Prisma engine binaries
 RUN mkdir -p /prisma-engines
 COPY --from=builder /prisma-engines /prisma-engines
 
-# Install Prisma CLI globally for running migrations at startup
-RUN npm install -g prisma@6.19.3 --quiet && \
-    rm -rf ~/.npm
+# Install Prisma CLI globally for migrations
+RUN npm install -g prisma@6.19.3 --quiet && rm -rf ~/.npm
 
-# Point Prisma to the correct engine binary locations
-ENV PRISMA_QUERY_ENGINE_LIBRARY=/prisma-engines
-ENV PRISMA_SCHEMA_ENGINE_BINARY=/prisma-engines
-
-# Entrypoint script
+# Entrypoint
 COPY --chown=nextjs:nodejs artifacts/restaurant-qr/docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x ./docker-entrypoint.sh
 
