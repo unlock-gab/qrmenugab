@@ -33,8 +33,8 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 
 COPY --from=deps /app/node_modules ./node_modules
 
-# Cache bust — change this number to force a full rebuild: 5
-ARG CACHEBUST=6
+# Cache bust — change this number to force a full rebuild: 7
+ARG CACHEBUST=7
 RUN echo "=== Build cache bust: ${CACHEBUST} ==="
 
 COPY . .
@@ -68,8 +68,8 @@ RUN mkdir -p /prisma-engines && \
 # ============================================================
 FROM node:20-slim AS runner
 
-ARG CACHEBUST=6
-LABEL build_version="2026-04-28-v5"
+ARG CACHEBUST=7
+LABEL build_version="2026-04-28-v7"
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     openssl ca-certificates && \

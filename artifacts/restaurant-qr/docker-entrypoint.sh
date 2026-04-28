@@ -1,11 +1,17 @@
 #!/bin/sh
 # QRMenu production entrypoint — no set -e, failures are handled manually
 
-echo "=== QRMenu v6 ==="
+echo "=== QRMenu v7 ==="
 echo "Node: $(node --version)"
 echo "PORT=${PORT:-3000}"
 
 SCHEMA="/app/artifacts/restaurant-qr/prisma/schema.prisma"
+
+# ── 0. Create persistent upload directory ──────────────────────────────────
+echo "--- Creating upload directories ---"
+mkdir -p /app/artifacts/restaurant-qr/public/uploads
+mkdir -p /app/public/uploads
+echo "✅ Upload dirs ready"
 
 # ── 1. Run DB migrations ────────────────────────────────────────────────────
 echo "--- DB Migrations ---"

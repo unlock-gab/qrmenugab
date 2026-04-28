@@ -8,6 +8,21 @@ import { randomUUID } from "crypto";
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const MAX_SIZE = 5 * 1024 * 1024;
 
+// Resolve persistent upload directory
+// In standalone Docker: /app/artifacts/restaurant-qr/public/uploads
+// In dev: <workspace>/artifacts/restaurant-qr/public/uploads
+function getUploadDir(): string {
+  const cwd = process.cwd();
+  // Standalone: cwd = /app, public is at /app/artifacts/restaurant-qr/public
+  // Dev: cwd = /home/runner/workspace, public is inside artifacts/restaurant-qr/public
+  const candidates = [
+    path.join(cwd, "artifacts", "restaurant-qr", "public", "uploads"),
+    path.join(cwd, "public", "uploads"),
+  ];
+  // Return first that is writable — we'll create it on upload
+  return candidates[0];
+}
+
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user) {
@@ -46,13 +61,20 @@ export async function POST(req: NextRequest) {
     : "jpg";
 
   const filename = `${randomUUID()}.${ext}`;
-  const uploadDir = path.join(process.cwd(), "public", "uploads", "menu-items");
+  const uploadDir = getUploadDir();
 
-  await mkdir(uploadDir, { recursive: true });
+  try {
+    await mkdir(uploadDir, { recursive: true });
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    await writeFile(path.join(uploadDir, filename), buffer);
+  } catch (err) {
+    console.error("[upload] filesystem write failed:", err);
+    return NextResponse.json(
+      { error: "Échec de l'enregistrement du fichier sur le serveur." },
+      { status: 500 }
+    );
+  }
 
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-  await writeFile(path.join(uploadDir, filename), buffer);
-
-  return NextResponse.json({ url: `/uploads/menu-items/${filename}` });
+  return NextResponse.json({ url: `/api/files/${filename}` });
 }
