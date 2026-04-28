@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     } else if (step === "complete") {
       await prisma.restaurant.update({
         where: { id: restaurantId },
-        data: { status: "ACTIVE", onboardingCompleted: true },
+        data: { status: "ACTIVE", onboardingCompleted: true, isPublic: true },
       });
     }
 

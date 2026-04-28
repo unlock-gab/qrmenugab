@@ -70,6 +70,17 @@ export async function PATCH(req: NextRequest) {
   if (data.currency !== undefined) updateData.currency = data.currency;
   if (data.soundEnabled !== undefined) updateData.soundEnabled = data.soundEnabled;
 
+  // Auto-activate restaurant when settings are saved for the first time
+  const current = await prisma.restaurant.findUnique({
+    where: { id: session.user.restaurantId },
+    select: { status: true, isPublic: true },
+  });
+  if (current?.status === "PENDING_SETUP") {
+    updateData.status = "ACTIVE";
+    updateData.onboardingCompleted = true;
+    updateData.isPublic = true;
+  }
+
   const restaurant = await prisma.restaurant.update({
     where: { id: session.user.restaurantId },
     data: updateData,
