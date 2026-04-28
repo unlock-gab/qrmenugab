@@ -42,27 +42,32 @@ export default async function RestaurantsPage({
     ];
   }
 
-  const restaurants = await prisma.restaurant.findMany({
-    where,
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      logoUrl: true,
-      coverImageUrl: true,
-      publicDescription: true,
-      city: true,
-      restaurantType: true,
-      isFeatured: true,
-      _count: { select: { menuItems: true } },
-    },
-    orderBy: [{ isFeatured: "desc" }, { name: "asc" }],
-  });
-
-  const cities = await prisma.restaurant.groupBy({
-    by: ["city"],
-    where: { status: "ACTIVE", isPublic: true, city: { not: null } },
-  });
+  let restaurants: any[] = [];
+  let cities: any[] = [];
+  try {
+    restaurants = await prisma.restaurant.findMany({
+      where,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        logoUrl: true,
+        coverImageUrl: true,
+        publicDescription: true,
+        city: true,
+        restaurantType: true,
+        isFeatured: true,
+        _count: { select: { menuItems: true } },
+      },
+      orderBy: [{ isFeatured: "desc" }, { name: "asc" }],
+    });
+    cities = await prisma.restaurant.groupBy({
+      by: ["city"],
+      where: { status: "ACTIVE", isPublic: true, city: { not: null } },
+    });
+  } catch (err) {
+    console.error("[RestaurantsPage] DB query failed:", err);
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20">

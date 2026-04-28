@@ -13,23 +13,35 @@ export const revalidate = 300;
 export const metadata = { title: "QRMenu — Commande QR pour Restaurants & Cafés en Algérie" };
 
 export default async function HomePage() {
-  const session = await getServerSession(authOptions);
-  if (session) {
-    const role = (session.user as any).role;
-    if (role === "PLATFORM_ADMIN") redirect("/admin/dashboard");
-    else redirect("/merchant/dashboard");
+  // Session check — safe to fail silently
+  try {
+    const session = await getServerSession(authOptions);
+    if (session) {
+      const role = (session.user as any).role;
+      if (role === "PLATFORM_ADMIN") redirect("/admin/dashboard");
+      else redirect("/merchant/dashboard");
+    }
+  } catch {
+    // Continue to show public page if session check fails
   }
 
-  const featuredRestaurants = await prisma.restaurant.findMany({
-    where: { status: "ACTIVE", isPublic: true },
-    select: {
-      id: true, name: true, slug: true, logoUrl: true,
-      coverImageUrl: true, publicDescription: true,
-      city: true, restaurantType: true, isFeatured: true,
-    },
-    orderBy: [{ isFeatured: "desc" }, { name: "asc" }],
-    take: 8,
-  });
+  // DB query — safe to fail, shows empty section instead of crashing
+  let featuredRestaurants: PublicRestaurant[] = [];
+  try {
+    featuredRestaurants = await prisma.restaurant.findMany({
+      where: { status: "ACTIVE", isPublic: true },
+      select: {
+        id: true, name: true, slug: true, logoUrl: true,
+        coverImageUrl: true, publicDescription: true,
+        city: true, restaurantType: true, isFeatured: true,
+      },
+      orderBy: [{ isFeatured: "desc" }, { name: "asc" }],
+      take: 8,
+    });
+  } catch (err) {
+    console.error("[HomePage] DB query failed:", err);
+    // Continue with empty array — page still renders
+  }
 
   return (
     <div>
