@@ -16,7 +16,6 @@ type Restaurant = {
   soundEnabled: boolean;
 };
 
-const CURRENCIES = ["DZD", "USD", "EUR", "GBP", "SAR", "AED", "EGP", "MAD", "TND", "QAR", "KWD", "BHD"];
 
 function ImageUploadField({
   label,
@@ -130,7 +129,7 @@ export function SettingsClient({ restaurant }: { restaurant: Restaurant }) {
     address: restaurant.address || "",
     logoUrl: restaurant.logoUrl || "",
     coverImageUrl: restaurant.coverImageUrl || "",
-    currency: restaurant.currency,
+    currency: "DZD",
     soundEnabled: restaurant.soundEnabled,
   });
   const [saving, setSaving] = useState(false);
@@ -253,15 +252,9 @@ export function SettingsClient({ restaurant }: { restaurant: Restaurant }) {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">Devise</label>
-              <select
-                value={form.currency}
-                onChange={(e) => handleChange("currency", e.target.value)}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
-              >
-                {CURRENCIES.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
+              <div className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm bg-gray-50 text-gray-700 font-semibold">
+                DZD — Dinar Algérien
+              </div>
             </div>
           </div>
 

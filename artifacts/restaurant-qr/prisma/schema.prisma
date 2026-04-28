@@ -146,7 +146,7 @@ model Restaurant {
   phone               String?
   address             String?
   logoUrl             String?
-  currency            String                  @default("USD")
+  currency            String                  @default("DZD")
   soundEnabled        Boolean                 @default(true)
   status              RestaurantStatus        @default(PENDING_SETUP)
   onboardingCompleted Boolean                 @default(false)
