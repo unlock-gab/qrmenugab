@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 const today = () => new Date(new Date().setHours(0, 0, 0, 0));
+const tomorrow = () => new Date(new Date().setHours(24, 0, 0, 0));
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -25,6 +26,9 @@ export async function GET() {
     servedPaidToday,
     unpaidOrders,
     restaurant,
+    pendingReservations,
+    todayReservations,
+    activeWaiterRequests,
   ] = await Promise.all([
     prisma.table.count({ where: { restaurantId, isActive: true } }),
     prisma.menuItem.count({ where: { restaurantId, isAvailable: true } }),
@@ -60,6 +64,22 @@ export async function GET() {
       where: { id: restaurantId },
       select: { name: true, currency: true },
     }),
+    // Pending reservations (not yet confirmed or completed)
+    prisma.reservation.count({
+      where: { restaurantId, status: "PENDING" },
+    }),
+    // Today's confirmed reservations
+    prisma.reservation.count({
+      where: {
+        restaurantId,
+        status: "CONFIRMED",
+        reservationDate: { gte: today(), lt: tomorrow() },
+      },
+    }),
+    // Active waiter requests (PENDING = not yet handled)
+    prisma.waiterRequest.count({
+      where: { restaurantId, status: "PENDING" },
+    }),
   ]);
 
   return NextResponse.json({
@@ -73,6 +93,9 @@ export async function GET() {
     servedPaidToday,
     unpaidOrders,
     restaurant,
+    pendingReservations,
+    todayReservations,
+    activeWaiterRequests,
     recentOrders: recentOrders.map((o) => ({
       id: o.id,
       orderNumber: o.orderNumber,

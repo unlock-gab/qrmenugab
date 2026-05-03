@@ -64,7 +64,7 @@ function getCartKey(menuItemId: string, selectedOptions: SelectedOption[]) {
 export function MenuPageClient({ restaurant, table, categories }: Props) {
   const brand = restaurant.primaryColor || "#f97316";
   const currency = restaurant.currency || "USD";
-  const [lang, setLang] = useState<"en" | "ar">("en");
+  const [lang, setLang] = useState<"en" | "ar">("en"); // "en" = français (default), "ar" = arabe
   const [cart, setCart] = useState<CartItem[]>([]);
   const [showCart, setShowCart] = useState(false);
   const [notes, setNotes] = useState("");
@@ -237,7 +237,8 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
   const getItemName = (item: MenuItem) => parseTranslations(item.translationsJson, lang, "name") || item.name;
   const getItemDesc = (item: MenuItem) => parseTranslations(item.translationsJson, lang, "description") || item.description;
 
-  const t = (en: string, ar: string) => lang === "ar" ? ar : en;
+  // "en" slot = French text (default), "ar" slot = Arabic text
+  const t = (fr: string, ar: string) => lang === "ar" ? ar : fr;
 
   if (orderPlaced) {
     return (
@@ -246,10 +247,10 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
           <div className="w-24 h-24 bg-gradient-to-br from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-green-200">
             <span className="text-4xl">✓</span>
           </div>
-          <h2 className="text-2xl font-black text-gray-900 mb-2">{t("Order Placed!", "تم استلام طلبك!")}</h2>
-          <p className="text-gray-500 text-sm mb-1">{t("Order", "رقم الطلب")} <strong className="text-gray-800">{orderPlaced.orderNumber}</strong></p>
+          <h2 className="text-2xl font-black text-gray-900 mb-2">{t("Commande envoyée !", "تم استلام طلبك!")}</h2>
+          <p className="text-gray-500 text-sm mb-1">{t("Commande", "رقم الطلب")} <strong className="text-gray-800">{orderPlaced.orderNumber}</strong></p>
           <p className="text-gray-500 text-sm mb-6">
-            {t(`Your order has been sent to the kitchen and will be brought to Table ${table.tableNumber}.`, `طلبك في المطبخ وسيُقدَّم لك على الطاولة ${table.tableNumber}.`)}
+            {t(`Votre commande a été envoyée en cuisine. Elle sera apportée à la table ${table.tableNumber}.`, `طلبك في المطبخ وسيُقدَّم لك على الطاولة ${table.tableNumber}.`)}
           </p>
           {orderPlaced.finalTotal > 0 && (
             <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 mb-6 text-sm text-orange-700 font-semibold">
@@ -261,7 +262,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
             style={{ background: brand }}
             className="w-full text-white py-4 rounded-2xl font-bold text-sm hover:opacity-90 transition active:scale-95"
           >
-            {t("Order More", "اطلب المزيد")}
+            {t("Commander encore", "اطلب المزيد")}
           </button>
         </div>
       </div>
@@ -286,13 +287,13 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
               onClick={() => setLang(lang === "en" ? "ar" : "en")}
               className="bg-white/20 hover:bg-white/30 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition"
             >
-              {lang === "en" ? "عر" : "EN"}
+              {lang === "en" ? "عر" : "FR"}
             </button>
             <button
               onClick={() => setShowWaiterModal(true)}
               className="bg-white/20 hover:bg-white/30 text-white px-2.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1"
             >
-              🔔 <span>{t("Waiter", "استدعاء النادل")}</span>
+              🔔 <span>{t("Serveur", "استدعاء النادل")}</span>
             </button>
             {itemCount > 0 && (
               <button
@@ -380,10 +381,10 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
                         <div className="flex items-start gap-2">
                           <h3 className="font-bold text-gray-900 text-sm leading-tight flex-1">{itemName}</h3>
                           {item.isOutOfStock && (
-                            <span className="shrink-0 text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full font-medium">{t("Sold out", "نفذ")}</span>
+                            <span className="shrink-0 text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full font-medium">{t("Épuisé", "نفذ")}</span>
                           )}
                           {!item.isAvailable && !item.isOutOfStock && (
-                            <span className="shrink-0 text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full font-medium">{t("Unavailable", "غير متاح")}</span>
+                            <span className="shrink-0 text-xs bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full font-medium">{t("Indisponible", "غير متاح")}</span>
                           )}
                         </div>
                         {itemDesc && <p className="text-gray-500 text-xs mt-0.5 line-clamp-2">{itemDesc}</p>}
@@ -393,7 +394,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
                           </p>
                         )}
                         {item.optionGroups.length > 0 && (
-                          <p className="text-xs text-orange-500 mt-0.5">{t("Customizable", "قابل للتخصيص")} ✦</p>
+                          <p className="text-xs text-orange-500 mt-0.5">{t("Personnalisable", "قابل للتخصيص")} ✦</p>
                         )}
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-sm font-bold text-gray-900">
@@ -436,7 +437,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
             className="flex items-center gap-3 px-6 py-3.5 rounded-2xl text-white font-bold shadow-xl hover:opacity-90 transition active:scale-95 max-w-sm w-full"
           >
             <span className="bg-white/20 rounded-xl px-2 py-0.5 text-sm">{itemCount}</span>
-            <span className="flex-1 text-center">{t("View Cart", "عرض السلة")}</span>
+            <span className="flex-1 text-center">{t("Voir le panier", "عرض السلة")}</span>
             <span className="text-sm opacity-90">{formatDA(finalTotal)}</span>
           </button>
         </div>
@@ -456,8 +457,8 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
                   <div className="flex items-center justify-between mb-2">
                     <h4 className="font-semibold text-gray-800 text-sm">{group.name}</h4>
                     <div className="flex items-center gap-2">
-                      {group.isRequired && <span className="text-xs text-red-500 font-medium">{t("Required", "مطلوب")}</span>}
-                      <span className="text-xs text-gray-400">{group.selectionType === "SINGLE" ? t("Choose 1", "اختر واحداً") : t("Multiple", "متعدد")}</span>
+                      {group.isRequired && <span className="text-xs text-red-500 font-medium">{t("Obligatoire", "مطلوب")}</span>}
+                      <span className="text-xs text-gray-400">{group.selectionType === "SINGLE" ? t("Choisir 1", "اختر واحداً") : t("Multiple", "متعدد")}</span>
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -493,7 +494,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
                 style={{ background: brand }}
                 className="w-full text-white py-3.5 rounded-2xl font-bold hover:opacity-90 transition active:scale-95"
               >
-                {t("Add to Cart", "أضف للسلة")}
+                {t("Ajouter au panier", "أضف للسلة")}
               </button>
             </div>
           </div>
@@ -505,7 +506,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center" onClick={() => setShowCart(false)}>
           <div className="bg-white w-full max-w-lg rounded-t-3xl max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-gray-100">
-              <h3 className="font-bold text-gray-900 text-lg">{t("Your Order", "طلبك")} · {t("Table", "طاولة")} {table.tableNumber}</h3>
+              <h3 className="font-bold text-gray-900 text-lg">{t("Votre commande", "طلبك")} · {t("Table", "طاولة")} {table.tableNumber}</h3>
               <button onClick={() => setShowCart(false)} className="text-gray-400 hover:text-gray-700 text-xl w-8 h-8 flex items-center justify-center">✕</button>
             </div>
             <div className="overflow-y-auto flex-1 p-5">
@@ -542,7 +543,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
                     <input
                       value={promoCode}
                       onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoError(""); }}
-                      placeholder={t("Promo code", "كود الخصم")}
+                      placeholder={t("Code promo", "كود الخصم")}
                       className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-sm font-mono uppercase focus:outline-none focus:border-orange-300"
                     />
                     <button
@@ -566,12 +567,12 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
 
               <div className="border-t border-gray-100 pt-4 space-y-1.5">
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>{t("Subtotal", "المجموع الجزئي")}</span>
+                  <span>{t("Sous-total", "المجموع الجزئي")}</span>
                   <span>{formatDA(subtotal)}</span>
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between text-sm text-green-600 font-medium">
-                    <span>{t("Discount", "الخصم")}</span>
+                    <span>{t("Réduction", "الخصم")}</span>
                     <span>−{formatDA(discount)}</span>
                   </div>
                 )}
@@ -588,7 +589,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
                 style={{ background: brand }}
                 className="w-full text-white py-4 rounded-2xl font-bold text-base hover:opacity-90 transition active:scale-95 disabled:opacity-50"
               >
-                {ordering ? (t("Sending…", "جاري الإرسال...")) : t("Place Order", "تأكيد الطلب")}
+                {ordering ? (t("Envoi…", "جاري الإرسال...")) : t("Confirmer la commande", "تأكيد الطلب")}
               </button>
             </div>
           </div>
@@ -600,7 +601,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center">
           <div className="bg-white w-full max-w-lg rounded-t-3xl p-6">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="font-bold text-gray-900 text-lg">{t("Call Waiter", "استدعاء النادل")}</h3>
+              <h3 className="font-bold text-gray-900 text-lg">{t("Appeler le serveur", "استدعاء النادل")}</h3>
               <button onClick={() => setShowWaiterModal(false)} className="text-gray-400 hover:text-gray-700 text-xl w-8 h-8 flex items-center justify-center">✕</button>
             </div>
             <div className="space-y-2 mb-6">
@@ -626,7 +627,7 @@ export function MenuPageClient({ restaurant, table, categories }: Props) {
               style={{ background: brand }}
               className="w-full text-white py-4 rounded-2xl font-bold hover:opacity-90 disabled:opacity-50 transition"
             >
-              {sendingRequest ? t("Sending…", "جاري الإرسال...") : t("Send Request", "إرسال الطلب")}
+              {sendingRequest ? t("Envoi…", "جاري الإرسال...") : t("Envoyer la demande", "إرسال الطلب")}
             </button>
           </div>
         </div>

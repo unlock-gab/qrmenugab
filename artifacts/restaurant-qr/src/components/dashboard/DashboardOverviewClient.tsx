@@ -6,38 +6,28 @@ import { formatDA } from "@/lib/i18n";
 
 interface OrderItem { nameSnapshot: string; quantity: number; }
 interface RecentOrder {
-  id: string;
-  orderNumber: string;
-  status: string;
-  total: number;
-  createdAt: string;
-  orderType?: string | null;
-  customerName?: string | null;
+  id: string; orderNumber: string; status: string; total: number; createdAt: string;
+  orderType?: string | null; customerName?: string | null;
   table?: { tableNumber: string } | null;
   branch?: { name: string } | null;
   orderItems: OrderItem[];
 }
 interface Stats {
-  tableCount: number;
-  menuItemCount: number;
-  newOrders: number;
-  preparingOrders: number;
-  readyOrders: number;
-  todayRevenue: number;
-  totalOrdersToday: number;
-  servedPaidToday: number;
-  unpaidOrders: number;
+  tableCount: number; menuItemCount: number;
+  newOrders: number; preparingOrders: number; readyOrders: number;
+  todayRevenue: number; totalOrdersToday: number; servedPaidToday: number; unpaidOrders: number;
+  pendingReservations: number; todayReservations: number; activeWaiterRequests: number;
   recentOrders: RecentOrder[];
   restaurant?: { name: string; currency: string } | null;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; badge: string }> = {
-  NEW:       { label: "Nouveau",      badge: "bg-blue-100 text-blue-700" },
-  PREPARING: { label: "En cours",     badge: "bg-amber-100 text-amber-700" },
-  READY:     { label: "Prêt",         badge: "bg-green-100 text-green-700" },
-  SERVED:    { label: "Servi",        badge: "bg-gray-100 text-gray-600" },
-  PAID:      { label: "Payé",         badge: "bg-purple-100 text-purple-700" },
-  CANCELLED: { label: "Annulé",       badge: "bg-red-100 text-red-600" },
+  NEW:       { label: "Nouveau",  badge: "bg-blue-100 text-blue-700" },
+  PREPARING: { label: "En cours", badge: "bg-amber-100 text-amber-700" },
+  READY:     { label: "Prêt",     badge: "bg-green-100 text-green-700" },
+  SERVED:    { label: "Servi",    badge: "bg-gray-100 text-gray-600" },
+  PAID:      { label: "Payé",     badge: "bg-purple-100 text-purple-700" },
+  CANCELLED: { label: "Annulé",   badge: "bg-red-100 text-red-600" },
 };
 
 const ORDER_TYPE_ICON: Record<string, string> = {
@@ -51,9 +41,7 @@ function timeAgo(iso: string): string {
   return new Date(iso).toLocaleTimeString("fr-DZ", { hour: "2-digit", minute: "2-digit" });
 }
 
-function StatCard({
-  value, label, href, color, icon, sub, urgent,
-}: {
+function StatCard({ value, label, href, color, icon, sub, urgent }: {
   value: number | string; label: string; href?: string; color: string;
   icon: string; sub?: string; urgent?: boolean;
 }) {
@@ -93,18 +81,13 @@ function SkeletonDashboard() {
 export function DashboardOverviewClient() {
   const [stats, setStats] = useState<Stats | null>(null);
 
-  useEffect(() => {
-    fetch("/api/dashboard/stats")
-      .then((r) => r.json())
-      .then(setStats)
-      .catch(() => {});
+  const fetchStats = () => {
+    fetch("/api/dashboard/stats").then((r) => r.json()).then(setStats).catch(() => {});
+  };
 
-    const interval = setInterval(() => {
-      fetch("/api/dashboard/stats")
-        .then((r) => r.json())
-        .then(setStats)
-        .catch(() => {});
-    }, 15000);
+  useEffect(() => {
+    fetchStats();
+    const interval = setInterval(fetchStats, 15000);
     return () => clearInterval(interval);
   }, []);
 
@@ -137,7 +120,7 @@ export function DashboardOverviewClient() {
       </div>
 
       {/* Secondary stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-3 gap-4 mb-5">
         <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
           <p className="text-2xl font-bold text-gray-900">{stats.totalOrdersToday}</p>
           <p className="text-sm text-gray-500 mt-0.5">Commandes aujourd'hui</p>
@@ -147,21 +130,52 @@ export function DashboardOverviewClient() {
           <p className="text-sm text-gray-500 mt-0.5">Tables actives</p>
         </div>
         <Link href="/merchant/cashier" className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:border-red-200 hover:shadow-md transition-all block">
-          <p className={`text-2xl font-bold ${stats.unpaidOrders > 0 ? "text-red-600" : "text-gray-900"}`}>
-            {stats.unpaidOrders}
-          </p>
+          <p className={`text-2xl font-bold ${stats.unpaidOrders > 0 ? "text-red-600" : "text-gray-900"}`}>{stats.unpaidOrders}</p>
           <p className="text-sm text-gray-500 mt-0.5">Commandes impayées</p>
           {stats.unpaidOrders > 0 && <span className="text-xs text-red-500 font-medium">→ Caisse</span>}
         </Link>
       </div>
 
+      {/* Operational alerts row */}
+      {(stats.activeWaiterRequests > 0 || stats.pendingReservations > 0) && (
+        <div className="grid grid-cols-2 gap-4 mb-5">
+          {stats.activeWaiterRequests > 0 && (
+            <Link href="/merchant/service" className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 flex items-center gap-4 hover:bg-amber-100 transition-all">
+              <div className="w-10 h-10 bg-amber-400 rounded-xl flex items-center justify-center text-xl shrink-0 animate-pulse">🔔</div>
+              <div>
+                <p className="text-xl font-black text-amber-800">{stats.activeWaiterRequests}</p>
+                <p className="text-sm text-amber-700 font-semibold">Demande{stats.activeWaiterRequests > 1 ? "s" : ""} de service</p>
+                <p className="text-xs text-amber-600">→ Traiter maintenant</p>
+              </div>
+            </Link>
+          )}
+          {stats.pendingReservations > 0 && (
+            <Link href="/merchant/reservations" className="bg-blue-50 border-2 border-blue-200 rounded-2xl p-4 flex items-center gap-4 hover:bg-blue-100 transition-all">
+              <div className="w-10 h-10 bg-blue-400 rounded-xl flex items-center justify-center text-xl shrink-0">📅</div>
+              <div>
+                <p className="text-xl font-black text-blue-800">{stats.pendingReservations}</p>
+                <p className="text-sm text-blue-700 font-semibold">Réservation{stats.pendingReservations > 1 ? "s" : ""} en attente</p>
+                {stats.todayReservations > 0 && <p className="text-xs text-blue-600">{stats.todayReservations} confirmée{stats.todayReservations > 1 ? "s" : ""} aujourd'hui</p>}
+              </div>
+            </Link>
+          )}
+        </div>
+      )}
+
       {/* Operational shortcuts */}
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      <div className="grid grid-cols-4 gap-3 mb-6">
         <Link href="/merchant/kitchen" className="flex items-center gap-3 bg-gray-900 hover:bg-gray-800 rounded-2xl p-4 transition-all">
           <span className="text-2xl">🍳</span>
           <div>
             <p className="text-white font-semibold text-sm">Cuisine</p>
             <p className="text-gray-400 text-xs">{stats.newOrders + stats.preparingOrders} actives</p>
+          </div>
+        </Link>
+        <Link href="/merchant/service" className={`flex items-center gap-3 rounded-2xl p-4 transition-all ${stats.activeWaiterRequests > 0 ? "bg-amber-500 hover:bg-amber-600" : "bg-amber-100 hover:bg-amber-200"}`}>
+          <span className="text-2xl">🔔</span>
+          <div>
+            <p className={`font-semibold text-sm ${stats.activeWaiterRequests > 0 ? "text-white" : "text-amber-800"}`}>Service</p>
+            <p className={`text-xs ${stats.activeWaiterRequests > 0 ? "text-amber-100" : "text-amber-600"}`}>{stats.activeWaiterRequests} demande{stats.activeWaiterRequests !== 1 ? "s" : ""}</p>
           </div>
         </Link>
         <Link href="/merchant/waiter" className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 rounded-2xl p-4 transition-all">

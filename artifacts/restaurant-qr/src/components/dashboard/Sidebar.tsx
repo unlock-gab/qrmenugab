@@ -25,6 +25,7 @@ const OWNER_NAV: NavItem[] = [
 ];
 
 const OWNER_OPS_NAV: NavItem[] = [
+  { href: "/merchant/service", label: "Service", icon: "🔔" },
   { href: "/merchant/kitchen", label: "Cuisine", icon: "🍳" },
   { href: "/merchant/waiter", label: "Serveur", icon: "🍽️" },
   { href: "/merchant/cashier", label: "Caisse", icon: "💰" },
@@ -35,6 +36,7 @@ const STAFF_NAV: NavItem[] = [
   { href: "/merchant/orders", label: "Commandes", icon: "📋" },
   { href: "/merchant/tables", label: "Tables", icon: "⊞" },
   { href: "/merchant/menu-items", label: "Menu", icon: "✦" },
+  { href: "/merchant/reservations", label: "Réservations", icon: "📅" },
 ];
 
 const KITCHEN_NAV: NavItem[] = [
@@ -43,6 +45,7 @@ const KITCHEN_NAV: NavItem[] = [
 
 const WAITER_NAV: NavItem[] = [
   { href: "/merchant/waiter", label: "Mes tables", icon: "🍽️", exact: true },
+  { href: "/merchant/service", label: "Service", icon: "🔔" },
   { href: "/merchant/waiter/new-order", label: "Nouvelle commande", icon: "✏️" },
 ];
 
