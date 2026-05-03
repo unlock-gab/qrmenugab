@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { OnboardingClient } from "@/components/onboarding/OnboardingClient";
 
+export const metadata = { title: "Configuration du restaurant — QRMenu" };
+
 export default async function OnboardingPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/merchant/login");
@@ -33,9 +35,13 @@ export default async function OnboardingPage() {
         description: restaurant.description,
         phone: restaurant.phone,
         address: restaurant.address,
+        city: restaurant.city,
+        restaurantType: restaurant.restaurantType,
+        logoUrl: restaurant.logoUrl,
         tablesCount: restaurant._count.tables,
         categoriesCount: restaurant._count.categories,
         menuItemsCount: restaurant._count.menuItems,
+        onboardingStep: restaurant.onboardingStep ?? 0,
       }}
       categories={categories}
     />

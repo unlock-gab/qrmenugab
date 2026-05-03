@@ -5,6 +5,7 @@ import Link from "next/link";
 
 type Restaurant = {
   id: string; name: string; slug: string; status: string; createdAt: string;
+  onboardingCompleted: boolean; onboardingStep: number;
   users: Array<{ name: string; email: string }>;
   subscription?: { status: string; plan?: { name: string } } | null;
   _count: { tables: number; menuItems: number; orders: number };
@@ -87,6 +88,7 @@ export default function AdminRestaurantsPage() {
               <th className="text-left p-4 font-medium">Propriétaire</th>
               <th className="text-left p-4 font-medium">Statut</th>
               <th className="text-left p-4 font-medium">Forfait</th>
+              <th className="text-center p-4 font-medium">Onboarding</th>
               <th className="text-center p-4 font-medium">Tables</th>
               <th className="text-center p-4 font-medium">Articles</th>
               <th className="text-right p-4 font-medium">Actions</th>
@@ -126,6 +128,13 @@ export default function AdminRestaurantsPage() {
                 </td>
                 <td className="p-4 text-slate-400">
                   {r.subscription?.plan?.name || <span className="text-slate-600">Aucun forfait</span>}
+                </td>
+                <td className="p-4 text-center">
+                  {r.onboardingCompleted ? (
+                    <span className="inline-flex items-center gap-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold px-2 py-0.5 rounded-full">✓ Complété</span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-semibold px-2 py-0.5 rounded-full">Étape {r.onboardingStep}/4</span>
+                  )}
                 </td>
                 <td className="p-4 text-center text-slate-300">{r._count.tables}</td>
                 <td className="p-4 text-center text-slate-300">{r._count.menuItems}</td>

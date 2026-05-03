@@ -150,6 +150,7 @@ model Restaurant {
   soundEnabled        Boolean                 @default(true)
   status              RestaurantStatus        @default(PENDING_SETUP)
   onboardingCompleted Boolean                 @default(false)
+  onboardingStep      Int                     @default(0)
   primaryColor        String?
   secondaryColor      String?
   // Notification settings
@@ -254,6 +255,7 @@ model Lead {
   city           String?
   message        String?
   source         String   @default("contact_form")
+  businessType   String?
   isRead         Boolean  @default(false)
   createdAt      DateTime @default(now())
 

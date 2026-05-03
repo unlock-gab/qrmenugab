@@ -31,6 +31,8 @@ export async function GET(req: NextRequest) {
           subscription: {
             select: { status: true, plan: { select: { name: true } } },
           },
+          onboardingCompleted: true,
+          onboardingStep: true,
           _count: { select: { tables: true, menuItems: true, orders: true } },
         },
       }),

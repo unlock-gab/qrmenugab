@@ -13,6 +13,7 @@ const OWNER_NAV: NavItem[] = [
   { href: "/merchant/orders", label: "Commandes", icon: "📋" },
   { href: "/merchant/branches", label: "Succursales", icon: "🏪" },
   { href: "/merchant/tables", label: "Tables", icon: "⊞" },
+  { href: "/merchant/qr-center", label: "Centre QR", icon: "📲" },
   { href: "/merchant/categories", label: "Catégories", icon: "≡" },
   { href: "/merchant/menu-items", label: "Menu", icon: "✦" },
   { href: "/merchant/promos", label: "Codes promo", icon: "🏷️" },

@@ -6,7 +6,7 @@ import { Mail, Phone, MapPin, Calendar, Eye } from "lucide-react";
 
 interface Lead {
   id: string; name: string; restaurantName: string | null; email: string;
-  phone: string | null; city: string | null; message: string | null;
+  phone: string | null; city: string | null; businessType: string | null; message: string | null;
   source: string; isRead: boolean; createdAt: string | Date;
 }
 
@@ -97,6 +97,7 @@ export function LeadsClient({ leads: initial }: { leads: Lead[] }) {
                 { icon: Mail, label: "Email", val: selected.email },
                 { icon: Phone, label: "Téléphone", val: selected.phone || "—" },
                 { icon: MapPin, label: "Ville", val: selected.city || "—" },
+
                 { icon: Calendar, label: "Date", val: new Date(selected.createdAt).toLocaleString("fr-DZ") },
               ].map((row) => (
                 <div key={row.label} className="bg-slate-900/50 rounded-xl p-3.5">
