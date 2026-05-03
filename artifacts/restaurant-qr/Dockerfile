@@ -1,11 +1,12 @@
 FROM node:20-alpine AS base
+LABEL build="v3-no-lockfile"
 RUN apk add --no-cache libc6-compat openssl
 
 # ── deps stage ──────────────────────────────────────────────────────────────
 FROM base AS deps
 WORKDIR /app
 
-# Copy workspace manifests (no lockfile — install fresh to avoid mismatch)
+# Copy workspace manifests without lockfile to avoid frozen-lockfile errors
 COPY package.json pnpm-workspace.yaml ./
 COPY artifacts/restaurant-qr/package.json ./artifacts/restaurant-qr/
 RUN npm install -g pnpm@9 && pnpm install --no-frozen-lockfile
