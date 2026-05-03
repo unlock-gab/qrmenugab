@@ -5,10 +5,10 @@ RUN apk add --no-cache libc6-compat openssl
 FROM base AS deps
 WORKDIR /app
 
-# Copy workspace manifests
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# Copy workspace manifests (no lockfile — install fresh to avoid mismatch)
+COPY package.json pnpm-workspace.yaml ./
 COPY artifacts/restaurant-qr/package.json ./artifacts/restaurant-qr/
-RUN npm install -g pnpm@9 && pnpm install --frozen-lockfile
+RUN npm install -g pnpm@9 && pnpm install --no-frozen-lockfile
 
 # ── builder stage ────────────────────────────────────────────────────────────
 FROM base AS builder
