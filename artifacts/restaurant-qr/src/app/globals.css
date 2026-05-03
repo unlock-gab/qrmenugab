@@ -2,7 +2,7 @@
 
 @theme inline {
   --color-background: #fafaf9;
-  --color-foreground: #1c1917;
+  --color-foreground: #111827;
   --font-sans: "Inter", system-ui, sans-serif;
 }
 
@@ -26,8 +26,32 @@
   }
 }
 
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
 @layer utilities {
-  /* Hide scrollbar for horizontal scroll sections */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -48,5 +72,53 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease both;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease both;
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-pulse-dot {
+    animation: pulse-dot 1.5s ease-in-out infinite;
+  }
+
+  .delay-100 { animation-delay: 0.1s; }
+  .delay-200 { animation-delay: 0.2s; }
+  .delay-300 { animation-delay: 0.3s; }
+  .delay-400 { animation-delay: 0.4s; }
+  .delay-500 { animation-delay: 0.5s; }
+
+  .gradient-text {
+    background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #6366f1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-orange {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 50%, #fbbf24 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 }
